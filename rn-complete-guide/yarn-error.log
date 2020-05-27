@@ -1,0 +1,48 @@
+Arguments: 
+  /Users/gunm/.nvm/versions/node/v10.16.1/bin/node /usr/local/bin/yarnpkg install
+
+PATH: 
+  /Users/gunm/.jenv/shims:/Users/gunm/Library/Android/sdk/platform-tools:/Users/gunm/.jenv/bin:/usr/local/opt/maven@3.2/bin:/Users/gunm/.jenv/shims:/Users/gunm/.jenv/bin:/usr/local/opt/maven@3.2/bin:/Users/gunm/.nvm/versions/node/v10.16.1/bin:/Users/gunm/anaconda3/bin:/Users/gunm/flutter/bin:/Library/Frameworks/Python.framework/Versions/2.7/bin:/Users/gunm/anaconda3/bin:/Library/Frameworks/Python.framework/Versions/3.6/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin:/Users/gunm/Dev/tools/build-tools/grapevine
+
+Yarn version: 
+  1.3.2
+
+Node version: 
+  10.16.1
+
+Platform: 
+  darwin x64
+
+npm manifest: 
+  {
+    "main": "node_modules/expo/AppEntry.js",
+    "scripts": {
+      "start": "expo start",
+      "android": "expo start --android",
+      "ios": "expo start --ios",
+      "web": "expo start --web",
+      "eject": "expo eject"
+    },
+    "dependencies": {
+      "expo": "~37.0.3",
+      "react": "~16.9.0",
+      "react-dom": "~16.9.0",
+      "react-native": "https://github.com/expo/react-native/archive/sdk-37.0.1.tar.gz",
+      "react-native-web": "~0.11.7"
+    },
+    "devDependencies": {
+      "babel-preset-expo": "~8.1.0",
+      "@babel/core": "^7.8.6"
+    },
+    "private": true
+  }
+
+yarn manifest: 
+  No manifest
+
+Lockfile: 
+  No lockfile
+
+Trace: 
+  Error: getaddrinfo ENOTFOUND engci-maven-master.cisco.com engci-maven-master.cisco.com:80
+      at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:56:26)
