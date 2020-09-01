@@ -266,3 +266,12 @@ const MainNavigator = createSwitchNavigator({
 
 export default createAppContainer(MainNavigator);
 ```
+### Adding User Signup
+
+*  Firebase has authentication built-in, wWe just need to go to the authentication area there and then click on setup sign in method and there choose password and email or e-mail password here. Enable this and click save and with that, we have it enabled.
+
+* Now we can send requests to a Firebase API to create users or to log them in. Refer : https://firebase.google.com/docs/reference/rest/auth#section-create-email-password
+
+* So what we need to do is send a HTTP request and since I also will manage this all with Redux, I will create a new action creator for this and I'll name it auth.
+
+* I will also already create a reducer because we will also manage some auth related stuff there, for example the token and the userId.
