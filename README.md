@@ -1,3016 +1,378 @@
-## Native Features
+## Building Apps Without Expo
 
-### Navigation Setup in Next Lecture
+### Intro
 
-* you will be using v4 if you install it via 
+* we built React Native apps but we built them with a tool called expo, expo mostly get out of our way but it made building these apps way simpler.
+
+* The setup process is simple, you can test it on your real device without any special configuration neither, you can easily add native modules and you have a huge catalog of built-in native modules and so on. So developing React Native apps with the help of expo is really easy and therefore my recommended way of doing it.
+
+* Now there can be reasons why you might want to build an app without expo,
+
+* for one you must not forget that expo of course works such that you have the expo client on your real device or also on the simulator of course, there we also in the end installed the expo client, so this app on the device and your app kind of gets loaded into that client. Now you still will be able to publish a standalone app as you learned, so you can still publish an app which you upload to the app stores where people don't need to install the client but this published app will in the end kind of include that app wrapper, so it will be a standalone app where people don't need to install the expo client app but the expo client app is part of your app you could say, so people indirectly install it if that makes sense.
+
+* So you always have this wrapper and therefore one reason for not using expo but could be that you want to get rid of that wrapper because as you might imagine, this wrapper whilst still giving you a native app and whilst still giving you the benefits of your views being compiled to native views, whilst all of that is the case, this wrapper of course adds a little bit of size to your app, your app gets bigger.It probably also gets a bit slower because of that extra wrapper, though I still want to emphasize you get a native compiled app, right? Your views still are compiled to native code so you don't lose that,
+
+* it's not like Ionic where Ionic use a native app as a wrapper for a web app, that's not what's happening here, still you have that overhead.So one reason for not using expo might be that you want to get rid of that extra wrapper,
+
+* another reason could be that you need some native device functionality outside of what we used in the native feature module that isn't included in expo, so some feature which you just can't add with the help of expo and then you're stuck. If you need some feature that's not part of expo's of which you can't find here, then you can't add it to a React Native app built with expo, there's no way for that. You can't write your own native code and connect it and you can't bring other third-party packages which tap into native device features, that's not supported in expo.
+
+* So these could be two reasons for why you want to switch away - you want to get rid of that wrapper because every millisecond of performance matters to you and every kilobytes of size matters to you or because of a native feature that's missing.
+
+* But in case something is missing, you can of course also build a React Native app and we can find that on the official docs too without expo.
+
+### Alternatives to Expo
+
+* You could say there are around three ways of building a React Native app -
+  * one is with expo with the so-called managed workflow, - zero setup, it works out of the box, you can easily test the app on a real device, you got lots of native modules built in which are super easy to install and to use. It's controlled with the expo CLI, 
+
+  * Now an alternative to that is that you still use expo but the so-called bare workflow or that you build a React Native app without expo at all with the React Native CLI.
+
+    * Now the expo bare workflow thing can either be created from scratch or by ejecting from the managed workflow(we will see soon)
+
+    * Now when you build an app with the bare workflow, you get a non-expo app, you build a native app as you would build it with the React Native CLI, so you get the same basis there, the difference is that you can still use special expo packages. Installing them is a bit more complex than when you're in the managed workflow, you need to do more manual wire up work, at least for some packages but many, not all but many of the expo packages which are included in the managed workflow are available as standalone packages you can bring to any React Native app as well
+
+    * So you can bring that and with the bare workflow, it's relatively easy to add these packages, not as easy and quick as in the manage workflow but still, very easy. 
+
+    * When building an app without expo at all, with the React Native CLI, you can still bring these packages but then more manual setup is required. Now as I said, it's relatively easy to configure and manage in the bare workflow, you have to manage more in the React Native CLI workflow, so there you really build everything without any support by expo.
+
+    * Regarding the native modules you use, you can use any native module you want, also non-expo ones, you can bring these special expo packages which you need to wire up manually but you can bring any other native module.
+
+    * Now when we come to building the app and distributing it, with the managed workflow you will see in the deployment module that's super easy to do, with the bare workflow it's a bit "harder" in quotes, it requires more work with Android Studio and Xcode and it's not as easy as with the expo managed workflow, you also for example and that's one important restriction, you will not be able to build iOS apps on Windows. That is possible in the managed workflow because the build won't happen on your machine there but in the cloud, with the bare workflow and with the React Native CLI, you are responsible for building the apps and therefore, you need to do it locally on your machine and therefore due to Apple's restrictions, you will not be able to build an iOS app on Windows or Linux,
+
+* In this module I want to show you how you build an app with the React Native CLI, how you also build it with expo in the bare workflow and how you can eject from the managed workflow to the bare workflow. Refer image(alternatives1)
+
+* The way you write your components and so on and which components you use from React Native, that does not differ at all because there was nothing specific about expo in that. Put it in other words if we have a look at the project we worked on earlier in the course, this native module project, essentially what you'll lose when you're not using the managed workflow is all the expo related imports, everything you're importing from expo, that basically is something which now is harder or which you now need to do differently.
+
+* If you're not using expo like in this file, such a file would not need to change at all, only files where you use something from expo need to be adjusted or need to be implemented differently when not using the managed workflow or to be precise, you might not be able to use certain packages anymore or you can still use them and you probably don't even need to touch your code at all but in order to use them you need to do more manual setup work than you need to do with expo and the managed workflow.
+
+### Building Apps with Just the React Native CLI
+
+* So what are our alternatives to the managed workflow? One alternative is to use the React Native CLI, Refer : https://reactnative.dev/docs/environment-setup
+
+* Based on your Development OS and Targeted OS we have to follow different steps just follow that.. but android studio and Xcode are mandtory tools.
+
+* Now you also no matter for which platform you're working, you also need to install the React Native CLI,
 
 ```js
-npm install --save react-navigation
+sudo npm install -g react-native-cli
 ```
-* That's fine, just keep in mind that you need to import createStackNavigator differently.
+* this will now globally install the React Native CLI, for that you also need NodeJS installed, Now with the React Native CLI installed, we can start creating a project totally without expo
 
-* Instead of
 ```js
-import { createAppContainer, createStackNavigator } from 'react-navigation';
+react-native init RNWithoutExpo
 ```
-* you'll need to install an extra package:
+* Now important again, you now need to have Android Studio and Xcode installed and configured as mentioned in the official docs
+
+* So now let's wait for this setup to finish here and once this is done you can follow the instructions here to in the end run your app.
+
+* move to your project and then run emulator
 
 ```js
-npm install --save react-navigation-stack
+~ cd RNWithoutExpo
+~ react-native run-ios
 ```
-* and then import like this:
+* Now let's have a look at the code that is responsible for that, does that now look totally different than what we saw thus far? For that, I loaded the project here again with Visual Studio Code, so the same set up as before and what you see looks a bit different but mostly, we have a bunch of different configuration files, fair enough but that doesn't really change the way we write our code. Very important, we got an Android and an iOS folder, we didn't have that before,
+
+* but those folders contain the real native app projects which are built with the help of Android Studio and Xcode and your code gets kind of built into that you could say, React Native does all that for you
+
+* but if we have a look at the concrete code in the app.js file, well that is just what we already used, right? 
+
+* We write the same code, we use the same components, they get compiled to native widgets, that all does not change when we use expo, the only difference is that with expo, we don't have to set up as much, the build is a bit faster and adding native modules is super easy, testing on real devices is super easy, it's simply easier, we build the app in the same way though and that's something you can see here as well.
+
+* Now one extra thing you'll find here is the index.js file, we didn't have that in expo, that kind of is the basic configuration file that launches your app you could say, that makes sure that this app component gets rendered to the screen, that's something expo did for you in the React Native expo app but other than that, it's really just the same and you would build an app in the same way.
+
+### Live Reload and RN CLI Apps
+
+* In the current "RN-CLI only" setup, the app wouldn't reload when changing code
+
+* Unlike in Expo apps, "live reload" needs to be enabled.
+
+* To do this, open the developer menu on the device
+
+* For Android Emulators: CTRL + M (or CMD + M on a Mac)
+
+* For iOS Simulators: CMD + D
+
+* Or (both platforms): Shake the device, Then "Enable Live Reload"
+
+### Adding Native Modules to Non-Expo Apps
+
+* Now what I want to do here is I want to show you how you can of course change the code but then also how we could add a native functionality in such a vanilla React Native app.
+
 ```js
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
-```
-### Screen & Navigation Setup
+/**
+ * Sample React Native App
+ * https://github.com/facebook/react-native
+ *
+ * @format
+ * @flow strict-local
+ */
 
-* So let's get started with the basics therefore. I'll add a new folder screens with the four screens I want to have and that would be the places list screen file, the place detail screen file, the new place screen file and also the map screen where we can then see this full screen map and I'll populate them with content throughout this module but these are the four basic screens which I'll need.
+import React from 'react';
+import {
+  View,
+  StyleSheet,
+  Button
+} from 'react-native';
+import ImagePicker from 'react-native-image-picker';
 
-* So with that installed, now of course we can setup navigation here in the places navigator
+const App: () => React$Node = () => {
 
-```js
-// navigation/PlacesNavigator.js
-import { Platform } from 'react-native';
-import { createAppContainer } from 'react-navigation';
-import { createStackNavigator } from 'react-navigation-stack';
 
-import PlacesListScreen from '../screens/PlacesListScreen';
-import PlaceDetailScreen from '../screens/PlaceDetailScreen';
-import NewPlaceScreen from '../screens/NewPlaceScreen';
-import MapScreen from '../screens/MapScreen';
-import Colors from '../constants/Colors';
+  // onPress, I want to open the image picker. Now how can we add this?
+  // Now since this is a React Native project without expo in any way, we can't easily use the expo APIs here.
+  // There actually is a way of using them and I'll come back to that later in this module
 
-const PlacesNavigator = createStackNavigator(
-  {
-    Places: PlacesListScreen,
-    PlaceDetail: PlaceDetailScreen,
-    NewPlace: NewPlaceScreen,
-    Map: MapScreen
-  },
-  {
-    defaultNavigationOptions: {
-      headerStyle: {
-        backgroundColor: Platform.OS === 'android' ? Colors.primary : ''
+  //  if you're working with a vanilla React Native app,
+
+  // we search for React Native image picker for example to find a package that helps us with that, for example this one, the React Native image picker package
+
+  // Refer : https://www.npmjs.com/package/react-native-image-picker
+
+  // and now we can install this because now we can bring any third-party package, no matter if it adds native functionalities or not into your app.
+  //Previously with expo, this was not really possible, there you could only bring third-party packages that did not tap into native device features, now you got no restrictions.
+
+  // "npm install --save react-native-image-picker"
+
+  // and then this "react-native link react-native-image-picker"
+
+  // Now I will say there are third-party packages that take more effort, it really depends on the package. For expo,
+
+  // it obviously was very easy, you just ran expo install, that was very fast, didn't take that long and you didn't need to do anything else.
+
+  // Here you need to run one extra command but of course that's also not too bad but again, I will say not all packages support this command,
+
+ // some packages require way more manual wire up work, manual work where you then actually need to dive into the Android and iOS folders to start working on some configuration files there.
+
+  // That's what the React Native link command did for you, for example on Android if you dive into the app
+
+  // folder and there, source and then in the source folder into build gradle, you will see that there, this line was added.
+
+  // This wasn't there from the beginning, this was added by the React Native link command
+
+  // some packages even support autolinking where this linking will be done automatically once installation
+
+  // finished but not all packages have that support, so that's something to be aware of. Behind the scenes, a lot of configuration was changed.
+  const pickImage = () => {
+    // copied from package
+    const options = {
+      title: 'Select Avatar',
+      customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
+      storageOptions: {
+        skipBackup: true,
+        path: 'images',
       },
-      headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primary
-    }
+    };
+    
+    ImagePicker.showImagePicker(options, (response) => {
+      console.log('Response = ', response);
+    
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.error) {
+        console.log('ImagePicker Error: ', response.error);
+      } else if (response.customButton) {
+        console.log('User tapped custom button: ', response.customButton);
+      } else {
+        console.log(response.uri)
+      }
+    });
   }
-);
-
-export default createAppContainer(PlacesNavigator);
-
-```
-* Lets create basic screen MapScreen.js, NewPlaceScreen.js, PlaceDetailScreen.js, PlacesListScreen.js
-```js
-//MapScreen
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-
-const MapScreen = props => {
   return (
     <View>
-      <Text>MapScreen</Text>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({});
-
-export default MapScreen;
-
-```
-* let's actually make sure that we have a plus button here in the header as well which takes us to the new place screen because that's then where we can get started with tapping into native device functionalities and with adding places. Now of course you know how to add a button to the header of your navigator, all you need to do is install a new package with
-
-```js
-npm install --save react-navigation header-buttons
-```
-* So I'll create a components folder in which I can set up my own header button component to have that preconfigured reusable button component and in that component
-
-```js
-// components/HeaderButton
-import React from 'react';
-import { HeaderButton } from 'react-navigation-header-buttons';
-import { Ionicons } from '@expo/vector-icons';
-import { Platform } from 'react-native';
-
-import Colors from '../constants/Colors';
-
-const CustomHeaderButton = props => {
-  return (
-    <HeaderButton
-      {...props}
-      IconComponent={Ionicons}
-      iconSize={23}
-      color={Platform.OS === 'android' ? 'white' : Colors.primary}
-    />
-  );
-};
-
-export default CustomHeaderButton;
-```
-* Make sure we inpirted inonicons
-
-```js
-npm install --save @expo/vector-icons
-```
-* Now with that we could use in placesListScreen
-```js
-import React from 'react';
-import { View, Text, StyleSheet, Platform } from 'react-native';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-
-import HeaderButton from '../components/HeaderButton';
-
-const PlacesListScreen = props => {
-  return (
-    <View>
-      <Text>PlacesListScreen</Text>
-    </View>
-  );
-};
-
-PlacesListScreen.navigationOptions = navData => {
-  return {
-    headerTitle: 'All Places',
-    headerRight: (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Add Place"
-          iconName={Platform.OS === 'android' ? 'md-add' : 'ios-add'}
-          onPress={() => {
-              navData.navigation.navigate('NewPlace');
-          }}
-        />
-      </HeaderButtons>
-    )
-  };
-};
-
-const styles = StyleSheet.create({});
-
-export default PlacesListScreen;
-```
-### Getting Started with the Form
-
-* So in a new place screen, I want to be able to add a place and for that, I'll first of all add the text input component which of course has nothing to do with native device features but we simply also need that because in there, we can now add such a text input that allows the user to enter the title
-
-```js
-import React, { useState } from 'react';
-import {
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  StyleSheet
-} from 'react-native';
-
-import Colors from '../constants/Colors';
-
-const NewPlaceScreen = props => {
-  const [titleValue, setTitleValue] = useState('');
-
-  const titleChangeHandler = text => {
-    // you could add validation
-    setTitleValue(text);
-  };
-
-  const savePlaceHandler = () => {
-    
-  }
-
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.label}>Title</Text>
-        <TextInput
-          style={styles.textInput}
-          onChangeText={titleChangeHandler}
-          value={titleValue}
-        />
-        <Button title="Save Place" color={Colors.primary} onPress={savePlaceHandler} />
-      </View>
-    </ScrollView>
-  );
-};
-
-NewPlaceScreen.navigationOptions = {
-  headerTitle: 'Add Place'
-};
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 15
-  },
-  textInput: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    paddingVertical: 4,
-    paddingHorizontal: 2
-  }
-});
-
-export default NewPlaceScreen;
-```
-* I now want to make sure this place does get saved and for this, I'll again use Redux.
-
-```js
-npm install --save redux react-redux redux-thunk
-```
-### Redux & Adding Places
-
-* Inside the store folder we will have "places-actions.js" and "places-reducer.js"
-
-```js
-//store/action/places-actions
-export const ADD_PLACE = 'ADD_PLACE';
-
-export const addPlace = title => {
-  return { type: ADD_PLACE, placeData: { title: title } };
-};
-```
-* Lets add model for our reducer
-
-```js
-//models/place.js
-class Place {
-    constructor(id, title) {
-        this.id = id;
-        this.title = title;
-    }
-}
-
-export default Place;
-```
-* Lets create reducer for the above model and action
-
-```js
-import { ADD_PLACE } from './places-actions';
-import Place from '../models/place';
-
-const initialState = {
-  places: []
-};
-
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case ADD_PLACE:
-      const newPlace = new Place(new Date().toString(), action.placeData.title); //new Date().toString() is temporary ID
-      return {
-        places: state.places.concat(newPlace)
-      };
-    default:
-      return state;
-  }
-};
-```
-* Lets combineReducers and createStore in our app.js
-
-```js
-import React from 'react';
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { Provider } from 'react-redux';
-import ReduxThunk from 'redux-thunk';
-
-import PlacesNavigator from './navigation/PlacesNavigator';
-import placesReducer from './store/places-reducer';
-
-const rootReducer = combineReducers({
-  places: placesReducer
-});
-
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
-
-export default function App() {
-  return (
-    <Provider store={store}>
-      <PlacesNavigator />
-    </Provider>
-  );
-}
-```
-*  With Redux set up, we can go to the new place screen and make sure that here in the save place handler which is triggered when we click this button,
-
-```js
-// NewPlaceScreen
-import React, { useState } from 'react';
-import {
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  StyleSheet
-} from 'react-native';
-import { useDispatch } from 'react-redux';
-
-import Colors from '../constants/Colors';
-import * as placesActions from '../store/places-actions';
-
-const NewPlaceScreen = props => {
-  const [titleValue, setTitleValue] = useState('');
-
-  const dispatch = useDispatch();
-
-  const titleChangeHandler = text => {
-    // you could add validation
-    setTitleValue(text);
-  };
-
-  const savePlaceHandler = () => {
-    dispatch(placesActions.addPlace(titleValue));
-    props.navigation.goBack();
-  };
-
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.label}>Title</Text>
-        <TextInput
-          style={styles.textInput}
-          onChangeText={titleChangeHandler}
-          value={titleValue}
-        />
-        <Button
-          title="Save Place"
-          color={Colors.primary}
-          onPress={savePlaceHandler}
-        />
-      </View>
-    </ScrollView>
-  );
-};
-
-NewPlaceScreen.navigationOptions = {
-  headerTitle: 'Add Place'
-};
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 15
-  },
-  textInput: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    paddingVertical: 4,
-    paddingHorizontal: 2
-  }
-});
-
-export default NewPlaceScreen;
-```
-### Outputting a List of Places
-
-* Let create PlaceListItem component
-
-```js
-import React from 'react';
-import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
-import Colors from '../constants/Colors';
-
-const PlaceItem = props => {
-  return (
-    <TouchableOpacity onPress={props.onSelect} style={styles.placeItem}>
-      <Image style={styles.image} source={{ uri: props.image }} />
-      <View style={styles.infoContainer}>
-        <Text style={styles.title}>{props.title}</Text>
-        <Text style={styles.address}>{props.address}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
-
-const styles = StyleSheet.create({
-  placeItem: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-  image: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
-    backgroundColor: '#ccc',
-    borderColor: Colors.primary,
-    borderWidth: 1
-  },
-  infoContainer: {
-    marginLeft: 25,
-    width: 250,
-    justifyContent: 'center',
-    alignItems: 'flex-start'
-  },
-  title: {
-    color: 'black',
-    fontSize: 18,
-    marginBottom: 5
-  },
-  address: {
-    color: '#666',
-    fontSize: 16
-  }
-});
-
-export default PlaceItem;
-```
-* Lets use this items in our place List 
-
-```js
-import React from 'react';
-import { View, Text, StyleSheet, Platform, FlatList } from 'react-native';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { useSelector } from 'react-redux';
-
-import HeaderButton from '../components/HeaderButton';
-import PlaceItem from '../components/PlaceItem';
-
-const PlacesListScreen = props => {
-  const places = useSelector(state => state.places.places); // state.places(check app.js).places(check reducer) 
-
-  return (
-    <FlatList
-      data={places}
-      keyExtractor={item => item.id}
-      renderItem={itemData => (
-        <PlaceItem
-          image={null} // as of now we don't have an image
-          title={itemData.item.title}
-          address={null}
-          onSelect={() => {
-            props.navigation.navigate('PlaceDetail', {
-              placeTitle: itemData.item.title,
-              placeId: itemData.item.id
-            });
-          }}
-        />
-      )}
-    />
-  );
-};
-
-PlacesListScreen.navigationOptions = navData => {
-  return {
-    headerTitle: 'All Places',
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Add Place"
-          iconName={Platform.OS === 'android' ? 'md-add' : 'ios-add'}
-          onPress={() => {
-            navData.navigation.navigate('NewPlace');
-          }}
-        />
-      </HeaderButtons>
-    )
-  };
-};
-
-const styles = StyleSheet.create({});
-
-export default PlacesListScreen;
-```
-### Accessing the Device Camera
-
-* Now this React Native application is built with the help of expo as you know. Now as I mentioned, this still is a regular React Native application, therefore expo just as an extra wrapper which provides a lot of convenience features out of the box that makes building this app easier and it's like a shell, an app in which our app runs which therefore makes tapping into a lot of native device functionalities easier and especially easier to set up.
-
-* but actually, if you don't have a reason for not using expo, I would strongly recommend that you do use it because expo if you check their docs, has a lot of built-in features and a lot of built-in native modules you can use https://docs.expo.io/versions/latest/
-
-* image picker - https://docs.expo.io/versions/v39.0.0/sdk/imagepicker/
-
-```js
-expo install expo-image-picker
-```
-* With that we can start using it and I want to start using it here on the new place screen where we have text input right, there I also want to now add a button which the user can press to open up the camera.
-
-* For the camera, of course you can also follow along because we'll use it together here to take a picture. I'll actually create a new component, ImageSelector.js
-
-* For camera we need to use expo permissions, make sure you install expo-permission
-
-```js
-expo install expo-permissions
-```
-
-```js
-import React from 'react';
-import { View, Button, Image, Text, StyleSheet, Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';  // ImagePicker
-import * as Permissions from 'expo-permissions'; // expo-permission
-
-import Colors from '../constants/Colors';
-
-// By the way if we call this function multiple times and the user did already grant permissions in the past,
-
-// the user will not be presented with this prompt again, the same by the way if the user declined, in both cases the result is stored automatically by iOS and this function will just return true or false depending on whether the user denied or granted access in the past.
-
-// So verify permissions is now simply a function which we need to call in the take image handler before we try to use the camera.
-
-const ImgPicker = props => {
-  // before we try launching the camera and opening the camera, we'll need to ask for permissions.
-  const verifyPermissions = async () => {
-    // Again, that's an async task which returns a promise because this will open up a prompt and before the user has chosen an answer, nothing will happen, so therefore we have a promise which resolves or is rejected once the user confirmed or declined.
-    const result = await Permissions.askAsync(Permissions.CAMERA);
-    if (result.status !== 'granted') {
-      // which means the user declined, the user did not grant permissions, in that case we can't continue.
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant camera permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const takeImageHandler = async () => {
-    // we need permissions to take the image without that camera doesn't open
-    //before we try launching the camera and opening the camera, we'll need to ask for permissions.
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-        return;
-    }
-
-    ImagePicker.launchCameraAsync();
-
-    // Now this will open up the device camera and the async part here kind of implies that this is an async operation.
-
-   // Indeed this does return a promise, which makes sense because it opens the camera and we don't know when the user will be done taking the image,
-
-   // so it will then just register a function which it should execute once the user is done and resolve the promise to execute that function once that happens, once the user is done or also of course once the user cancels. 
-    
-  };
-
-  return (
-    <View style={styles.imagePicker}>
-      <View style={styles.imagePreview}>
-        <Text>No image picked yet.</Text>
-        <Image style={styles.image} />
-      </View>
-      <Button
-        title="Take Image"
-        color={Colors.primary}
-        onPress={takeImageHandler}
-      />
+      <Button title="Take Image" onPress={pickImage}></Button> 
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  imagePicker: {
-    alignItems: 'center'
-  },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1
-  },
-  image: {
-    width: '100%',
-    height: '100%'
-  }
-});
-
-export default ImgPicker;
-```
-*  We can handle all of that and the result and so on later, for now let's see whether that works and for that, let's include the image picker component in the new place screen.
-
-```js
-import React, { useState } from 'react';
-import {
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  StyleSheet
-} from 'react-native';
-import { useDispatch } from 'react-redux';
-
-import Colors from '../constants/Colors';
-import * as placesActions from '../store/places-actions';
-import ImagePicker from '../components/ImagePicker'; // Now we can use ImagePicker component
-
-const NewPlaceScreen = props => {
-  const [titleValue, setTitleValue] = useState('');
-
-  const dispatch = useDispatch();
-
-  const titleChangeHandler = text => {
-    // you could add validation
-    setTitleValue(text);
-  };
-
-  const savePlaceHandler = () => {
-    dispatch(placesActions.addPlace(titleValue));
-    props.navigation.goBack();
-  };
-
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.label}>Title</Text>
-        <TextInput
-          style={styles.textInput}
-          onChangeText={titleChangeHandler}
-          value={titleValue}
-        />
-        <ImagePicker /> 
-        <Button
-          title="Save Place"
-          color={Colors.primary}
-          onPress={savePlaceHandler}
-        />
-      </View>
-    </ScrollView>
-  );
-};
-
-NewPlaceScreen.navigationOptions = {
-  headerTitle: 'Add Place'
-};
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 15
-  },
-  textInput: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    paddingVertical: 4,
-    paddingHorizontal: 2
-  }
-});
-
-export default NewPlaceScreen;
-```
-
-### Configuring the Camera Access
-
-* So let's start with configuring camera , you can set and of course the official expo docs for the image picker are the place to go to learn all about these options.
-
-* Now the default settings actually are quite fine but for example here, you could add allows editing and set it to true to get a basic editor which allows you to crop the image for example and that's actually something I will enable here.
-
-```js
-// component/ImagePicker
-const image = await ImagePicker.launchCameraAsync({
-      allowsEditing : true, 
-      aspect : [16, 9], // You can also set a specific aspect ratio where you want to log in, like 16:9 which will be taken into account in your editing mode.
-      // base64 : true , if you want a base64 string instead of a file or in addition to the file I should say,which means that you get a text string that represents your image, which is quite large though and
-      quality : 0.5 // this should be a value between 0 and 1 where one is the highest possible value and of course this also impacts the image size thereafter.
-      //So you want to pick a size or a quality that makes sense for your app.
-    });
-
-console.log(image);
-```
-* If you're only using the image as a thumbnail, you might not need super high res images.
-
-* how do we get access to the image that was taken?
-
-* Well remember that this is a promise or that this returns a promise. Well of course therefore we can await that promise and the result we get back after the promise resolved indeed is the image, so we can just store this image in a constant. An image is now an object with various pieces of information about the image that was taken.
-
-```js
-Object {
-  "cancelled": false,
-  "height": 540,
-  "type": "image",
-  "uri": "file:/data/user/0/host.exp.exponent/cache/ExperienceData/%2540anonymous%252Frn-native-9b924443-4033-42d2-b498-d6894564a197/ImagePicker/d855b83a-65fe-46fe-8b90-ce292d8aaba4.jpg",
-  "width": 960,
-}
-```
-* Now this is in a temporary directory which is cleaned up automatically periodically, so of course it's not the storage or the path where you want to permanently store that and we will actually move it later with the filesystem API but for now, this is something we can work with.
-
-```js
-import React, { useState } from 'react'; // import useState
-import { View, Button, Image, Text, StyleSheet, Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
-
-import Colors from '../constants/Colors';
-
-const ImgPicker = props => {
-  const [pickedImage, setPickedImage] = useState();
-
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.CAMERA, Permissions.CAMERA_ROLL);
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant camera permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const takeImageHandler = async () => {
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
-    const image = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.5
-    });
-
-    setPickedImage(image.uri); //  set picked Image state
-  };
-
-  return (
-    <View style={styles.imagePicker}>
-      <View style={styles.imagePreview}>
-    
-        {!pickedImage ? (
-          <Text>No image picked yet.</Text> // if No image picked yet
-        ) : (
-          <Image style={styles.image} source={{ uri: pickedImage }} /> // use pickedImage here
-        )}
-      </View>
-      <Button
-        title="Take Image"
-        color={Colors.primary}
-        onPress={takeImageHandler}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  imagePicker: {
-    alignItems: 'center'
-  },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1
-  },
-  image: {
-    width: '100%',
-    height: '100%'
-  }
-});
-
-export default ImgPicker;
-```
-
-### Using the Picked Image
-
-* the more important thing of course is that we kind of pass this picked image on to our place, our new place screen right because that's where we need the image in the end, I don't just need it here as a preview, I also need it in that other screen.
-
-```js
-import React, { useState } from 'react';
-import { View, Button, Image, Text, StyleSheet, Alert } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import * as Permissions from 'expo-permissions';
-
-import Colors from '../constants/Colors';
-
-const ImgPicker = props => {
-  const [pickedImage, setPickedImage] = useState();
-
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.CAMERA_ROLL);
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant camera permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const takeImageHandler = async () => {
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
-    const image = await ImagePicker.launchCameraAsync({
-      allowsEditing: true,
-      aspect: [16, 9],
-      quality: 0.5
-    });
-
-    setPickedImage(image.uri);
-    //  So I don't just store it here internally to have a preview, I also forward it to the parent component 
-    props.onImageTaken(image.uri); // reach out to our props and then we can access onImageTaken in parent
-
-  };
-
-  return (
-    <View style={styles.imagePicker}>
-      <View style={styles.imagePreview}>
-        {!pickedImage ? (
-          <Text>No image picked yet.</Text>
-        ) : (
-          <Image style={styles.image} source={{ uri: pickedImage }} />
-        )}
-      </View>
-      <Button
-        title="Take Image"
-        color={Colors.primary}
-        onPress={takeImageHandler}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  imagePicker: {
-    alignItems: 'center',
-    marginBottom: 15
-  },
-  imagePreview: {
-    width: '100%',
-    height: 200,
-    marginBottom: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderColor: '#ccc',
-    borderWidth: 1
-  },
-  image: {
-    width: '100%',
-    height: '100%'
-  }
-});
-
-export default ImgPicker;
-```
-* From this image picker component we need to move this to NewPlaceScreen.js
-
-```js
-import React, { useState } from 'react';
-import {
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  StyleSheet
-} from 'react-native';
-import { useDispatch } from 'react-redux';
-
-import Colors from '../constants/Colors';
-import * as placesActions from '../store/places-actions';
-import ImagePicker from '../components/ImagePicker';
-
-const NewPlaceScreen = props => {
-  const [titleValue, setTitleValue] = useState('');
-  const [selectedImage, setSelectedImage] = useState();
-
-  const dispatch = useDispatch();
-
-  const titleChangeHandler = text => {
-    setTitleValue(text);
-  };
-
-  const imageTakenHandler = imagePath => {
-    //here we are setting SelectedImage
-      setSelectedImage(imagePath);
-  };
-
-  const savePlaceHandler = () => {
-    // Once after set and then after we click save Btn we are forwarding this selected image to placesActions
-    dispatch(placesActions.addPlace(titleValue, selectedImage)); 
-    props.navigation.goBack();
-  };
-
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.label}>Title</Text>
-        <TextInput
-          style={styles.textInput}
-          onChangeText={titleChangeHandler}
-          value={titleValue}
-        />
-        <ImagePicker onImageTaken={imageTakenHandler} /> // here!!!!!
-        <Button
-          title="Save Place"
-          color={Colors.primary}
-          onPress={savePlaceHandler}
-        />
-      </View>
-    </ScrollView>
-  );
-};
-
-NewPlaceScreen.navigationOptions = {
-  headerTitle: 'Add Place'
-};
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 15
-  },
-  textInput: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    paddingVertical: 4,
-    paddingHorizontal: 2
-  }
-});
-
-export default NewPlaceScreen;
-
-```
-* Since we are passing this to placesActions we need to do corresponding changes in placesAction too..
-
-
-```js
-// Places Action
-export const ADD_PLACE = 'ADD_PLACE';
-
-export const addPlace = (title, image) => {
-  return { type: ADD_PLACE, placeData: { title: title, image: image } };
-};
-```
-* in the reducer, I now want to add the image to the place which is getting created but important, right now our place model!! expects no image, so it's time to change that as well,
-
-```js
-class Place {
-    constructor(id, title, imageUri) {
-        this.id = id;
-        this.title = title;
-        this.imageUri = imageUri;
-    }
-}
-export default Place;
-```
-* Now we can use the same in our reducer too
-
-```js
-import { ADD_PLACE } from './places-actions';
-import Place from '../models/place';
-
-const initialState = {
-  places: []
-};
-
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case ADD_PLACE:
-      const newPlace = new Place(
-      new Date().toString(), 
-      action.placeData.title, 
-      action.placeData.image //action name not model name!!!
-      ); 
-      return {
-        places: state.places.concat(newPlace)
-      };
-    default:
-      return state;
-  }
-};
-
-```
-* Now we have image we can use in our PlaceListScreen
-
-```js
-import React from 'react';
-import { View, Text, StyleSheet, Platform, FlatList } from 'react-native';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { useSelector } from 'react-redux';
-
-import HeaderButton from '../components/HeaderButton';
-import PlaceItem from '../components/PlaceItem';
-
-const PlacesListScreen = props => {
-  const places = useSelector(state => state.places.places);
-
-  return (
-    <FlatList
-      data={places}
-      keyExtractor={item => item.id}
-      renderItem={itemData => (
-        <PlaceItem
-        // because here we're referring to a place object following our place model
-          image={itemData.item.imageUri} // here imageUri is model!! name 
-          title={itemData.item.title}
-          address={null}
-          onSelect={() => {
-            props.navigation.navigate('PlaceDetail', {
-              placeTitle: itemData.item.title,
-              placeId: itemData.item.id
-            });
-          }}
-        />
-      )}
-    />
-  );
-};
-
-PlacesListScreen.navigationOptions = navData => {
-  return {
-    headerTitle: 'All Places',
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Add Place"
-          iconName={Platform.OS === 'android' ? 'md-add' : 'ios-add'}
-          onPress={() => {
-            navData.navigation.navigate('NewPlace');
-          }}
-        />
-      </HeaderButtons>
-      )
-  };
-};
-
-const styles = StyleSheet.create({});
-
-export default PlacesListScreen;
-
-```
-
-* Now one thing is important to understand.Thus far, we're only storing this image in the default path we get out of the box which is this temporary path and that's of course not where we want to have it stored because as I mentioned, this will be cleared periodically and therefore eventually we'll lose our image which of course is not the goal here.
-
-### Storing the Image on the Filesystem
-
-* To avoid that the image eventually gets removed, we need to store it in a more permanent path on our local device filesystem. Of course, we can also upload it to a server but we already talked about service and so on, here I want to focus on all the native device capabilities. Now to work with our native filesystem,
-
-```js
-expo install expo-file-system
-```
-* we have that installed, now we can move the image after we took it. Now there are various places in the app where we could do that, we could do it in the image picker right after we took the image but at this point of time, we don't know yet if we will actually submit the form, if we actually keep that image. So what if we just took an image here but then we discard this and we go back? I don't want to have the image moved to a permanent place in that case, it should definitely be cleaned up and that's the default behavior, so I don't want to move it at this point yet, instead I want to move it once we submitted the form.
-
-* Hence we could do it here in the new place screen, in the save place handler but then we would add all this filesystem logic to this component which is possible but which adds a lot of logic into this component which I don't really want to have there, I want to keep this component relatively lean. A great place for this however is the action creator. We already used this in the past for having side effects, like sending HTTP requests. Now moving a file is basically the same category of thing we're doing, instead of sending a request to a server, we're moving a file, well it's not that different.
-
-```js
-import * as FileSystem from 'expo-file-system'; // expo-file-system
-
-export const ADD_PLACE = 'ADD_PLACE';
-
-export const addPlace = (title, image) => {
-  // and I will add async here so that we can use async await because we're going to do some asynchronous work here.
-  return async dispatch => { 
-    //now use this alternative syntax of dispatching or of having an action creator which utilizes Redux Thunk,
-
-    // Now moving the file actually involves a couple of things. First of all, we need to derive the new path of the file and that should of course be a more permanent directory.
-
-      // So what this code here does is it takes a look at our image path, splits it by slashes which kind of makes up our full path there and by popping the last element,well what is the last element? That is our file name,
-    const fileName = image.split('/').pop(); // pop gives last segment eg. myimage.jpg,
-
-    const newPath = FileSystem.documentDirectory + fileName;
-
-    // For that, we can use filesystem and there, you've got a couple of directories you can access.
-
-    //You got the cache directory which is actually the directory where the file is already stored in out of the box, 
-
-    //the bundle directory which is not!! really a good directory for storing files your app uses either 
-
-    //but you also got the document directory, this is the main directory for any files that your app needs which are guaranteed to survive.
-
-    // Now when you uninstall your app, this folder will also be erased, so then these files are lost but until then, they will persist across app restarts, across long pauses where people haven't used your app, so here the files will survive.
-
-    try {
-      //  moveAsync => moving that file can take a bit longer and therefore it will tell us when it's done.
-      await FileSystem.moveAsync({ // this returns a promise that is why await here
-        from: image,
-        to: newPath
-      });
-    } catch (err) {
-      // Now we should wrap this into a try catch block because this could fail because for example there is not enough space on the device or somehow we have a permissions error or anything else is wrong.
-      console.log(err);
-      throw err;
-    }
-    // so that in this internal function, we can dispatch this action by calling dispatch here and passing our action object 
-    dispatch({ type: ADD_PLACE, placeData: { title: title, image: newPath } });
-    // Now once it was moved, we know it'll be in the new path, so of course it's the new path which I now want to store here in my place data or in my Redux store.
-  };
-};
-
-```
-* this should store our image in a permanent directory but what we're not doing is we're not storing our data itself in a permanent place. We're of course using Redux here and that means it's stored in memory but whenever we close and restart our app, all our data will be lost because that's not stored on the device or on a server or in a database, it's just in memory which is active as long as our app runs and thereafter that's cleared.
-
-* So as a next step, I want to show you how to use SQLite which is an on device database, both available on iOS and Android, to store more than just files but to also store our data, like the title and the image path and so on.
-
-### Diving into SQLite for Permanent Data Storage
-
-* So let's dive into SQLite. Again we got a module for that supported by expo which we install just as we installed the other native modules
-
-* now just some quick words about SQLite. SQLite is a database system you could say which is available on both iOS and Android, so you can quickly set up such a database there, it'll be super easy with this module and you can then use some SQL syntax, some basic SQL syntax to run queries against that database. 
-
-Refer : https://docs.expo.io/versions/latest/sdk/sqlite/
-Refer : https://snack.expo.io/@git/github.com/expo/sqlite-example
-
-```js
-expo install expo-sqlite
-```
-
-* Now working with the database involves a couple of things, for example you need to open a connection to the database and if no database exists yet which is the case when you first access it in the lifetime of your app, it will also create that database and after you have that connection to that created database, you can of course run queries against it.
-
-* So for that, I'll actually add a helpers folder with a db.js file in there which you don't need to do but I want to have my database logic in there to keep my other files lean and so that I have one file where we can see all the database logic.
-
-```js
-//helpers/db.js
-
-import { SQLite } from 'expo-sqlite';
-
-// Now what this will do is it will connect to this database or create the database if it can't find it,
-
-// so when we first launched the app and you don't need to do anything else to get access to the database, so that's very trivial.
-
-const db = SQLite.openDatabase('places.db'); // Now this code line will be executed whenever we execute this file which effectively happens when we first import this file anywhere. 
-
-// Now I also want to add an init function here stored in a constant which I do to initialize this database and I'll export this function as a named export.
-
-// Now in this function, I want to make sure that we create a basic table because SQL databases work
-
-// with tables which hold your records and records are basically the rows of data you add to your table.
-
-// Now initially when we create the database, it's empty but in order to store places, we need a table that can hold these places.
-
-// So I want to have an initialization function here which will actually create that table if it doesn't exist yet.
-
-export const init = () => {
-
-  const promise = new Promise((resolve, reject) => {
-
-    // Now transaction is a method offered by the SQLite package on the database 
-
-    // transaction method takes a function as an argument which gives you access to the transaction object it creates for you.
-
-    // The concept of transactions simply is a concept where this package in the end then guarantees that your query is always executed as a whole 
-    
-    // and that if some part of the query should fail, the entire query is rolled back so that you can't end up with corrupted data in your database, that's why you actually wrap every query into such a transaction.
-
-    db.transaction(tx => {
-      // So in here, we can now use this transaction object to execute a SQL query with the help of the execute SQL method, again that's also documented here
-
-
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS places (id INTEGER PRIMARY KEY NOT NULL, title TEXT NOT NULL, imageUri TEXT NOT NULL, address TEXT NOT NULL, lat REAL NOT NULL, lng REAL NOT NULL);',
-
-        [], // Now the execute SQL method also takes a second argument which is an array of arguments which will come into play later which we don't need yet,
-
-          //these would be dynamic arguments you can inject into this query but we don't need that here
-
-          // and then we have two functions here as argument number three and four
-
-        () => {  // The first function which we pass in is a success function, this executes if this command succeeded.
-          resolve(); // if success,
-        },
-
-        (_, err) => { // The second argument is an error function which executes if this failed.
-
-          // Now the first argument to each function here and these functions are executed on your behalf by the SQL package of course,
-
-          // so these functions always as a first argument get basically the query you executed and by adding an underscore as a name here, I signal that I don't care about this but I'm interested in the second argument and here, this would be my error
-
-          reject(err);  // if failed,
-        }
-
-      );
-    });
-  }); 
-  // now to make this usable in an easy way, I will actually wrap this into a custom promise.
-  return promise;
-};
-
-```
-* So with this, we're still not storing anything in the database but we're setting up the database. So now let's make sure we call init and of course the place to call it is the app.js file because we want to initialize the database as soon as possible when our app starts up.
-
-* Now we can initialize the database in our App.js
-
-```js
-import React from 'react';
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { Provider } from 'react-redux';
-import ReduxThunk from 'redux-thunk';
-
-import PlacesNavigator from './navigation/PlacesNavigator';
-import placesReducer from './store/places-reducer';
-import { init } from './helpers/db'; // import db helper file
-
-// executed db init function
-init()
-  .then(() => {
-    console.log('Initialized database');
-  })
-  .catch(err => {
-    console.log('Initializing db failed.');
-    console.log(err);
-  });
-
-const rootReducer = combineReducers({
-  places: placesReducer
-});
-
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
-
-export default function App() {
-  return (
-    <Provider store={store}>
-      <PlacesNavigator />
-    </Provider>
-  );
-}
-```
-### Storing Data in the Local Database
-
-* let's make sure we can store data in there.
-
-```js
-import * as SQLite from 'expo-sqlite';
-
-const db = SQLite.openDatabase('places.db');
-
-export const init = () => {
-  const promise = new Promise((resolve, reject) => {
-    db.transaction(tx => {
-      tx.executeSql(
-        'CREATE TABLE IF NOT EXISTS places (id INTEGER PRIMARY KEY NOT NULL, title TEXT NOT NULL, imageUri TEXT NOT NULL, address TEXT NOT NULL, lat REAL NOT NULL, lng REAL NOT NULL);',
-        [],
-        () => {
-          resolve();
-        },
-        (_, err) => {
-          reject(err);
-        }
-      );
-    });
-  });
-  return promise;
-};
-// insertPlace ...
-export const insertPlace = (title, imageUri, address, lat, lng) => {
-    const promise = new Promise((resolve, reject) => {
-
-        db.transaction(tx => {
-          // Now you need to specify the table and that's places and then between parentheses, the fields you want to target in there and of course I want to target all fields except for the ID because as I mentioned, that will be autogenerated which is very convenient
-
-          tx.executeSql(
-            `INSERT INTO places (title, imageUri, address, lat, lng) VALUES (?, ?, ?, ?, ?);`,
-            [title, imageUri, address, lat, lng], // to avoid Sql injection attack
-            (_, result) => {
-              resolve(result);
-            },
-            (_, err) => {
-              reject(err);
-            }
-          );
-
-        });
-
-      });
-      return promise;
-};
-
-```
-* So now we can call insert place and of course the place where I want to call it again is my places actions file.
-
-```js
-import * as FileSystem from 'expo-file-system';
-
-export const ADD_PLACE = 'ADD_PLACE';
-import { insertPlace } from '../helpers/db'; // import insertPlace
-
-export const addPlace = (title, image) => {
-  return async dispatch => {
-    const fileName = image.split('/').pop();
-    const newPath = FileSystem.documentDirectory + fileName;
-
-    try {
-      await FileSystem.moveAsync({
-        from: image,
-        to: newPath
-      });
-      // insertPlace query
-      const dbResult = await insertPlace(
-        title,
-        newPath,
-        'Dummy address',
-        15.6,
-        12.3
-      );
-      console.log(dbResult);
-      // now we can dispatch with dbResult insertId
-      dispatch({ type: ADD_PLACE, placeData: { id: dbResult.insertId, title: title, image: newPath } });
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
-  };
-};
-```
-### Fetching Data from the Local Database
-
-* Fetching data from our local database is not that different from fetching it from a web server, instead of reaching out to a web server, we just reach out to our local database but that's it.
-
-* So let's start by writing a function in the db helper file that allows us to fetch data from the database.
-
-```js
-//helper/db.js
-export const fetchPlaces = () => {
-    const promise = new Promise((resolve, reject) => {
-        db.transaction(tx => {
-          tx.executeSql(
-            'SELECT * FROM places',
-            [],
-            (_, result) => {
-              resolve(result);
-            },
-            (_, err) => {
-              reject(err);
-            }
-          );
-        });
-      });
-      return promise;
-};
-```
-* and now we just need to go to our actions and make sure we have an action for this.
-
-```js
-import * as FileSystem from 'expo-file-system';
-
-import { insertPlace, fetchPlaces } from '../helpers/db'; // fetchPlaces
-
-export const ADD_PLACE = 'ADD_PLACE';
-export const SET_PLACES = 'SET_PLACES';
-
-export const addPlace = (title, image) => {
-  return async dispatch => {
-    const fileName = image.split('/').pop();
-    const newPath = FileSystem.documentDirectory + fileName;
-
-    try {
-      await FileSystem.moveAsync({
-        from: image,
-        to: newPath
-      });
-      const dbResult = await insertPlace(
-        title,
-        newPath,
-        'Dummy address',
-        15.6,
-        12.3
-      );
-      console.log(dbResult);
-      dispatch({ type: ADD_PLACE, placeData: { id: dbResult.insertId, title: title, image: newPath } });
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
-  };
-};
-
-export const loadPlaces = () => {
-    return async dispatch => {
-        try {
-            const dbResult = await fetchPlaces(); //fetchPlaces
-            console.log(dbResult);
-            dispatch({ type: SET_PLACES, places: dbResult.rows._array }); // Places
-        } catch (err) {
-            throw err;
-        }
-    };
-};
-```
-* now I want to execute load places in my places list screen because that is where I need all the places, right?
-
-```js
-import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, Platform, FlatList } from 'react-native';
-import { HeaderButtons, Item } from 'react-navigation-header-buttons';
-import { useSelector, useDispatch } from 'react-redux';
-
-import HeaderButton from '../components/HeaderButton';
-import PlaceItem from '../components/PlaceItem';
-import * as placesActions from '../store/places-actions';
-
-const PlacesListScreen = props => {
-  const places = useSelector(state => state.places.places);
-  const dispatch = useDispatch(); // we need to dispatch an action
-
-  // now when this component loads, which we can in the end find out with the help of use effect, I want to dispatch this data loading action.
-  useEffect(() => {
-    dispatch(placesActions.loadPlaces()); // loadPlaces action
-  }, [dispatch]); // we have one dependency, that's the dispatch action which should never change,
-  
-  // so therefore this should only run once when the component is created, which is exactly the behavior I want here.
-
-
-  return (
-    <FlatList
-      data={places}
-      keyExtractor={item => item.id}
-      renderItem={itemData => (
-        <PlaceItem
-          image={itemData.item.imageUri}
-          title={itemData.item.title}
-          address={null}
-          onSelect={() => {
-            props.navigation.navigate('PlaceDetail', {
-              placeTitle: itemData.item.title,
-              placeId: itemData.item.id
-            });
-          }}
-        />
-      )}
-    />
-  );
-};
-
-PlacesListScreen.navigationOptions = navData => {
-  return {
-    headerTitle: 'All Places',
-    headerRight: (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Add Place"
-          iconName={Platform.OS === 'android' ? 'md-add' : 'ios-add'}
-          onPress={() => {
-            navData.navigation.navigate('NewPlace');
-          }}
-        />
-      </HeaderButtons>
-    )
-  };
-};
-
-const styles = StyleSheet.create({});
-
-export default PlacesListScreen;
-
-```
-* Now of course, that then triggers the set places actions, so now in the places reducer, we need to care about this,
-
-```js
-import { ADD_PLACE, SET_PLACES } from './places-actions';
-import Place from '../models/place';
-
-const initialState = {
-  places: []
-};
-
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case SET_PLACES:
-      // here we are returning state 
-      return {
-        places: action.places.map(
-          pl => new Place(pl.id.toString(), pl.title, pl.imageUri)
-        )
-      };
-    case ADD_PLACE:
-      const newPlace = new Place(
-        action.placeData.id.toString(),
-        action.placeData.title,
-        action.placeData.image
-      );
-      // here we are returning state 
-      return {
-        places: state.places.concat(newPlace)
-      };
-    default:
-      return state;
-  }
-};
-```
-
-### Getting the User Location
-
-* Refer : https://docs.expo.io/versions/latest/sdk/location/
-
-* For the user location, we got another package built into expo which we can easily use and that's location package.
-
-```js
-expo install expo-location
-```
-
-```js
-// component /LocationPicker
-import React, { useState } from 'react';
-import {
-  View,
-  Button,
-  Text,
-  ActivityIndicator,
-  Alert,
-  StyleSheet
-} from 'react-native';
-import * as Location from 'expo-location'; // import Location
-import * as Permissions from 'expo-permissions'; // Permissions
-
-import Colors from '../constants/Colors';
-
-const LocationPicker = props => {
-  const [isFetching, setIsFetching] = useState(false);
-  const [pickedLocation, setPickedLocation] = useState();
-  // verifyPermissions
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.LOCATION); // askAsync Permissions
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant location permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const getLocationHandler = async () => {
-    // call verifyPermissions
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
-
-    try {
-      setIsFetching(true);
-      // once after verifyPermissions getCurrentPositionAsync
-      const location = await Location.getCurrentPositionAsync({
-        // set this to five seconds to make sure that if we couldn't fetch a location for five seconds, we stop trying and we throw an error,
-        timeout: 5000
-      });
-      setPickedLocation({
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      });
-    } catch (err) {
-      Alert.alert(
-        'Could not fetch location!',
-        'Please try again later or pick a location on the map.',
-        [{ text: 'Okay' }]
-      );
-    }
-    setIsFetching(false);
-  };
-
-  return (
-    <View style={styles.locationPicker}>
-      <View style={styles.mapPreview}>
-        {isFetching ? (
-          <ActivityIndicator size="large" color={Colors.primary} />
-        ) : (
-          <Text>No location chosen yet!</Text>
-        )}
-      </View>
-      <Button
-        title="Get User Location"
-        color={Colors.primary}
-        onPress={getLocationHandler}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  locationPicker: {
-    marginBottom: 15
-  },
-  mapPreview: {
-    marginBottom: 10,
-    width: '100%',
-    height: 150,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    justifyContent: 'center',
+  screen: {
+    flex : 1,
+    justifyContent : 'center',
     alignItems: 'center'
   }
 });
 
-export default LocationPicker;
-
+export default App;
 ```
-* Now we can use the location in our new screen.
+* On running android i faced issue "Deprecated Gradle features were used in this build, making it incompatible with Gradle 7.0.
+Use '--warning-mode all' to show the individual deprecation warnings." Could not determine the dependencies of task ':app:installDebug'.
+
+* for that i updated Gradle
 
 ```js
-import React, { useState } from 'react';
-import {
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  StyleSheet
-} from 'react-native';
-import { useDispatch } from 'react-redux';
+cd android
+./gradlew wrapper --gradle-version 6.5
 
-import Colors from '../constants/Colors';
-import * as placesActions from '../store/places-actions';
-import ImagePicker from '../components/ImagePicker';
-import LocationPicker from '../components/LocationPicker'; // LocationPicker
+* and then run "gradlew clean"
 
-const NewPlaceScreen = props => {
-  const [titleValue, setTitleValue] = useState('');
-  const [selectedImage, setSelectedImage] = useState();
+* Move to root cd.. and run react-native start
 
-  const dispatch = useDispatch();
+* In another console run in your project react-native run-android
 
-  const titleChangeHandler = text => {
-    // you could add validation
-    setTitleValue(text);
-  };
-
-  const imageTakenHandler = imagePath => {
-      setSelectedImage(imagePath);
-  };
-
-  const savePlaceHandler = () => {
-    dispatch(placesActions.addPlace(titleValue, selectedImage));
-    props.navigation.goBack();
-  };
-  // we used LocationPicker here..
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.label}>Title</Text>
-        <TextInput
-          style={styles.textInput}
-          onChangeText={titleChangeHandler}
-          value={titleValue}
-        />
-        <ImagePicker onImageTaken={imageTakenHandler} />
-        <LocationPicker /> 
-        <Button
-          title="Save Place"
-          color={Colors.primary}
-          onPress={savePlaceHandler}
-        />
-      </View>
-    </ScrollView>
-  );
-};
-
-NewPlaceScreen.navigationOptions = {
-  headerTitle: 'Add Place'
-};
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 15
-  },
-  textInput: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    paddingVertical: 4,
-    paddingHorizontal: 2
-  }
-});
-
-export default NewPlaceScreen;
 ```
-### Showing a Map Preview of the Location
+* Now here's the app coming up and if I press it, I get this overlay, I can click take photo and nothing happens.Reason for that is missing permissions and that's the manual work I meant. 
 
-* So now I also want to display a little map preview here and there are different ways of doing that of course and later we'll also add an interactive map to this app. For now, I just want to have a static image, so like a map snapshot and the cool thing is Google has an API for us which generates such snapshots.
+* We have to go into the Android folder, there into source, main, AndroidManifest which configures the Android app and there you have to add a new permission. 
 
-Refer : https://developers.google.com/maps/documentation/maps-static/overview
+* there you can now add the camera permission which you need to add for this app to be able to access the device camera, otherwise this is not supported.
+```js
+// RNWithoutExpo/android/app/src/main/AndroidManifest.xml
+  <uses-permission android:name="android.permission.CAMERA" />
+  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+```
+* On iOS by the way, you also need to do something similar whilst this rebuilds.f you go into your RNWithoutExpo file, you find the info.plist file and in that file, you also need to add an entry to ask for this permission.
 
-* I now want to output an image here which points at that URL because as I mentioned, this is how you can get this image, this URL returns an image. Now what I'll do therefore is I'll create a new component here which I'll name MapPreview.js
+* Refer : https://github.com/react-native-image-picker/react-native-image-picker#readme
+* Refer : https://github.com/react-native-image-picker/react-native-image-picker/blob/master/docs/Install.md
 
-* Before that let's create a environment file using env.js
+* similary for IOS
 
 ```js
-// env.js
-const vars = {
-    googleApiKey: 'AIzaSyCjv8HXdnCEPt1Y26z3im0RP27UpfvB4yg'
-};
-
-export default vars;
+// RNWithoutExpo/ios/RNWithoutExpo/Info.plist
+<key>NSPhotoLibraryUsageDescription</key>
+<string>$(PRODUCT_NAME) would like access to your photo gallery</string>
+<key>NSCameraUsageDescription</key>
+<string>$(PRODUCT_NAME) would like to use your camera</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>$(PRODUCT_NAME) would like to save photos to your photo gallery</string>
+<key>NSMicrophoneUsageDescription</key>
+<string>$(PRODUCT_NAME) would like to use your microphone (for videos)</string>
+<key>UILaunchStoryboardName</key>
+<string>LaunchScreen</string>
 ```
-* Now we can use this googleApiKey in our MapPreview component as below
+* This however is how you can bring third-party packages that tap into native device features to a React Native only app for your component code which you write, that's the same code we srote throughout the entire course - same components, same logic, same way of how you build your app. You can create the same folders, you can add React navigation, that all doesn't change.
+
+### Understanding Expo's "Bare Workflow"
+
+* So you learned how you can use to React Native CLI to create React Native projects. These are projects which have no connection to expo and which are therefore totally managed by you
+
+* where you can therefore add any third-party package actually, including some expo packages which are available outside of the managed workflow as well but you need to configure everything on your own, that can be easy depending on the package you're using but it also can be harder. Now there is kind of a middle way between the expo managed workflow and the pure, you need to do everything on your own, workflow and that's the expo bare workflow
+
+* Now what's the bare workflow here?
+
+* The bare workflow includes a React Native app as you would created with the React Native CLI, so not a managed app with expo as a wrapper but a native app, that however is already preconfigured to support a lot of the expo packages, not all but the expo team is working on making more and more available outside of the managed workflow but a lot of them are already included and you could check the supported APIs 
+
+* Refer : https://docs.expo.io/bare/unimodules-full-list/
+
+* The idea behind the bare workflow is that you have this raw native development experience where you need to use Android Studio and Xcode, so you don't have the expo CLI and the expo client helping you, so you need to do that manually with the help of the React Native CLI but where adding native functionality is easier, so where you need to do less configuration maybe, where you can use these powerful native packages that expo offers you where you can use all of that without having the limitations expo gives you,though I want to put limitations into quotes because you don't have that many limitations actually in the managed workflow.
+
+* So let me show you how to get started with that bare workflow and of course for that, you can also check the official docs.
+
+* Refer : https://docs.expo.io/bare/hello-world/
+
+* For base workflow we need both expo-cli and react-native-cli
 
 ```js
-import React from 'react';
-import { View, Image, StyleSheet } from 'react-native';
+npm i -g expo-cli
 
-import ENV from '../env';
+npm i -g react-native-cli
 
-const MapPreview = props => {
-  let imagePreviewUrl;
-
-  if (props.location) {
-    imagePreviewUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${
-      props.location.lat
-    },${
-      props.location.lng
-    }&zoom=14&size=400x200&maptype=roadmap&markers=color:red%7Clabel:A%7C${
-      props.location.lat
-    },${props.location.lng}&key=${ENV.googleApiKey}`;
-  }
-
-  return (
-    <View style={{ ...styles.mapPreview, ...props.style }}>
-      {props.location ? (
-        <Image style={styles.mapImage} source={{ uri: imagePreviewUrl }} />
-      ) : (
-        props.children // we will pass this children from this component// ActivityIndicator and fallback content
-      )}
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  mapPreview: {
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  mapImage: {
-    width: '100%',
-    height: '100%'
-  }
-});
-
-export default MapPreview;
+expo init PROJECT_NAME   //chose bare minimum template
 ```
-Now we can use this MapPreview component in our Location preview component
+* This will create a new project, a new React Native project pretty much like React Native init would do, so if you only used the React Native CLI but preconfigured such that you can already use a lot of these supported or all of these supported APIs.
+
+* Now important, the project setup we're getting here could also be achieved with this React Native CLI created set up where I didn't use the expo CLI at all because the magic happens with the help of these React Native unimodules here.
+
+* This is a package in the end provided by the expo team which helps you tap into the native device features you can get in the managed workflow outside of the managed workflow as well.
+
+* Refer : https://docs.expo.io/bare/installing-unimodules/
+
+* Here you find instructions how you need to configure this and all this configuration which is described here so all these things here right, which you need to do if you would want to use this package and therefore the expo native features in a normal React Native non-expo app,
+
+* Refer : https://github.com/unimodules/react-native-unimodules/tree/%40wkozyra95/ignore-enabled-modules-directory
+
+* you would have to do them manually for such a project created with the React Native CLI and that's exactly what expo init with this bare workflow does for us, it gives us such a React Native project as if we would have created it with the React Native CLI and it preconfigures it following all these steps,so then we don't have to do that.
+
+* So that's something we can take advantage of of course,so let me open this project
+
+* In the end, you'll get the same setup as with the React Native CLI but as I mentioned with the Android and iOS folder with these Android and iOS projects preconfigured as described on the unimodules page so that you don't have to do this
+
+* and with this preconfiguration, you can now easily add third-party packages, you can add any third-party package, you could for example now also again use the React Native image picker,
+
+* so what we added before, what we couldn't add to a managed workflow app, this package here, you can easily add this to a bare workflow app because this is just a React Native app without expo, so you can add this but now unlike in a normal React Native only app without expo, you can also bring any of the expo APIs which are listed here, like the expo location package which we used
+
+* You can now easily install this by following the installation instructions you're linked to here for the bare workflow, you would then have to follow the installation instructions you find here on the expo location package
+
+* Refer : https://github.com/expo/expo/tree/master/packages/expo-location
+
+* there you learn that you can install it with this command, then run port install in the iOS directory and no extra setup for Android is required. So fair enough, not too difficult and therefore you could maybe say you get the best of both worlds, you have a native app with React Native CLI and you can still tap into some expo features, though
+
+* be aware of course that if you run this app, if you do this of course with react-native run-android for example and therefore this requires Android Studio, it builds it locally on your system, you therefore take a bit longer, you need to set up everything on your system and for deploying the app and so on you also have to manage it all here on your local machine, 
+
+* so you get no convenience features which expo gives you in the managed workflow where this building and testing is super quick, where you can quickly test it on a real device and so on, all of that is missing here too.
+
+* You have a React Native project without expo but using certain expo APIs is easier, that's the idea behind the bare workflow and since expo has many amazing APIs, that of course is a pretty good reason for using it because these APIs, these packages are also pretty guaranteed to be continued and maintained which is not necessarily the case for all other third-party packages
+
+### Ejecting from Expo's "Managed Workflow"
+
+* Now besides setting up a new project from scratch with React Native CLI or with the expo CLI and then choosing the bare workflow,
+
+* you can even convert a managed project into a React Native bare workflow project and that's pretty cool because that means you can get all the convenience features of the managed workflow during development and once you're done for example or once you need a certain third-party package which integrates some feature you don't have built into expo and you absolutely need, in such a case you can still switch and you don't have to rebuild the app from scratch and create a brand new project and copy over your code.
+
+* How? Well in your project and this is the native device feature
+
+* we build earlier in the course where we can add places, where we are of course using the location, maps, the camera, SQLite,where we are using all these things, there in this project, you can simply run 
 
 ```js
-// componenet/LocationPicker
-import React, { useState } from 'react';
-import {
-  View,
-  Button,
-  Text,
-  ActivityIndicator,
-  Alert,
-  StyleSheet
-} from 'react-native';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-
-import Colors from '../constants/Colors';
-import MapPreview from './MapPreview';
-
-const LocationPicker = props => {
-  const [isFetching, setIsFetching] = useState(false);
-  const [pickedLocation, setPickedLocation] = useState();
-
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.LOCATION);
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant location permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const getLocationHandler = async () => {
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
-
-    try {
-      setIsFetching(true);
-      const location = await Location.getCurrentPositionAsync({
-        timeout: 5000
-      });
-      setPickedLocation({
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      });
-    } catch (err) {
-      Alert.alert(
-        'Could not fetch location!',
-        'Please try again later or pick a location on the map.',
-        [{ text: 'Okay' }]
-      );
-    }
-    setIsFetching(false);
-  };
-
-  return (
-    <View style={styles.locationPicker}>
-      <MapPreview style={styles.mapPreview} location={pickedLocation}>
-        {isFetching ? (
-          <ActivityIndicator size="large" color={Colors.primary} />
-        ) : (
-          <Text>No location chosen yet!</Text>
-        )}
-      </MapPreview>
-      <Button
-        title="Get User Location"
-        color={Colors.primary}
-        onPress={getLocationHandler}
-      />
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  locationPicker: {
-    marginBottom: 15
-  },
-  mapPreview: {
-    marginBottom: 10,
-    width: '100%',
-    height: 150,
-    borderColor: '#ccc',
-    borderWidth: 1
-  }
-});
-
-export default LocationPicker;
+expo eject
 ```
-### More on Environment Variables
+* this transforms your project into a non-expo managed workflow project. Important though, there is no going back, of course you can copy your folder and make a backup copy and save this or if you're using git, you can of course go back to an earlier commit but if you haven't saved your project, once you eject it, you can't transform it back, so be aware of this.
 
-* In the previous lecture, we created a basic environment variables file (env.js).
+* So here if you run expo eject, you should actually be asked to which kind of project you want to eject and here I got two options in the end
 
-* This basic file just exports a JS object - but you could get more fancy and for example export different environment variables for your development flow (i.e. for testing/ developing your app) and for production (i.e. for when you publish your app).
+* the two options I have are bare and expo kit. Expo kit is deprecated, this is basically what we had before we had the bare workflow, so you shouldn't really switch to this, instead you can switch to bare here which simply means that now this will be transformed to a React Native project, as if it would be created with the React Native CLI without the expo wrapper but it will be preconfigured as mentioned here on the react-native-unimodules page which is it is kind of this package which expo needs to expose all these expo APIs to a non-expo app.
 
-* The special __DEV__ global variable offered by Expo helps you - it's a variable which you can always access anywhere in your Expo-driven React Native project to determine whether you're running this app in development mode or not.
+* So it will preconfigure all these things during ejection so that you don't have to do that, so you get a React Native plus app so to say. So if I hit enter here and now important, you can't go back once this completed, 
 
-* Therefore, you could create a more elaborate environment variables file like this one:
+* but that's up to you and now this will do its job. It transforms the project, it adds an Android folder and since I'm on macOS, it also adds an iOS folder. 
 
-```js
-const variables = {
-    development: {
-        googleApiKey: 'abc'
-    },
-    production: {
-        googleApiKey: 'xyz'
-    }
-};
- 
-const getEnvVariables = () => {
-    if (__DEV__) {
-        return variables.development; // return this if in development mode
-    }
-    return variables.production; // otherwise, return this
-};
- 
-export default getEnvVariables; // export a reference to the function
-```
-* You would use that file like this:
+* and it preconfigures everything and installs a couple of dependencies so that you can use your existing code and all the expo packages you already installed in this bare setup, so it does not just set up all the unimodules stuff here, it also makes sure that all the packages you are already using, like expo location or expo SQLite, that those packages also work.
 
-```js
-// someOtherFile.js
-import ENV from './env';
-...
-const apiKey = ENV().googleApiKey;
-```
-### Displaying an Interactive Map
+* Once eject done! you see it actually tells me that it generally did its job but there were two packages which require some manual setup.
 
-* To display this on a map, we have this map screen component which currently just has some dummy content and now we need to be able to render an interactive map and for this, expo again has got us covered.
+* You can simply click on these links to get instructions on what you need to do there, it's the expo image picker and the React Native maps package where you need to do some manual installation to finish it up.
 
-* Refer : https://docs.expo.io/versions/latest/sdk/map-view/
+* So here on the expo image picker page, in the end what we need to do is we need to run port install in the iOS folder, so we need to do all the things after installing the package. So in the project folder, I'll navigate into iOS and run port install, port is like npm for iOS, it installs some dependencies which iOS needs to work correctly, so that's what's happening now and once this is done, we'll also need to add this entry here to the Android manifest, so that's also something we'll need to do. So we need to go to the Android folder, the app folder there and in the source folder, the AndroidManifest and then as described here, add this inside of the application tags. So here is application and in there, we should add this activity entry here, like this, that's required.
 
-```js
-expo install react-native-maps
-```
-* this will then allow us to use various components that render interactive maps. So let's wait for that to finish and with that finished, in the map screen component, we can start using that map.
+* Now we have to minor configuration as per the github page suggest.. the we can run as usual..
 
-```js
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import MapView from 'react-native-maps'; // import  MapView
+### When To Use Which?
 
-const MapScreen = props => {
-  // it needs a region props which tells it where it should be focused on when it loads,
-  // so which map part or which part of the world it should focus on when it loads.
-  const mapRegion = {
-    latitude: 37.78,
-    longitude: -122.43,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421
-    // The deltas basically set the zoom factor because this describes how much space you can see around the center which you describe with these two points.
-  };
-  return <MapView style={styles.map} region={mapRegion} />;
-};
+* which approach should you use for your application?
 
-const styles = StyleSheet.create({
-  map: {
-    flex: 1
-  }
-});
+* using expo in general is an awesome development experience, everything is super fast, it's easy to test changes both on simulators and real devices. You don't need to build locally, therefore you can also build and test for and on iOS, on Windows systems and Linux which is not possible without the managed workflow and that's all pretty cool.
 
-export default MapScreen;
-```
-* Now this should render a map on the screen, now we just need to be able to reach it and for that let me go back to the location picker and I want to reach it in two different ways - one is with the help of a button 
+* But when we compare expo to non-expo setups and with non-expo, I mean both creating it with React Native CLI or using a bare expo workflow, then of course we have to compare all the things.
 
-```js
-import React, { useState } from 'react';
-import {
-  View,
-  Button,
-  Text,
-  ActivityIndicator,
-  Alert,
-  StyleSheet
-} from 'react-native';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
+* So as mentioned with expo, with the managed workflow, it's easy to use that, easy to develop, non-expo means more manual setup and so on.
 
-import Colors from '../constants/Colors';
-import MapPreview from './MapPreview';
+* Now you also will have an easy time deploying your app as you will also see in the deployment section and you can even build and deploy for iOS if you're on the Windows or Linux machine, something which is not possible without the managed workflow.
 
-const LocationPicker = props => {
-  const [isFetching, setIsFetching] = useState(false);
-  const [pickedLocation, setPickedLocation] = useState();
+* When in the expo managed workflow world, we also have a rich suit of native modules, so all these expo APIs which are always easy to use, just an expo installed away, don't need any setup so that's really amazing and you got pretty much everything you could want in a native app there - camera, location, filesystem, it's all there.
 
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.LOCATION);
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant location permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
+* If you sometimes need something which is not supported though or you need to write your own native code that you want to connect to React Native, your own package or whatever it is, then non-expo is the solution. So there you can use any native code but of course, you need to set it up manually and that might be easy with React Native link as you saw or even some autolinking libraries but you might also have libraries that take more effort.
 
-  const getLocationHandler = async () => {
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
+* In addition, it's worth noting that of course third-party libraries need to be maintained to stay up to date with React Native and newer versions of React Native but also they need to stay up to date with Android and iOS,
+right, because these platforms also evolve and introduce new features or deprecate old features. The expo APIs are pretty guaranteed to be maintained because the expo team is active, is working on that and it's a whole ecosystem that works together. That might not be true for all third-party packages, so this extra security you get with the expo packages is definitely pretty nice.
 
-    try {
-      setIsFetching(true);
-      const location = await Location.getCurrentPositionAsync({
-        timeout: 5000
-      });
-      setPickedLocation({
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      });
-    } catch (err) {
-      Alert.alert(
-        'Could not fetch location!',
-        'Please try again later or pick a location on the map.',
-        [{ text: 'Okay' }]
-      );
-    }
-    setIsFetching(false);
-  };
+* That being said as you saw with the bare workflow, you can of course also add certain but not all expo APIs to non-managed apps, that is possible but takes a bit more work.
 
-  const pickOnMapHandler = () => {
-    // Now the pick on map handler should simply go to the map screen right,
-    props.navigation.navigate('Map');
-    // So now if I click on the plus here and then pick on map, I get an error,
-  //now why is that? Well that's totally unrelated to native modules. You might remember that the navigation prop
-  // is only available on components which are directly loaded as screens which the location picker of course isn't
-  };
+* Now of course the managed workflow has downsides, it's a wrapper around your app and that of course impacts both the size and performance, most likely not in a way that you will feel or see but it's worth noting, there is a thin extra wrapper and you don't have that in the bare workflow or when just working with the React Native CLI and of course as mentioned, you're restricted to the built-in native modules.
 
-  return (
-    <View style={styles.locationPicker}>
-      <MapPreview
-        style={styles.mapPreview}
-        location={pickedLocation}
-        onPress={pickOnMapHandler} //MapPreview onPress
-      >
-        {isFetching ? (
-          <ActivityIndicator size="large" color={Colors.primary} />
-        ) : (
-          <Text>No location chosen yet!</Text>
-        )}
-      </MapPreview>
-      <View style={styles.actions}>
-        <Button
-          title="Get User Location"
-          color={Colors.primary}
-          onPress={getLocationHandler}
-        />
-        <Button
-          // here this button
-          title="Pick on Map"
-          color={Colors.primary}
-          onPress={pickOnMapHandler}
-        />
-      </View>
-    </View>
-  );
-};
+* There are a bunch of those and probably everything you might ever need but if you need something else which is not built into expo, so an API which is not supported by expo, then there is no way to get it to work, then you need to eject because only non-expo and with that I mean non-managed workflow apps support all third-party packages and all native modules
 
-const styles = StyleSheet.create({
-  locationPicker: {
-    marginBottom: 15
-  },
-  mapPreview: {
-    marginBottom: 10,
-    width: '100%',
-    height: 150,
-    borderColor: '#ccc',
-    borderWidth: 1
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%'
-  }
-});
+* So therefore my suggestion would be that for most apps, pretty much all apps probably, you work with expo because of the great development experience and the great flexibility you have there.
 
-export default LocationPicker;
+* Since you can always eject, there there's not much to lose, you can always go back to a non-expo managed app if you want to as you saw
 
-```
-* now we need to make sure that we can also tap the map preview and for that, let me go to map preview and add TouchableOpacity
+*  starting with such a non-expo app, so with a bare app or even with just a React Native CLI app is a good idea
+if you know that you will need a lot of native functionalities that are not supported by expo or if you're building a high performance application where every kilobytes of extra wrapping matters, then of course you might start with such an app but otherwise I really see no strong reason for why not to use expo and especially if you're not working in a huge team, in a corporation or anything like that, being able to build iOS apps on Windows too is really a nice thing, so that alone is also good reason for staying in the managed world.
 
-```js
-import React from 'react';
-import { TouchableOpacity, Image, StyleSheet } from 'react-native';
+* Refer : alternatives2 image
 
-import ENV from '../env';
+* These resources might be helpful:
 
-const MapPreview = props => {
-  let imagePreviewUrl;
+* "Why Not Expo?": https://docs.expo.io/versions/v34.0.0/introduction/why-not-expo/
 
-  if (props.location) {
-    imagePreviewUrl = `https://maps.googleapis.com/maps/api/staticmap?center=${
-      props.location.lat
-    },${
-      props.location.lng
-    }&zoom=14&size=400x200&maptype=roadmap&markers=color:red%7Clabel:A%7C${
-      props.location.lat
-    },${props.location.lng}&key=${ENV.googleApiKey}`;
-  }
-
-  return (
-    // TouchableOpacity here 
-    <TouchableOpacity onPress={props.onPress} style={{ ...styles.mapPreview, ...props.style }}>
-      {props.location ? (
-        <Image style={styles.mapImage} source={{ uri: imagePreviewUrl }} />
-      ) : (
-        props.children
-      )}
-    </TouchableOpacity>
-  );
-};
-
-const styles = StyleSheet.create({
-  mapPreview: {
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  mapImage: {
-    width: '100%',
-    height: '100%'
-  }
-});
-
-export default MapPreview;
-```
-
-* So now if I click on the plus here and then pick on map, I get an error, now why is that? Well that's totally unrelated to native modules. You might remember that the navigation prop is only available on components which are directly loaded as screens which the location picker of course isn't
-
-* Now there are various workarounds, there would be a higher order component we can use, we can also install a React navigation specific hooks package
-
-* but here I'll take a simple approach and just make sure that I have a navigation prop on location picker by going to the new place screen which is where I do use the location picker and there I'll set this navigation prop
-
-```js
-//screens/NewPlaceScreen
- <LocationPicker navigation={props.navigation} />
- // which I here do have available because this is a component directly loaded through a navigator, so now I'm just forwarding access to my navigation props.
-```
-### Adding a Marker
-
-* How can we make sure that we can pick a place?
-
-* Well on map view, in your map screen, you can add an onPress handler and this fires whenever you tap somewhere on the map and with that I don't mean taps when you scroll but when you tap there without scrolling, so if you really want to select something.
-
-```js
-import React, { useState } from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-
-const MapScreen = props => {
-  const [selectedLocation, setSelectedLocation] = useState();
-
-  const mapRegion = {
-    latitude: 37.78,
-    longitude: -122.43,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421
-  };
-
-  const selectLocationHandler = event => {
-    // here we are storing selected places
-    setSelectedLocation({
-      lat: event.nativeEvent.coordinate.latitude,
-      lng: event.nativeEvent.coordinate.longitude
-    });
-  };
-
-  let markerCoordinates;
-
-  if (selectedLocation) { // if we selected lat and long we create markerCoordinates
-    markerCoordinates = {
-      latitude: selectedLocation.lat,
-      longitude: selectedLocation.lng
-    };
-  }
-
-  return (
-    <MapView
-      style={styles.map}
-      region={mapRegion}
-      onPress={selectLocationHandler}
-    >
-      {markerCoordinates && (
-        // if we have markerCoordinates we can show Marker here
-        <Marker title="Picked Location" coordinate={markerCoordinates} />
-      )}
-    </MapView>
-  );
-};
-
-const styles = StyleSheet.create({
-  map: {
-    flex: 1
-  }
-});
-
-export default MapScreen;
-
-```
-### Making the Picked Location "Saveable"
-
-* So I want to have a save button in my header and for that of course, we need to add map screen navigation options
-
-```js
-// MapScreen
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform
-} from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-
-import Colors from '../constants/Colors';
-
-const MapScreen = props => {
-  const [selectedLocation, setSelectedLocation] = useState();
-
-  const mapRegion = {
-    latitude: 37.78,
-    longitude: -122.43,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421
-  };
-
-  const selectLocationHandler = event => {
-    setSelectedLocation({
-      lat: event.nativeEvent.coordinate.latitude,
-      lng: event.nativeEvent.coordinate.longitude
-    });
-  };
-
-  //  I want to trigger a function that should be defined in the component
-  // how you can communicate between your component and also your navigation options
-
-  // this function or a reference to this function should be passed to the navigation options and for that, we can use the good old use effect hook and use callback to avoid this infinite loop 
-
-  const savePickedLocationHandler = useCallback(() => {
-    if (!selectedLocation) {
-      // could show an alert!
-      return;
-    }
-    // here we are passing location details to NewPlace 
-    props.navigation.navigate('NewPlace', { pickedLocation: selectedLocation });
-  }, [selectedLocation]);
-
-  
-  // and then use effect here to tell our navigation options about this by using props navigation set params and then I want to set my save location param here to the save picked location handler, so pass a reference to this function, to this param or with this param to my headers
-
-  useEffect(() => {
-    // we will extract this save location param in our header.
-    props.navigation.setParams({ saveLocation: savePickedLocationHandler });
-
-    // I can navigate to my new place screen with the new place identifier as set up here in my places navigator and since I'm already on a screen ahead of that new place screen,
-
-    // don't forget that this is a stack of screens and I'm on a screen on top of the new place screen, his will actually not push this new place screen on top of the existing screen,
-
-    // we could force this with push but I don't want to, instead it will go back but now by using navigate, I can append some params here. I can add my picked location and there, point at my selected location prop which hopefully holds my picked location.
-  
-    // Now since I use selected location in here and since this changes, I'll add this as a dependency to use callback so that this function is recreated when we have a new location picked 
-
-  }, [savePickedLocationHandler]);
-
-  let markerCoordinates;
-
-  if (selectedLocation) {
-    markerCoordinates = {
-      latitude: selectedLocation.lat,
-      longitude: selectedLocation.lng
-    };
-  }
-
-  return (
-    <MapView
-      style={styles.map}
-      region={mapRegion}
-      onPress={selectLocationHandler}
-    >
-      {markerCoordinates && (
-        <Marker title="Picked Location" coordinate={markerCoordinates} />
-      )}
-    </MapView>
-  );
-};
-
-MapScreen.navigationOptions = navData => {
-  // So with that, we can extract this save location param in our header.
-  const saveFn = navData.navigation.getParam('saveLocation');
-  // So now we have the save button, when we press the save button, I want to trigger a function that should be defined in the component
-  return {
-    headerRight: (
-      <TouchableOpacity style={styles.headerButton} onPress={saveFn}>
-        <Text style={styles.headerButtonText}>Save</Text>
-      </TouchableOpacity>
-    )
-  };
-};
-
-const styles = StyleSheet.create({
-  map: {
-    flex: 1
-  },
-  headerButton: {
-    marginHorizontal: 20
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Platform.OS === 'android' ? 'white' : Colors.primary
-  }
-});
-
-export default MapScreen;
-```
-* now we can use the data we're passing back from map screen in our location picker ultimately to update the map preview there,
-
-### Storing Picked Places
-
-* So to use the data we're getting back from the map screen, we can go directly to the location picker component because there, I do have access to props navigation since I feed this in there from the new place screen, so I can directly listen to changes in my params there 
-
-```js
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Button,
-  Text,
-  ActivityIndicator,
-  Alert,
-  StyleSheet
-} from 'react-native';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-
-import Colors from '../constants/Colors';
-import MapPreview from './MapPreview';
-
-const LocationPicker = props => {
-  const [isFetching, setIsFetching] = useState(false);
-  const [pickedLocation, setPickedLocation] = useState();
-
-  // Now of course, pickedLocation will not always be set,
-
-  // for example if we go to the new place screen from our places list screen, there in this navigation action,
-
-  // I'm not setting any param so therefore of course this is not always available but in that case picked location will just be undefined.
-
-  const mapPickedLocation = props.navigation.getParam('pickedLocation'); // here we are receiving pickedLocation which we sent from  
-
-  useEffect(() => {
-    // whenever we pick new location i want to setInternal state with new location.
-    // So this is now an elegant way of storing the location we picked on the map and which we passed around with props in our internal location picker state here.
-
-    if (mapPickedLocation) {
-      setPickedLocation(mapPickedLocation); 
-    }
-
-  }, [mapPickedLocation]);
-
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.LOCATION);
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant location permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const getLocationHandler = async () => {
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
-
-    try {
-      setIsFetching(true);
-      const location = await Location.getCurrentPositionAsync({
-        timeout: 5000
-      });
-      setPickedLocation({
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      });
-    } catch (err) {
-      Alert.alert(
-        'Could not fetch location!',
-        'Please try again later or pick a location on the map.',
-        [{ text: 'Okay' }]
-      );
-    }
-    setIsFetching(false);
-  };
-
-  const pickOnMapHandler = () => {
-    props.navigation.navigate('Map');
-  };
-
-  return (
-    <View style={styles.locationPicker}>
-      <MapPreview
-        style={styles.mapPreview}
-        location={pickedLocation}
-        onPress={pickOnMapHandler}
-      >
-        {isFetching ? (
-          <ActivityIndicator size="large" color={Colors.primary} />
-        ) : (
-          <Text>No location chosen yet!</Text>
-        )}
-      </MapPreview>
-      <View style={styles.actions}>
-        <Button
-          title="Get User Location"
-          color={Colors.primary}
-          onPress={getLocationHandler}
-        />
-        <Button
-          title="Pick on Map"
-          color={Colors.primary}
-          onPress={pickOnMapHandler}
-        />
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  locationPicker: {
-    marginBottom: 15
-  },
-  mapPreview: {
-    marginBottom: 10,
-    width: '100%',
-    height: 150,
-    borderColor: '#ccc',
-    borderWidth: 1
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%'
-  }
-});
-
-export default LocationPicker;
-```
-### Updating the Location Screen When the Location Changes
-
-* So whenever our location changes here in the location picker, I want to inform the new place screen.
-
-* when I picked a place on the map or also here if I got the user location, in both cases I want to trigger a method or a function which I expect to get from my new place screen.
-
-* So the same thing as we're doing it on the image picker in the end. There once I took an image, I call props on image taken to call a function that the parent component, so the new place screen, can pass to the image picker and I want to do the same here, I want to use the same pattern here in the location picker.
-
-```js
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Button,
-  Text,
-  ActivityIndicator,
-  Alert,
-  StyleSheet
-} from 'react-native';
-import * as Location from 'expo-location';
-import * as Permissions from 'expo-permissions';
-
-import Colors from '../constants/Colors';
-import MapPreview from './MapPreview';
-
-const LocationPicker = props => {
-  const [isFetching, setIsFetching] = useState(false);
-  const [pickedLocation, setPickedLocation] = useState();
-
-  const mapPickedLocation = props.navigation.getParam('pickedLocation');
-
-  const { onLocationPicked } = props; // here we destructed onLocationPicked from props
-
-  useEffect(() => {
-    if (mapPickedLocation) {
-      setPickedLocation(mapPickedLocation);
-      onLocationPicked(mapPickedLocation);  // like below here after picking a location, I want to trigger props on location picked.
-      // props.onLocationPicked(mapPickedLocation); if we didn't destructed we should like this 
-    }
-  }, [mapPickedLocation, onLocationPicked]);
-
-  const verifyPermissions = async () => {
-    const result = await Permissions.askAsync(Permissions.LOCATION);
-    if (result.status !== 'granted') {
-      Alert.alert(
-        'Insufficient permissions!',
-        'You need to grant location permissions to use this app.',
-        [{ text: 'Okay' }]
-      );
-      return false;
-    }
-    return true;
-  };
-
-  const getLocationHandler = async () => {
-    const hasPermission = await verifyPermissions();
-    if (!hasPermission) {
-      return;
-    }
-
-    try {
-      setIsFetching(true);
-      const location = await Location.getCurrentPositionAsync({
-        timeout: 5000
-      });
-      setPickedLocation({
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      });
-      // So here after picking a location with the please locate me button, I want to trigger props on location picked and forward this location in the end,
-      props.onLocationPicked({
-        lat: location.coords.latitude,
-        lng: location.coords.longitude
-      });
-
-
-    } catch (err) {
-      Alert.alert(
-        'Could not fetch location!',
-        'Please try again later or pick a location on the map.',
-        [{ text: 'Okay' }]
-      );
-    }
-    setIsFetching(false);
-  };
-
-  const pickOnMapHandler = () => {
-    props.navigation.navigate('Map');
-  };
-
-  return (
-    <View style={styles.locationPicker}>
-      <MapPreview
-        style={styles.mapPreview}
-        location={pickedLocation}
-        onPress={pickOnMapHandler}
-      >
-        {isFetching ? (
-          <ActivityIndicator size="large" color={Colors.primary} />
-        ) : (
-          <Text>No location chosen yet!</Text>
-        )}
-      </MapPreview>
-      <View style={styles.actions}>
-        <Button
-          title="Get User Location"
-          color={Colors.primary}
-          onPress={getLocationHandler}
-        />
-        <Button
-          title="Pick on Map"
-          color={Colors.primary}
-          onPress={pickOnMapHandler}
-        />
-      </View>
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  locationPicker: {
-    marginBottom: 15
-  },
-  mapPreview: {
-    marginBottom: 10,
-    width: '100%',
-    height: 150,
-    borderColor: '#ccc',
-    borderWidth: 1
-  },
-  actions: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%'
-  }
-});
-
-export default LocationPicker;
-```
-* So onLocationPicked is now a prop we can set on the location so I'll do that here in the NewPlaceScreen and this should now point to a function which will receive the picked location. 
-
-```js
-import React, { useState, useCallback } from 'react';
-import {
-  ScrollView,
-  View,
-  Button,
-  Text,
-  TextInput,
-  StyleSheet
-} from 'react-native';
-import { useDispatch } from 'react-redux';
-
-import Colors from '../constants/Colors';
-import * as placesActions from '../store/places-actions';
-import ImagePicker from '../components/ImagePicker';
-import LocationPicker from '../components/LocationPicker';
-
-const NewPlaceScreen = props => {
-  const [titleValue, setTitleValue] = useState('');
-  const [selectedImage, setSelectedImage] = useState();
-  const [selectedLocation, setSelectedLocation] = useState();
-
-  const dispatch = useDispatch();
-
-  const titleChangeHandler = text => {
-    // you could add validation
-    setTitleValue(text);
-  };
-
-  const imageTakenHandler = imagePath => {
-    setSelectedImage(imagePath);
-  };
-
-  const locationPickedHandler = useCallback(location => {
-    // wrap use callback around my location picked handler, to avoid that this gets recreated with every re-render cycle and I therefore get into an infinite loop
-    setSelectedLocation(location); // here we setSelectedLocation 
-  }, []);
-
-  const savePlaceHandler = () => {
-    dispatch(placesActions.addPlace(titleValue, selectedImage, selectedLocation)); // now we got our selected location here. We can now use this in the save place handler
-    props.navigation.goBack();
-  };
-
-  return (
-    <ScrollView>
-      <View style={styles.form}>
-        <Text style={styles.label}>Title</Text>
-        <TextInput
-          style={styles.textInput}
-          onChangeText={titleChangeHandler}
-          value={titleValue}
-        />
-        <ImagePicker onImageTaken={imageTakenHandler} />
-        <LocationPicker
-          navigation={props.navigation}
-          onLocationPicked={locationPickedHandler} //here  we used onLocationPicked props and assign that to a method 
-        />
-        <Button
-          title="Save Place"
-          color={Colors.primary}
-          onPress={savePlaceHandler}
-        />
-      </View>
-    </ScrollView>
-  );
-};
-
-NewPlaceScreen.navigationOptions = {
-  headerTitle: 'Add Place'
-};
-
-const styles = StyleSheet.create({
-  form: {
-    margin: 30
-  },
-  label: {
-    fontSize: 18,
-    marginBottom: 15
-  },
-  textInput: {
-    borderBottomColor: '#ccc',
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    paddingVertical: 4,
-    paddingHorizontal: 2
-  }
-});
-
-export default NewPlaceScreen;
-```
-* And therefore the next thing we'll do is work on our Redux logic to take that location into account and that's one thing that's missing right now, also make sure we translate this coordinate pair we get into a human readable address as well.
-
-### Storing the Address
-
-* Let's go to Redux, to the places actions which now receives a location object as well
-
-* So in places actions, in add place, we'll get this location object and here,I of course want to store it in my database,I want to store it in my Redux store and as I mentioned, I want to get this human readable address,and for that we can use another Google Maps geocoding API.
-
-* and this is an API which allows you to translate addresses into coordinates or coordinates into addresses.Coordinates into addresses is called a reverse look up, so we can click on reverse geocoding
-
-* Refer : https://developers.google.com/maps/documentation/geocoding/start#reverse
-
-```js
-import * as FileSystem from 'expo-file-system';
-
-import { insertPlace, fetchPlaces } from '../helpers/db';
-import ENV from '../env';
-
-export const ADD_PLACE = 'ADD_PLACE';
-export const SET_PLACES = 'SET_PLACES';
-
-export const addPlace = (title, image, location) => {
-  return async dispatch => {
-    // here we are requesting with fetch API
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${
-        location.lat
-      },${location.lng}&key=${ENV.googleApiKey}`
-    );
-
-    if (!response.ok) {
-      throw new Error('Something went wrong!');
-    }
-
-    const resData = await response.json(); // which extracts the body of the response and converts it to normal Javascript 
-    if (!resData.results) {
-      throw new Error('Something went wrong!');
-    }
-
-    const address = resData.results[0].formatted_address; // formatted_address!!
-
-    const fileName = image.split('/').pop();
-    const newPath = FileSystem.documentDirectory + fileName;
-
-    try {
-      await FileSystem.moveAsync({
-        from: image,
-        to: newPath
-      });
-      const dbResult = await insertPlace(
-        title,
-        newPath,
-        address, //now we can save actual address not dummy!! 
-        location.lat, // now we can save actual lat and lng not dummy!!
-        location.lng
-      );
-      console.log(dbResult);
-      dispatch({
-        type: ADD_PLACE,
-        placeData: {
-          id: dbResult.insertId,
-          title: title,
-          image: newPath,
-          address: address, // address
-          // coords
-          coords: {
-            lat: location.lat,
-            lng: location.lng
-          }
-        }
-      });
-      // now all that data is passed on with our action object and therefore reaches our reducer.
-    } catch (err) {
-      console.log(err);
-      throw err;
-    }
-  };
-};
-
-export const loadPlaces = () => {
-  return async dispatch => {
-    try {
-      const dbResult = await fetchPlaces();
-      console.log(dbResult);
-      dispatch({ type: SET_PLACES, places: dbResult.rows._array });
-    } catch (err) {
-      throw err;
-    }
-  };
-};
-
-```
-* So in the reducer, we now need to make sure we use the new address and coords fields we get. So in the places reducer, we want to initialize our place here with that extra data and for that we first of all need to tweak the place model to expect that data.
-
-```js
-// models
-class Place {
-    constructor(id, title, imageUri, address, lat, lng) {
-        this.id = id;
-        this.title = title;
-        this.imageUri = imageUri;
-        this.address = address;
-        this.lat = lat;
-        this.lng = lng;
-    }
-}
-export default Place;
-```
-* in Reducer
-
-```js
-import { ADD_PLACE, SET_PLACES } from './places-actions';
-import Place from '../models/place';
-
-const initialState = {
-  places: []
-};
-
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case SET_PLACES:
-      // Now when we load them from the database, when we set our places, we should therefore also initialize our
-
-      // place model correctly and take the data which is in the database already,
-
-      // so keep the address, keep the latitude and keep the longitude,
-
-      // so that's pretty straightforward and therefore now, we hopefully have all the data and use all the data.
-      return {
-        places: action.places.map(
-          pl =>
-            new Place(
-              pl.id.toString(),
-              pl.title,
-              pl.imageUri,
-              pl.address,
-              pl.lat,
-              pl.lng
-            )
-        )
-      };
-    case ADD_PLACE:
-      const newPlace = new Place(
-        action.placeData.id.toString(),
-        action.placeData.title,
-        action.placeData.image,
-        action.placeData.address,
-        action.placeData.coords.lat,
-        action.placeData.coords.lng
-      );
-      return {
-        places: state.places.concat(newPlace)
-      };
-    default:
-      return state;
-  }
-};
-```
-#### Displaying the "Details" Screen
-
-* when I use the place item, instead of passing null for the address, of course we should pass itemData.item.address in there because we should have the address stored.
-
-```js
-<PlaceItem
-  image={itemData.item.imageUri}
-  title={itemData.item.title}
-  address={itemData.item.address}
-  onSelect={() => {
-    props.navigation.navigate('PlaceDetail', {
-      placeTitle: itemData.item.title,
-      placeId: itemData.item.id
-    });
-  }}
-/>
-```
-
-* Let's make sure that on the detail page, we also see a bit more about this and for that on the place detail screen here, we of course can tweak this and add a scroll view so that we ensure that we can always see everything, we don't need a flat list here because we'll not have an infinite amount of items, maybe just a little bit of scrolling that is required based on the device size
-
-```js
-// Place details screen
-import React from 'react';
-import { ScrollView, Image, View, Text, StyleSheet } from 'react-native';
-import { useSelector } from 'react-redux';
-
-import MapPreview from '../components/MapPreview';
-import Colors from '../constants/Colors';
-
-const PlaceDetailScreen = props => {
-  const placeId = props.navigation.getParam('placeId'); // we are already passing placeId here..
-  const selectedPlace = useSelector(state =>
-    state.places.places.find(place => place.id === placeId)
-  );
-
-  const selectedLocation = { lat: selectedPlace.lat, lng: selectedPlace.lng };
-
-  const showMapHandler = () => {
-    props.navigation.navigate('Map', {
-      readonly: true, // So we need to use the read only prop or param to make sure we can't select a new place
-      initialLocation: selectedLocation //  an initial location to still have a marker in there right from the start.
-    });
-  };
-  // I want to pass in my location. Good thing is my map preview of course takes a location,
-  return (
-    <ScrollView contentContainerStyle={{ alignItems: 'center' }}>
-      <Image source={{ uri: selectedPlace.imageUri }} style={styles.image} />
-      <View style={styles.locationContainer}>
-        <View style={styles.addressContainer}>
-          <Text style={styles.address}>{selectedPlace.address}</Text>
-        </View>
-        <MapPreview
-          style={styles.mapPreview}
-          location={selectedLocation}
-          onPress={showMapHandler} // So when we click the map preview, onPress, I want to navigate to the different screen right.
-        />
-      </View>
-    </ScrollView>
-  );
-};
-
-PlaceDetailScreen.navigationOptions = navData => {
-  return {
-    headerTitle: navData.navigation.getParam('placeTitle')
-  };
-};
-
-const styles = StyleSheet.create({
-  image: {
-    height: '35%',
-    minHeight: 300,
-    width: '100%',
-    backgroundColor: '#ccc'
-  },
-  locationContainer: {
-    marginVertical: 20,
-    width: '90%',
-    maxWidth: 350,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: 'black',
-    shadowOpacity: 0.26,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 8,
-    elevation: 5,
-    backgroundColor: 'white',
-    borderRadius: 10
-  },
-  addressContainer: {
-    padding: 20
-  },
-  address: {
-    color: Colors.primary,
-    textAlign: 'center'
-  },
-  mapPreview: {
-    width: '100%',
-    maxWidth: 350,
-    height: 300,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10
-  }
-});
-
-export default PlaceDetailScreen;
-
-```
-
-* And in Mapscreen we could receive this params
-
-```js
-import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  Platform
-} from 'react-native';
-import MapView, { Marker } from 'react-native-maps';
-
-import Colors from '../constants/Colors';
-
-const MapScreen = props => {
-  const initialLocation = props.navigation.getParam('initialLocation'); // here we receiving initialLocation props
-  const readonly = props.navigation.getParam('readonly'); // here we receiving readonly props
-
-  const [selectedLocation, setSelectedLocation] = useState(initialLocation); // will be loaded with initialLocation
-
-  const mapRegion = {
-    latitude: initialLocation ? initialLocation.lat : 37.78, // here if we have co-ordinates we will show marker or else dummy co-ordinates
-    longitude: initialLocation ? initialLocation.lng : -122.43,
-    latitudeDelta: 0.0922,
-    longitudeDelta: 0.0421
-  };
-
-  const selectLocationHandler = event => {
-    if (readonly) {
-      // if readonly just return don't allow user to pick location
-      return;
-    }
-    setSelectedLocation({
-      lat: event.nativeEvent.coordinate.latitude,
-      lng: event.nativeEvent.coordinate.longitude
-    });
-  };
-
-  const savePickedLocationHandler = useCallback(() => {
-    if (!selectedLocation) {
-      // could show an alert!
-      return;
-    }
-    props.navigation.navigate('NewPlace', { pickedLocation: selectedLocation });
-  }, [selectedLocation]);
-
-  useEffect(() => {
-    props.navigation.setParams({ saveLocation: savePickedLocationHandler });
-  }, [savePickedLocationHandler]);
-
-  let markerCoordinates;
-
-  if (selectedLocation) {
-    markerCoordinates = {
-      latitude: selectedLocation.lat,
-      longitude: selectedLocation.lng
-    };
-  }
-
-  return (
-    <MapView
-      style={styles.map}
-      region={mapRegion}
-      onPress={selectLocationHandler}
-    >
-      {markerCoordinates && (
-        <Marker title="Picked Location" coordinate={markerCoordinates} />
-      )}
-    </MapView>
-  );
-};
-
-MapScreen.navigationOptions = navData => {
-  // Now I also want to get rid of the save button if we have nothing to save,
-  const saveFn = navData.navigation.getParam('saveLocation');
-  const readonly = navData.navigation.getParam('readonly');
-  if (readonly) {
-    return {};
-  }
-  return {
-    headerRight: (
-      <TouchableOpacity style={styles.headerButton} onPress={saveFn}>
-        <Text style={styles.headerButtonText}>Save</Text>
-      </TouchableOpacity>
-    )
-  };
-};
-
-const styles = StyleSheet.create({
-  map: {
-    flex: 1
-  },
-  headerButton: {
-    marginHorizontal: 20
-  },
-  headerButtonText: {
-    fontSize: 16,
-    color: Platform.OS === 'android' ? 'white' : Colors.primary
-  }
-});
-
-export default MapScreen;
-```
+* React Native Setup without Expo: https://facebook.github.io/react-native/docs/getting-started#installing-dependencies
