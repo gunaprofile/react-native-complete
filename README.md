@@ -1,378 +1,643 @@
-## Building Apps Without Expo
+## Publishing React Native Apps
 
 ### Intro
 
-* we built React Native apps but we built them with a tool called expo, expo mostly get out of our way but it made building these apps way simpler.
+* Now obviously, you now want to get it into the app stores, into the Apple App Store and the Google Play store.
 
-* The setup process is simple, you can test it on your real device without any special configuration neither, you can easily add native modules and you have a huge catalog of built-in native modules and so on. So developing React Native apps with the help of expo is really easy and therefore my recommended way of doing it.
+* we'll dive into how you may deploy your app, both if you're using the managed workflow expo provides or if you're having a raw app created with the React Native CLI or with the bare workflow expo offers.
 
-* Now there can be reasons why you might want to build an app without expo,
+### Deployment Steps
 
-* for one you must not forget that expo of course works such that you have the expo client on your real device or also on the simulator of course, there we also in the end installed the expo client, so this app on the device and your app kind of gets loaded into that client. Now you still will be able to publish a standalone app as you learned, so you can still publish an app which you upload to the app stores where people don't need to install the client but this published app will in the end kind of include that app wrapper, so it will be a standalone app where people don't need to install the expo client app but the expo client app is part of your app you could say, so people indirectly install it if that makes sense.
+* so the next step is that we configure the app and the deployment. That means that we set a name for the app, an identifier which identifies it in the app stores, every app needs a unique identifier and so on. In the expo managed workflow, this also means that we can configure some additional nice features which I'll dive into.
 
-* So you always have this wrapper and therefore one reason for not using expo but could be that you want to get rid of that wrapper because as you might imagine, this wrapper whilst still giving you a native app and whilst still giving you the benefits of your views being compiled to native views, whilst all of that is the case, this wrapper of course adds a little bit of size to your app, your app gets bigger.It probably also gets a bit slower because of that extra wrapper, though I still want to emphasize you get a native compiled app, right? Your views still are compiled to native code so you don't lose that,
+* Now you obviously also want to add your own icons and a nice splash screen, so a loading screen before the app opens up to your app.
 
-* it's not like Ionic where Ionic use a native app as a wrapper for a web app, that's not what's happening here, still you have that overhead.So one reason for not using expo might be that you want to get rid of that extra wrapper,
+* Last but not least, it's time to then build and deploy the app. (Refer image delpoy1)
 
-* another reason could be that you need some native device functionality outside of what we used in the native feature module that isn't included in expo, so some feature which you just can't add with the help of expo and then you're stuck. If you need some feature that's not part of expo's of which you can't find here, then you can't add it to a React Native app built with expo, there's no way for that. You can't write your own native code and connect it and you can't bring other third-party packages which tap into native device features, that's not supported in expo.
+* building the app means that you now bundle up your app into a deployable app bundle and deploying then really means that you set up the store page in the Apple App Store or Google Play Store and that you then get your file into that store That's the last step
 
-* So these could be two reasons for why you want to switch away - you want to get rid of that wrapper because every millisecond of performance matters to you and every kilobytes of size matters to you or because of a native feature that's missing.
+* then of course it's all about tweaking that store page and uploading some nice images there, setting description texts and so on.
 
-* But in case something is missing, you can of course also build a React Native app and we can find that on the official docs too without expo.
+* So these are the steps you typically go through and in this module, we'll have a look at the deployment related steps and the configuration steps and I will show you how you can get your app onto the devices of other users.
 
-### Alternatives to Expo
+* Of course there also is kind of a difference if we talk about expo apps and non-expo apps if you want to call it like this. 
 
-* You could say there are around three ways of building a React Native app -
-  * one is with expo with the so-called managed workflow, - zero setup, it works out of the box, you can easily test the app on a real device, you got lots of native modules built in which are super easy to install and to use. It's controlled with the expo CLI, 
+* With expo apps, I mean apps that use managed workflow and non-expo means bare app, so using the bare workflow offered by expo or not using expo at all created with the React Native CLI.
 
-  * Now an alternative to that is that you still use expo but the so-called bare workflow or that you build a React Native app without expo at all with the React Native CLI.
+*  In the managed approach, you have the app.json file which you can use to configure your application, assets like icons and splash screen are automatically created for you, you just provide some input assets there and then all the creation and optimization is handled for you. 
 
-    * Now the expo bare workflow thing can either be created from scratch or by ejecting from the managed workflow(we will see soon)
+* You have a command which you can run to publish your app and then commands to build for the different platform, for the different operating systems and that build will happen on cloud servers provided by the expo team,
 
-    * Now when you build an app with the bare workflow, you get a non-expo app, you build a native app as you would build it with the React Native CLI, so you get the same basis there, the difference is that you can still use special expo packages. Installing them is a bit more complex than when you're in the managed workflow, you need to do more manual wire up work, at least for some packages but many, not all but many of the expo packages which are included in the managed workflow are available as standalone packages you can bring to any React Native app as well
+* so you can even build for iOS if you're running on Windows or Linux machine, something you can not do if you have to build manually on your own, then you can only build iOS apps on a Mac and you even get a nice feature, a nice extra feature which is called over the air updates which allows you to push basic updates, code changes and so on to apps which are running on other devices over the air, so over the Internet, over expo's servers without the need for those users to update your app physically. So they don't have to install a new version from the App Store, instead you can push such code changes behind the scenes, you can live update these apps whilst they're running on other machines or on other devices which is pretty sweet.
 
-    * So you can bring that and with the bare workflow, it's relatively easy to add these packages, not as easy and quick as in the manage workflow but still, very easy. 
+* Now in non-expo apps, you have to configure everything manually. You have to set up the name, identifier and so on manually in different files. You have to provide all the icons manually, create them manually, so a lot of manual stuff involved there and you also have to orchestrate the entire build manually
 
-    * When building an app without expo at all, with the React Native CLI, you can still bring these packages but then more manual setup is required. Now as I said, it's relatively easy to configure and manage in the bare workflow, you have to manage more in the React Native CLI workflow, so there you really build everything without any support by expo.
+* So you have to build the app via Android Studio and Xcode and the that's of course a lot of simply manual work you have to do and you have no built-in over the air updates. 
 
-    * Regarding the native modules you use, you can use any native module you want, also non-expo ones, you can bring these special expo packages which you need to wire up manually but you can bring any other native module.
+* There are other third party services you can use and therefore you can get that feature to work in this approach too but it's just not as easy as with the expo managed workflow, that's just something to be aware of.(Refer : deploy2)
 
-    * Now when we come to building the app and distributing it, with the managed workflow you will see in the deployment module that's super easy to do, with the bare workflow it's a bit "harder" in quotes, it requires more work with Android Studio and Xcode and it's not as easy as with the expo managed workflow, you also for example and that's one important restriction, you will not be able to build iOS apps on Windows. That is possible in the managed workflow because the build won't happen on your machine there but in the cloud, with the bare workflow and with the React Native CLI, you are responsible for building the apps and therefore, you need to do it locally on your machine and therefore due to Apple's restrictions, you will not be able to build an iOS app on Windows or Linux,
+### Configuring the App & Publishing
 
-* In this module I want to show you how you build an app with the React Native CLI, how you also build it with expo in the bare workflow and how you can eject from the managed workflow to the bare workflow. Refer image(alternatives1)
+* What I got here is this application we built earlier in the course with the native device features, with the camera, maps and so on.
 
-* The way you write your components and so on and which components you use from React Native, that does not differ at all because there was nothing specific about expo in that. Put it in other words if we have a look at the project we worked on earlier in the course, this native module project, essentially what you'll lose when you're not using the managed workflow is all the expo related imports, everything you're importing from expo, that basically is something which now is harder or which you now need to do differently.
+* Now we should have a look at the app.json file because that's the file where we can generally configure this app for deployment and for publishing it and I want to walk you through some of the core settings you can make here and you should make here.
 
-* If you're not using expo like in this file, such a file would not need to change at all, only files where you use something from expo need to be adjusted or need to be implemented differently when not using the managed workflow or to be precise, you might not be able to use certain packages anymore or you can still use them and you probably don't even need to touch your code at all but in order to use them you need to do more manual setup work than you need to do with expo and the managed workflow.
+* Refer : https://docs.expo.io/workflow/configuration/?redirected
 
-### Building Apps with Just the React Native CLI
+* you learn all about the possible settings you can set up there and what they mean, what they do and what you would need them for. So there's a lot you can configure but for a basic deployment, most of these things don't matter.
 
-* So what are our alternatives to the managed workflow? One alternative is to use the React Native CLI, Refer : https://reactnative.dev/docs/environment-setup
+```json
+{
+  "expo": {
+    "name": "Great Places", // this is also a name that will show up on the home screen when you build this app as a standalone app
+    "description" : "some text", // this will not show up in app store this is for expo publish page..
+    "slug": "great-places", // Now here, we also can add a slug and that should be like this in the URL format so that this could be part of the URL
+    "sdkVersion": "38.0.0", // The SDK version here simply identifies the SDK version of the expo SDK you're using
+    "platforms": [
+      "ios",
+      "android",
+      // "web"
+    ],
+    "version": "1.0.0", // you can describe for which platforms you want to publish 
+    // you change that and you have three numbers which you can change, where typically the last number should be changed if a new version only includes tiny bug fixes but no major new features.
 
-* Based on your Development OS and Targeted OS we have to follow different steps just follow that.. but android studio and Xcode are mandtory tools.
+    // The middle number should be changed if you have a new version that does introduce major or important new features
 
-* Now you also no matter for which platform you're working, you also need to install the React Native CLI,
+    // the first number should be changed whenever you have a real major new version that might also very well include some breaking changes or some huge changes.
 
-```js
-sudo npm install -g react-native-cli
+    "orientation": "default", // Orientation is a setting we already saw there you can lock the orientation of your app.You can set this to default to allow for rotation or for rotating the app, you can set it to portrait or landscape mode to lock it down. 
+    "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    }, // Icon and splash screen, This allows you to set an app icon and an app splash screen and you just set a pointer at an input source, at a basic file and then expo will generate a bunch of icons for different device sizes, different screen sizes which is really convenient
+    "updates": {
+      "fallbackToCacheTimeout": 0 // that's related to the over the air update thing which is very interesting.
+    },
+    "assetBundlePatterns": [
+      "**/*" // this kind of has an impact on how extra assets, like images that are part of your app
+    ],
+    // you can also set platform specific settings here for iOS and Android.
+    "ios": {
+      "supportsTablet": true
+    },
+    // "web": {
+    //   "favicon": "./assets/favicon.png"
+    // }
+  }
+}
+
+
 ```
-* this will now globally install the React Native CLI, for that you also need NodeJS installed, Now with the React Native CLI installed, we can start creating a project totally without expo
+* Now if you want to publish your app, you can do this in a very simple way, you just need to run
 
 ```js
-react-native init RNWithoutExpo
+expo publish
+``` 
+* Now when you first run this, you will be prompted to log in with your expo account or create a new one if you don't have one yet.
+
+* So simply create one, it's free, it doesn't cost you anything, you just need to create one, you can do this on the fly after running expo publish, as I said you will be prompted to create an account or log in if you aren't already and there you can create the account on the go in this command line here.
+
+* All you need is an email, a username and a password. Once you did this and you run expo publish, this will try to publish your app and no worries, it will not immediately publish it to the app stores.
+
+* with all of that, it's now uploading the Javascript bundles, we don't know where but we'll see in a second,
+
+* So did it now create an app and upload it to the app stores? No, that's not what happened here.
+
+* Instead what it did here is it created a deployment, it published our app to expo. that will create a link like below:
+
+```js
+https://expo.io/@linkguna/rn-native
 ```
-* Now important again, you now need to have Android Studio and Xcode installed and configured as mentioned in the official docs
+* what you find is your app now hosted on expo servers so to say and you can scan this barcode here with a real device, with the expo client app. So basically what we already did during development can now be done with our published app,
 
-* So now let's wait for this setup to finish here and once this is done you can follow the instructions here to in the end run your app.
+* Here's my iPhone and now again I just point my camera at this QR code or with Android, you open your expo app and scan the barcode there and now you can open that app in expo. Now again, you need the expo client installed for this.mNow what you'll also see here on the screen however is a warning that I can't open this app because I'm not the author of the experience.
 
-* move to your project and then run emulator
+* So the expo client on iOS site as you see here can no longer open published projects that don't belong to the signed in user. Now that's an iOS limitation, on Android you would be able to open this app but of course the question is in general, why would we publish our app like this?
 
-```js
-~ cd RNWithoutExpo
-~ react-native run-ios
+* It's very hard to reach users with this,they need to have the expo client app installed which almost no one has in the world, probably just a couple of React Native developers, so this is not really how we want to distribute our app, right?
+
+* Well this is just one step of distributing our app and this is actually not how we aim to target it or how we aim to get it to all users over the world, instead this is just one step of publishing it to the app stores. 
+
+* So for this, it's nice but of course, this is not the final solution for really publishing this to unknown users.
+
+### Configuring Icons & The Splash Screen
+
+* Now what I'm interested in right now is the icon and splash screen part because that's the icon people will see on the home screen, of course not yet because right now we're not publishing the apps to the App Store but that will change and the splash screen,well that's what users see when our app loads and both are things you typically want to customize.
+
+* we want to provide our own icon, our own splash screen image here. 
+
+* Now you're really flexible regarding what you provide here but in general, it's a good idea to provide an icon in the 1024 x 1024 resolution, so a square icon as an input 
+
+* and for the splash screen, you can build a splash screen as described in the official docs. Refer : https://docs.expo.io/guides/splash-screens/?redirected
+
+* we can place our new icon and splashscreen inside assets folder and update the corresponding name in our app.json
+
+```json
+    "icon": "./assets/places.png",
+    "splash": {
+      "image": "./assets/splash_icon.png",
+      "resizeMode": "contain", // resize mode here can be set to contain or cover, 
+      // cover will basically stretch the icon to take the full available width and height, 
+      // contain will keep the icon size, center it and have that background color behind the icon. 
+      "backgroundColor": "#171717"
+    },
 ```
-* Now let's have a look at the code that is responsible for that, does that now look totally different than what we saw thus far? For that, I loaded the project here again with Visual Studio Code, so the same set up as before and what you see looks a bit different but mostly, we have a bunch of different configuration files, fair enough but that doesn't really change the way we write our code. Very important, we got an Android and an iOS folder, we didn't have that before,
 
-* but those folders contain the real native app projects which are built with the help of Android Studio and Xcode and your code gets kind of built into that you could say, React Native does all that for you
+* lets try with our emulator
 
-* but if we have a look at the concrete code in the app.js file, well that is just what we already used, right? 
+* Now as you can tell, the icon doesn't look that great on Android though. The reason for that is that Android depending on the version of Android you're running on your device uses different icons, newer more recent versions of Android use these so-called adaptive icons which are these rounded icons where you have your icon in the middle and then some background color or a background image even behind them,older versions would use square icons.
 
-* We write the same code, we use the same components, they get compiled to native widgets, that all does not change when we use expo, the only difference is that with expo, we don't have to set up as much, the build is a bit faster and adding native modules is super easy, testing on real devices is super easy, it's simply easier, we build the app in the same way though and that's something you can see here as well.
+* Refer that doc for platform based configuration for icon and splash screen.
 
-* Now one extra thing you'll find here is the index.js file, we didn't have that in expo, that kind of is the basic configuration file that launches your app you could say, that makes sure that this app component gets rendered to the screen, that's something expo did for you in the React Native expo app but other than that, it's really just the same and you would build an app in the same way.
+* Now the interesting thing is for Android, you can not just set a specific icon splash screen, you can also set an adaptive icon here with the adaptive icon configuration, that's not available for iOS because adaptive icons are exclusive to Android.
 
-### Live Reload and RN CLI Apps
+* Adaptive icon takes a Javascript object so to say as a configuration value, not a string and this object can have three keys - a foreground image, a background color or a background image.
 
-* In the current "RN-CLI only" setup, the app wouldn't reload when changing code
+* Now you have either a background color or a background image but you always should have a foreground image.
 
-* Unlike in Expo apps, "live reload" needs to be enabled.
+```json
+"android": {
+  "adaptiveIcon":{
+    "foregroundImage": "./assets/places-adaptive.png",
+    "backgroundColor" : "#171717"
+  }
+}
+```
+* he new one will be taken into account though once we built this app as a standalone app and distribute it to the app stores. In general, the recommendation is that for Android, you do set such an adaptive icon because you cover more Android versions which doesn't hurt of course. 
 
-* To do this, open the developer menu on the device
+* Setting such a general icon is also not a bad idea and of course we can either use one and the same icon for both iOS and Android or you set specific icons for iOS and for Android, as mentioned for Android possibly, the adaptive icon.
 
-* For Android Emulators: CTRL + M (or CMD + M on a Mac)
+Refer Splash Screen : https://docs.expo.io/guides/splash-screens/?redirected
+Refer Icon : https://docs.expo.io/guides/app-icons/?redirected
 
-* For iOS Simulators: CMD + D
+### Working with Offline Asset Bundles
 
-* Or (both platforms): Shake the device, Then "Enable Live Reload"
+* Now besides icons and splash screen, our app also might include other assets. This app actually doesn't but you might have other images here in the asset folder which you're using in your app with image component, so not network images but local images as we also use them earlier or you might be using custom fonts as I did
 
-### Adding Native Modules to Non-Expo Apps
+* Now if you do that, there is actually something interesting happening in a managed expo app. When you publish your app and even if you later deploy it to the app stores which I will show you, these assets by default are actually taken by expo, are optimized and so on and are then uploaded onto one of their servers for free but they're uploaded there and your app is configured to download them from the servers when it launches.
 
-* Now what I want to do here is I want to show you how you can of course change the code but then also how we could add a native functionality in such a vanilla React Native app.
+* Now the advantage of this is that your app bundle is kept a bit smaller because the files are not included in your app but instead live on a server and are downloaded into the running app
+
+* but the disadvantage of this approach can be that your app always needs an Internet connection because if you don't have an internet connection, your images and your fonts can't be loaded into the app and that of course might lead to your app not working in the way it should.
+
+* So therefore, you actually might not want to have your images or fonts uploaded to expo's servers or at least not all of them and that's what you can control with that asset bundle patterns setting in the app.json file. Whichever path or paths you provide here will be excluded from uploading and you can use wild cards.
+
+```json
+"assetBundlePatterns": [
+      "**/*"
+    ],
+```
+* Now as you see, what this basically says is all files should not be uploaded, so all files should be included into the app bundle.
+
+* If this would be an empty array or if this would not be set at all, this option, then you would have the default behavior of uploading all assets to the servers.
+
+* With this approach which was preconfigured here, you say upload everything to expo's servers except for what you find in this path and this path on the other hand is a wild card that says everything, so every file in every folder of this project should be part of the app bundle, so actually nothing will be uploaded with this setting.
+
+* You could also be saying everything in assets or maybe everything in assets and subfolders of assets should be part of the asset bundle, if you had any other files which you use the app in other folders, you would upload them. So you can really control this in great detail
+
+```json
+"assetBundlePatterns": [
+      "assets/**/*"
+    ]
+```
+
+* and therefore you can control what's part of your bundle, therefore increasing the size of it a little bit and the loading time of the app a little bit or what should be stored on servers, which might make your bundle a bit smaller but which forces you to always have an internet connection.
+
+* Refer : https://docs.expo.io/guides/offline-support/?redirected
+
+### Using "Over the Air Updates" (OTA Updates)
+
+* There also are more things you can set up of course, one thing I want to dive into are the over the air updates though which you control with the updates key in the app.json file.
+
+* Now that's a neat feature, which means that people running your app on their device no matter if it's just running in the expo client because they scan such a barcode which as I mentioned isn't too useful or if they really downloaded it from the app stores, as long as you build your app in the managed expo workflow, you get the over the air update functionality built in your code.
+
+* that means that if you change something in your code, no matter what you do, whenever you publish this update with the expo publish command, all your users, even if they installed the app from the app stores will get this update in their app the next time they open the app and that's important. 
+
+* You can configure the functionality here in the updates key. 
 
 ```js
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+ "updates": {
+  "fallbackToCacheTimeout": 0 // you can configure how long the app when users launch it
+// on their device should check for updates and try to load them before it displays the recent available version
+// By setting this to zero, you're saying whenever the app launches, it immediately displays what it has.
+},
+```
+*  Again in the official docs, you learned more about this update key and what you can set there. What you can set, for example is if it's generally enabled which by default it is
 
-import React from 'react';
-import {
-  View,
-  StyleSheet,
-  Button
-} from 'react-native';
-import ImagePicker from 'react-native-image-picker';
+*  It looks for updates behind the scenes and for the next launch, it might then take them into account but it doesn't try to look for updates and download them before actually loading the app.
 
-const App: () => React$Node = () => {
+```js
+ "updates": {
+  "fallbackToCacheTimeout": 5000 
+},
+```
+* Now you could change this to let's say five seconds, this is a millisecond value, so five thousand milliseconds which is five seconds.This would mean that when people launch the app, they will see the launch screen for up to five seconds which is of course quite long because after loading everything else, expo or your app tries to look for an update and if it finds an update, it tries to download it and take it into account.That might be done in five seconds, it might be done faster in which case your app will also launch faster
 
+* but if it takes longer than five seconds, then it'll continue with the updating but not immediately load it but instead load the most recent version that is available. Now it's of course up to you what you prefer,
 
-  // onPress, I want to open the image picker. Now how can we add this?
-  // Now since this is a React Native project without expo in any way, we can't easily use the expo APIs here.
-  // There actually is a way of using them and I'll come back to that later in this module
+* this approach  ("fallbackToCacheTimeout": 0 )makes sure that users have the fastest possible startup experience but they only get your updated code the next time the app is launched.
 
-  //  if you're working with a vanilla React Native app,
+* This approach or setting this to an even higher value like 10 seconds means that users get newer versions more frequently or quicker because they get it on the next app launch already but the downside is that the app launch might take a bit longer, which is maybe not what you want.
 
-  // we search for React Native image picker for example to find a package that helps us with that, for example this one, the React Native image picker package
+* So it really depends on which type of app you're building and which type of users you're targeting, what you want to set there.
 
-  // Refer : https://www.npmjs.com/package/react-native-image-picker
+* If it's a business app let's say which you distribute to your employees which needs to be updated all the time and where the user experience is not that important, you might want to take a value like 10 seconds here,
 
-  // and now we can install this because now we can bring any third-party package, no matter if it adds native functionalities or not into your app.
-  //Previously with expo, this was not really possible, there you could only bring third-party packages that did not tap into native device features, now you got no restrictions.
+* if it's an app you share with normal end users around the world, you might want to go for a faster start up time to provide a good user experience and sacrifice update speed for that, so users would then only get the update on the next launch after this launch.
 
-  // "npm install --save react-native-image-picker"
+* With all of that out of the way, let's actually have a look at all of this and also at this over the air update feature.
 
-  // and then this "react-native link react-native-image-picker"
+* I changed a couple of settings here and therefore what I'll now do is I'll run expo publish again, still that's the command which will not get it in the app stores but which will share it here on this expo page so to say. 
 
-  // Now I will say there are third-party packages that take more effort, it really depends on the package. For expo,
+* Now let's change that in our code. So let's go to the code here and on the screen here in the new place screen where we set this title, let's change this to add new place, it's a tiny change but still. So now if I run expo publish again, this app will be bundled up and will be published to the expo servers again.
 
-  // it obviously was very easy, you just ran expo install, that was very fast, didn't take that long and you didn't need to do anything else.
+* since we used "fallbackToCacheTimeout": 0 you could see the update only after the second launch.
 
-  // Here you need to run one extra command but of course that's also not too bad but again, I will say not all packages support this command,
+* Now the app on the device technically didn't change, just what's in there changed, our Javascript code changed and since we have this expo wrapper, this means that expo can take this into account and use this new code
 
- // some packages require way more manual wire up work, manual work where you then actually need to dive into the Android and iOS folders to start working on some configuration files there.
+* and this will also work if you publish your app to the app stores because there whilst you will build a standalone app and people won't need the expo client, you will still include that expo client app into your standalone app as I mentioned earlier, so your standalone app kind of has the thin expo wrapper the expo client built in and wrapped around your app, that's why over the air updates will even work there.
 
-  // That's what the React Native link command did for you, for example on Android if you dive into the app
+### Building the Apps for Deployment (iOS & Android)
 
-  // folder and there, source and then in the source folder into build gradle, you will see that there, this line was added.
+Refer : https://docs.expo.io/distribution/building-standalone-apps/?redirected
 
-  // This wasn't there from the beginning, this was added by the React Native link command
+* When building for the app stores, the expo CLI,will help you but you might need to tweak your configuration in the app.json file depending on which features your application uses.
 
-  // some packages even support autolinking where this linking will be done automatically once installation
+* So our application here uses a bunch of native modules, these modules all need to request permissions and we kind of do this with the permissions API, like for example in the image picker here when we ask for permissions but for Android for example, you also need to provide a list of the permissions your app needs in a configuration file which you, when you use React Native only have but which you don't have when using expo because expo provides this wrapper and does all of that for you in the expo client
 
-  // finished but not all packages have that support, so that's something to be aware of. Behind the scenes, a lot of configuration was changed.
-  const pickImage = () => {
-    // copied from package
-    const options = {
-      title: 'Select Avatar',
-      customButtons: [{ name: 'fb', title: 'Choose Photo from Facebook' }],
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
+* but now we don't plan on using the expo client anymore and whilst it will include this into your standalone app as I mentioned, you now need to tell expo which permissions it should request there.
+
+* In addition for example if you're using Google Maps, you also need to provide your Google Maps API key and with that, I don't mean as we're doing it here which we use in some parts of our Javascript code but to use the React Native maps package.
+
+* Again the expo client app basically uses its own key for development and so on but as soon as you plan on offering a standalone app, you need to bring your own keys so that the expo wrapper which will be included in your standalone app will use your key because the expo team won't give you a key owned by them for that.
+
+* Again, the official docs are your friends, there you can learn what you can set up in the app.json file and let's start with Android because there, you'll have to configure a bit more before we dive into what's specific about iOS.
+
+* So for Android, besides icon and so on, what you can configure there are the permissions.
+
+* Now the thing is you can just omit the permissions key and in that case as you see here, expo will actually setup your app to request all permissions.
+
+* Now I would not recommend doing that because people will look at your app in the App Store and if they see that your basic place management app wants permissions to read their contacts or make calls, well I don't know about you but I wouldn't download such an app.
+
+* So my recommendation would be that you are specific regarding the permissions your app needs and you do that by going to your app.json file and there in the Android node, you add the permissions key and now you add permissions.
+
+* Refer : https://docs.expo.io/versions/latest/config/app/#permissions
+
+* Now some base permissions will always be requested and you find these permissions here, for example permissions to get data from the Internet and so on but you can now also for example add permissions to use the user location and access the camera because that's something we will do.
+
+```json
+"android": {
+  "adaptiveIcon":{
+    "foregroundImage": "./assets/places-adaptive.png",
+    "backgroundColor" : "#171717"
+  },
+  "permissions" : ["ACCESS_FINE_LOCATION","CAMERA","WRITE_EXTERNAL_STORAGE"]
+}
+```
+* So let's add these keys here to permissions like this, to string keys with double quotes by the way, that's important in this file, added to this permissions array.
+
+* but of course depending on the application you're building, carefully check which permissions your app will need,
+
+* So permissions are one thing, in addition if you're using Google Maps, you should add the Google Maps node to your Android configuration.
+
+* Again you didn't need that for the expo client when we publish the app to this expo page and used the expo client app because there the expo team basically gives you their own Google Maps key but if you're building a standalone app, you need to provide your own one.
+
+```json
+"android": {
+      "adaptiveIcon":{
+        "foregroundImage": "./assets/places-adaptive.png",
+        "backgroundColor" : "#171717"
       },
-    };
-    
-    ImagePicker.showImagePicker(options, (response) => {
-      console.log('Response = ', response);
-    
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-      } else {
-        console.log(response.uri)
+      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
+      "config": {
+        "googleMaps" : {
+          "apiKey": "Get_REAL_API_KEY"
+        }
       }
-    });
-  }
-  return (
-    <View>
-      <Button title="Take Image" onPress={pickImage}></Button> 
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  screen: {
-    flex : 1,
-    justifyContent : 'center',
-    alignItems: 'center'
-  }
-});
-
-export default App;
+    }
 ```
-* On running android i faced issue "Deprecated Gradle features were used in this build, making it incompatible with Gradle 7.0.
-Use '--warning-mode all' to show the individual deprecation warnings." Could not determine the dependencies of task ':app:installDebug'.
 
-* for that i updated Gradle
+* so in the Google cloud console when you check your API library, you make sure that the maps SDK for Android is enabled for this project to which this API key you provided belongs. So here it is enabled,this has to belong to the project for which you created that API key which you now are providing here, otherwise this won't work.
+
+* So these are the permissions and Google Map settings and you might need other specific settings which you can learn about here in the app.json file depending on which features you're using.
+
+* one thing you absolutely need to provide to build your app is also this package key.This is something you always have to add no matter what your app uses, here in the Android node, you need to provide the package key
+
+* and this now has to have a certain format. It's basically an inverse URL, a fictional URL which doesn't have to exist but which acts as a unique identifier across the entire Google Play Store,
+
+* so it should be an inverse URL which no one else has used before and therefore typically if you own a domain, you would use your domain for example com.cisco, 
+
+```json
+"android": {
+      "package": "com.cisco.great-places",
+      "adaptiveIcon":{
+        "foregroundImage": "./assets/places-adaptive.png",
+        "backgroundColor" : "#171717"
+      },
+      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
+      "config": {
+        "googleMaps" : {
+          "apiKey": "Get_REAL_API_KEY"
+        }
+      }
+    }
+```
+* so an inverse domain and then a unique identifier, like great places. You can come up with any URL you want here but of course again it should be unique and you should therefore use your own domain or a fictional domain which isn't owned by anyone,
+
+* You also need to provide something similar on iOS, there if you go to iOS, you don't need to provide this permission setting stuff because iOS permissions work differently, you would need to provide a Google Maps API key if you use the Google Maps version of the maps package for iOS, the default of this package however is to use Apple Maps and I haven't changed this in my app so I don't need to provide Google Maps API here but what you definitely need to provide here is a bundle identifier.
+
+```json
+"ios": {
+      "bundleIdentifier": "com.cisco.great-places",
+      "supportsTablet": true
+    },
+```
+ * Now besides these identifiers, you also need to set something else, on iOS you need to add a build number
+
+ * build number should be a string which identifies your build. There, you should have a build number just like this version up there and working in the way I explained it up there.
+
+ * So it should be a number consisting of three digits where you have a patch number for patches, bug fixes, then this minor update number for new features which don't break everything though and this major update number,
+
+ ```json
+ "ios": {
+      "bundleIdentifier": "com.cisco.great-places",
+      "buildNumber" : "1.0.0",
+      "supportsTablet": true
+    },
+ ```
+ * you can change this however you want but you should change it for every new version you publish and you deploy and you should of course change it such that you reflect what changed.
+
+ * Now you need something similar for Android, ie versionCode , and now here this is not a string but a number which you should simply increment by one for every new release. So you start at one,the next version you release, even if it's just containing some tiny fixes should be two and then to three and so on.
+
+ ```json
+ "android": {
+      "package": "com.cisco.great_places",
+      "versionCode": 1,
+      "adaptiveIcon":{
+        "foregroundImage": "./assets/places-adaptive.png",
+        "backgroundColor" : "#171717"
+      },
+      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
+      "config": {
+        "googleMaps" : {
+          "apiKey": "Get_REAL_API_KEY"
+        }
+      }
+    }
+ ```
+ * we're now prepared to deploy this or to build it first and as I mentioned, the cool thing about expo managed is that now you can build this on expo's cloud servers.
+
+ * So what you should do is you should run expo publish to publish the latest version of your app to expo's servers just like that which will not yet build it as a standalone app 
+
+ * Now the difference between publishing and building is that publishing just pushes your code and configuration to expo's servers and you can then scan the barcode with the expo client and so on.
+
+ * Building means that you'll leverage expo's cloud build service to really build an Android app bundle or an iOS IPA file, these are the files which you then upload to the app stores thereafter so there is a huge difference here. 
+
+ * Now these bundles which you build as mentioned before include the expo client so to say, they include this as a wrapper around your app but it's a real native app therefore after all, so it's a native app with just this little extra tiny wrapper around it taking into account the configuration you set up here for example regarding the permissions.
+
+ * In addition, these apps which you build on expo's servers which you then can distribute through the app stores will talk to expo's servers for the over the air updating functionality. So you will still just publish new updates with expo publish thereafter and your standalone apps which are running on other devices will get these published updates,
+
+ * so publishing is still important even if you're building standalone apps, if you're building app bundles because these app bundles will continue to talk to expo's servers to get new versions.
+
+ * But speaking of that, how do we build these bundles now?
+
+ ```js
+ expo build:android
+ ```
+ * Refer : https://docs.expo.io/distribution/building-standalone-apps/?redirected
+
+ * When building for android you can choose to build APK (expo build:android -t apk) or Android App Bundle (expo build:android -t app-bundle). 
+
+ * Now first of all, it will ask you because apps need to be signed, that happens with a private public key pair which in the end is used to identify you as the author of the app, future updates of the app and with that I don't mean updates which you published to expo's servers with the expo publish command but when you rebuild the app, when you rebuild the package which you then reupload to the app stores which you'll occasionally need to do if you for example change the icon or something else which can't be shared with expo publish, in such cases, you need to sign the update with the same keys you used for creating the original app to identify you as the author otherwise the App Store will deny this update, it will not accept your next version of the app.
+
+ * So therefore you need to sign your app and if you know what you're doing, you can create and upload your own keys store but here I will stick to version one and let expo handle that which means it will create such a key for assigning and do all the signing stuff for you on their servers, so that's what I choose here.
+
+ * now it's just doing the same as expo publish it but thereafter, it will schedule this to be built on expo's servers. So now publishing is done and now it schedules such a build and it queues it up
+
+ * by the way is a process you can now quit as it says here, you can always check the status of your build by entering this URL,
+
+ * something like this https://expo.io/accounts/linkguna/builds/c4ad56a6-de80-4d10-bedd-fdb6a1785ba0
+
+ * Now important, this build can take very long, the build itself not so much but until your build is built because it's scheduled keep in mind that this is a free service, so of course it's not built immediately but when the expo's servers have room for it. This can take a couple of minutes, even hours until that happens,
+ so don't worry if that takes some time, you can always check this URL which you're seeing in your command line to see what's happening
+
+ * now, let's do the same for iOS therefore. This can be done by running expo build iOS. Now important, to build iOS apps, you need a paid Apple Developer account, that's a must have.
+
+ * So you will need to go to developer.apple.com and there, you will need to login with your Apple ID and then basically get such a paid account, so you will need to add your credit card and pay a fee of $99. That is required, there is no way around that, Apple requires that for you to build apps which you want to publish to their stores.
+
+ * You don't need that during development but now for sharing the app, you need to have that. It's basically a fee that's there to only allow people to the store who have at least some kind of serious goals there I guess.
+
+ * So make sure you sign in here and set up your paid Apple Developer account to join the Apple Developer Program and thereafter, you can run this command and it will ask you to log in with your apple developer account. So you log in with your Apple ID and password and that data will not be stored on expo's servers, no worries but it needs it to set up everything to build your app because for the Apple build process, you need special certificates and so on which it can request on your behalf with this data.
+
+ * Now there is one important thing you also have to do after this Android build is done which it isn't yet, you should run
+
+ ```js
+ expo fetch:android:keystore
+ ```
+
+ * Again this only works after the build completed because this will then fetch this automatically generated keystore which expo generates for you if you chose that in the setup which you need for future updates of this app. 
+
+ * You will definitely need that and in future updates when you rebuild the app, you then have to choose that you provide your own keystore and you need to provide this keystore
+
+ * so enter the path to this keystore which you then download. So this command will in the end download a file generated on expo's servers which you need to store on your system for future update of the same app, otherwise you'll not be able to update.
+
+ * Now you can also check the official docs on how you can continue with testing this on your device or simulator or then go to the part where you upload the app to the Apple App Store and Google Play Store.
+
+ * So we build the app, now you can upload it by running
+
+ ```js
+ expo upload:ios
+ ```
+ * this will by default use your latest app and upload it to the App Store.
+
+ * Now follow the steps you find here in the docs to create the appropriate accounts and set up everything correctly so that this command can succeed and with that, you will have your app deployed to the Apple App Store and to the Google Play Store so that you can get your app to any user around the world as a standalone app, not dependent on the expo client being installed on the devices which is pretty neat.
+
+### Publishing iOS Apps without Expo
+
+* So we saw how we can build and deploy an app with expo in the managed workflow which was pretty convenient.
+
+* Now let's say we have an app for example built with the React Native CLI. Here I'm not using any native modules but if I were, I would of course have updated my Android and iOS configuration files to request the right permissions and so on and I showed all of that in the non-expo module earlier
+
+* So now let's say we're happy with the app and we want to publish it to the Apple App Store and the Google Play Store.
+
+* To run you app on device Refer : https://reactnative.dev/docs/running-on-device#docsNav
+
+* Important, you can only build for iOS on macOS now, Linux and Windows don't work because now we're not building the app in the cloud as we did with expo but locally on our machine and there, Apple has this restriction that you can only build iOS apps on a Mac, it is what it is.
+
+* So now what you need now is an apple developer account, right now not necessarily a paid one, just build the app however if you want to build it, for the app stores you need a paid one
+
+* So you should set up such an Apple Developer account and then open your project here, your iOS project to be precise with Xcode. There you can click open another project, go into your project folder, there to the iOS folder and there select this XC workspace folder or file here to open this with Xcode. (Refer Image : deploy3)
+
+* Now it's there where you now configure this app, where you set up your identifier for example, that's this inverse URL
+
+* where you set a version number which your users will see and your build number which can simply be a number that you increment here,
+
+* where you should choose automatically manage signing and where you now need to choose a team which should be shown here, if not add an account and there, log in with your Apple ID to add your apple developer account as an account here and thereafter, you should be able to choose your team here which will be required for automatically signing the app which will then be done by Apple. (Refer : deploy4)
+
+* You can in general configure your app here of course and prepare it for deployment and one important configuration is of course related to the icons you want to use.
+
+*  In expo, we set up the icons conveniently in a configuration and expo generated all the icons for us. Now it won't work like this, now you need to set up these icons on your own. and you do this by clicking on this arrow here (Refer : deploy5)
+
+* which takes you to the assets catalog and there you can now provide icons and you need to provide icons in different sizes here as you can tell. (Refer : deploy6) Now obviously that was a convenient thing by expo, it did create these icons for you and you didn't have to manually create all these icons.
+
+* Then you could upload appropriate image icon configured.
+
+* You also might want to configure the launch screen, for that you can expand this folder and there you find this launch screen zip file. This in the end allows you to customize your launch screen, there you can add new widgets to it, drag images into it, change the text, you see here for example and configure the launch screen in general. (Refer : deploy7)
+
+* Refer : https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/launch-screen/
+* Refer : https://justinnoel.dev/2019/02/19/adding-a-splash-screen-image-in-xcode/
+
+* once you did configure all of that, you can build your app here. before that run your app on simulator.thereafter of course, we can also build it for deployment.and now this succeeded and it launches the app on a simulator.
+
+* In official documentation - Building your app for production - https://reactnative.dev/docs/running-on-device#docsNav
+
+* we now got two important things to do.
+
+* The first important thing is that in our project view , info.plist and now there, you'll find this app transport security settings key.
+
+* This kind of controls how iOS controls to which web pages or web servers your app may talk and by default, it only allows access to https servers, so SSL secure servers. That's a good default but you might have some exceptions which you can add here and one exception in the exception domains list is localhost.(Refer image: deploy8)
+
+* Now that's required for development because your React Native app in the end talks to this development server here which runs on your localhost which is not using SSL. Normally iOS would block this, now to not block it, this is in the exceptions list. To build this for production, you should remove this,(Refer Image: deploy9) you can simply clear this key here by removing it with the delete key and that's it. That's one thing
+
+* and then you need to configure such a release scheme. go to Product → Scheme → Edit and set this from debug to release and then close this. (Refer Image : deploy10) 
+
+* With that, you can now run product build here to build your app and now this is built for release, built for production, so it's optimized and so on.So this builds your app now for production.
+
+* let's make sure we can also upload it to the Apple App Store and for this, you should go to your Apple Developer account and here you now definitely need a paid account and there, you now need to set up a couple of things. 
+
+* You need to go to certificates ,IDs and profiles -> identifiers -> add a new app ID, you need to add the app ID which is set up in your project, so the app ID, the bundle identifier you find here, that exact identifier needs to be added here.
+
+* You can add a description, whatever you want but then here (Build Id) you need to add this ID. 
+
+* Now you can check any special capabilities your app requires which my app doesn't, so I don't need to check anything there and then I can continue, confirm this and register. Now this is required, otherwise you won't be able to publish your app.
+
+* Now with that ID registered, you need to go to iTunes Connect (https://itunesconnect.apple.com/) where you now need to set up your app. 
+
+* There you can go to my apps and add a new app here by clicking the plus new app here, then give it a name, then choose the language you're building your app for, choose the bundle ID and there, choose the ID you just set up, if it's not showing up yet, come back a couple of minutes later it will be there then. then also add your own custom identifier which will show up on your invoices basically and so on, RNNoExpo, whatever you want and click create and this now creates the app here in iTunes Connect.
+
+* This is then also where you can manage the app for the App Store and set it up, set up its pricing and so on.
+
+* Now with all of that done, let's wait for our build to finish here , if it failed then
+
+* If you're still getting an error as I do, press command 1 here in Xcode, click on build settings here with all these things selected as you see it here, in the linking section which you'll find if you scroll down a bit and in that code stripping part here, under release, set this from yes to no. (Refer Image : deploy11)
+
+* This is a workaround around this error which seems to be related to the automatic tests which are set up and once you did this, try this again, run the build one more time and now this should succeed.
+
+* Once this build succeeded, you can go back to product -> now the archive option is available.
+
+* If you now run this, this archives your app which is nothing else than building that bundle which previously was built on expo's cloud servers, so let's wait for this to finish.
+
+* Once this is done, you should see your archive or archives if you are in the process more than once here and now here you could distribute your app to the App Store with the configurations made on iTunes Connect and so on which I showed earlier.
+
+* this is how you would deploy your React Native only app without expo managed.
+
+### Publishing Android Apps without Expo
+
+* the official React Native docs, under guides, Android, you find instructions on how to publish your app to the Google Play Store and in the end, you can just follow the instructions you find here.
+
+* Refer : https://reactnative.dev/docs/signed-apk-android#docsNav
+
+* It all starts with creating such a keystore which I already mentioned in the expo managed workflow but there expo did that for us on their servers, here we need to do that and we can do this inside of our project
 
 ```js
-cd android
-./gradlew wrapper --gradle-version 6.5
-
-* and then run "gradlew clean"
-
-* Move to root cd.. and run react-native start
-
-* In another console run in your project react-native run-android
+keytool -genkeypair -v -keystore my-upload-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
 
 ```
-* Now here's the app coming up and if I press it, I get this overlay, I can click take photo and nothing happens.Reason for that is missing permissions and that's the manual work I meant. 
 
-* We have to go into the Android folder, there into source, main, AndroidManifest which configures the Android app and there you have to add a new permission. 
+* So here, you can enter an arbitrary password what you want to choose and then some information about you which technically could be wrong but which should be correct kind of since this is your identifier with instance, since this is used for assigning your app in the end and once you entered all this and confirmed it and you chose your passwords, this now creates this "my-upload-key.keystore" file, and now you can use that to sign your application. 
 
-* there you can now add the camera permission which you need to add for this app to be able to access the device camera, otherwise this is not supported.
-```js
-// RNWithoutExpo/android/app/src/main/AndroidManifest.xml
-  <uses-permission android:name="android.permission.CAMERA" />
-  <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-```
-* On iOS by the way, you also need to do something similar whilst this rebuilds.f you go into your RNWithoutExpo file, you find the info.plist file and in that file, you also need to add an entry to ask for this permission.
+*  Next you need to set up some gradle variables as you see here and for that make sure you move the key storage to the Android app folder, (android -> app folder -> y-upload-key.keystore)  move it up into Android and there into the app folder so that the file is there
 
-* Refer : https://github.com/react-native-image-picker/react-native-image-picker#readme
-* Refer : https://github.com/react-native-image-picker/react-native-image-picker/blob/master/docs/Install.md
+* and then go to the gradle properties file, the Android gradle properties file (android -> gradle.properties)
 
-* similary for IOS
+* and in there add the below lines
 
 ```js
-// RNWithoutExpo/ios/RNWithoutExpo/Info.plist
-<key>NSPhotoLibraryUsageDescription</key>
-<string>$(PRODUCT_NAME) would like access to your photo gallery</string>
-<key>NSCameraUsageDescription</key>
-<string>$(PRODUCT_NAME) would like to use your camera</string>
-<key>NSPhotoLibraryAddUsageDescription</key>
-<string>$(PRODUCT_NAME) would like to save photos to your photo gallery</string>
-<key>NSMicrophoneUsageDescription</key>
-<string>$(PRODUCT_NAME) would like to use your microphone (for videos)</string>
-<key>UILaunchStoryboardName</key>
-<string>LaunchScreen</string>
+MYAPP_UPLOAD_STORE_FILE=my-upload-key.keystore
+MYAPP_UPLOAD_KEY_ALIAS=my-key-alias
+MYAPP_UPLOAD_STORE_PASSWORD=*****
+MYAPP_UPLOAD_KEY_PASSWORD=*****
 ```
-* This however is how you can bring third-party packages that tap into native device features to a React Native only app for your component code which you write, that's the same code we srote throughout the entire course - same components, same logic, same way of how you build your app. You can create the same folders, you can add React navigation, that all doesn't change.
-
-### Understanding Expo's "Bare Workflow"
-
-* So you learned how you can use to React Native CLI to create React Native projects. These are projects which have no connection to expo and which are therefore totally managed by you
-
-* where you can therefore add any third-party package actually, including some expo packages which are available outside of the managed workflow as well but you need to configure everything on your own, that can be easy depending on the package you're using but it also can be harder. Now there is kind of a middle way between the expo managed workflow and the pure, you need to do everything on your own, workflow and that's the expo bare workflow
-
-* Now what's the bare workflow here?
-
-* The bare workflow includes a React Native app as you would created with the React Native CLI, so not a managed app with expo as a wrapper but a native app, that however is already preconfigured to support a lot of the expo packages, not all but the expo team is working on making more and more available outside of the managed workflow but a lot of them are already included and you could check the supported APIs 
-
-* Refer : https://docs.expo.io/bare/unimodules-full-list/
-
-* The idea behind the bare workflow is that you have this raw native development experience where you need to use Android Studio and Xcode, so you don't have the expo CLI and the expo client helping you, so you need to do that manually with the help of the React Native CLI but where adding native functionality is easier, so where you need to do less configuration maybe, where you can use these powerful native packages that expo offers you where you can use all of that without having the limitations expo gives you,though I want to put limitations into quotes because you don't have that many limitations actually in the managed workflow.
-
-* So let me show you how to get started with that bare workflow and of course for that, you can also check the official docs.
-
-* Refer : https://docs.expo.io/bare/hello-world/
-
-* For base workflow we need both expo-cli and react-native-cli
+* Once you did that, you can close that file, you should go to the Android app build gradle file,(android/app/build.gradle)
 
 ```js
-npm i -g expo-cli
-
-npm i -g react-native-cli
-
-expo init PROJECT_NAME   //chose bare minimum template
+...
+android {
+    ...
+    defaultConfig { ... }
+    signingConfigs {
+        release { //  append this 
+            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
+                storeFile file(MYAPP_UPLOAD_STORE_FILE)
+                storePassword MYAPP_UPLOAD_STORE_PASSWORD
+                keyAlias MYAPP_UPLOAD_KEY_ALIAS
+                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+            }
+        }
+    }
+    buildTypes {
+        release {
+            ...
+            signingConfig signingConfigs.release //this
+        }
+    }
+}
+...
 ```
-* This will create a new project, a new React Native project pretty much like React Native init would do, so if you only used the React Native CLI but preconfigured such that you can already use a lot of these supported or all of these supported APIs.
 
-* Now important, the project setup we're getting here could also be achieved with this React Native CLI created set up where I didn't use the expo CLI at all because the magic happens with the help of these React Native unimodules here.
-
-* This is a package in the end provided by the expo team which helps you tap into the native device features you can get in the managed workflow outside of the managed workflow as well.
-
-* Refer : https://docs.expo.io/bare/installing-unimodules/
-
-* Here you find instructions how you need to configure this and all this configuration which is described here so all these things here right, which you need to do if you would want to use this package and therefore the expo native features in a normal React Native non-expo app,
-
-* Refer : https://github.com/unimodules/react-native-unimodules/tree/%40wkozyra95/ignore-enabled-modules-directory
-
-* you would have to do them manually for such a project created with the React Native CLI and that's exactly what expo init with this bare workflow does for us, it gives us such a React Native project as if we would have created it with the React Native CLI and it preconfigures it following all these steps,so then we don't have to do that.
-
-* So that's something we can take advantage of of course,so let me open this project
-
-* In the end, you'll get the same setup as with the React Native CLI but as I mentioned with the Android and iOS folder with these Android and iOS projects preconfigured as described on the unimodules page so that you don't have to do this
-
-* and with this preconfiguration, you can now easily add third-party packages, you can add any third-party package, you could for example now also again use the React Native image picker,
-
-* so what we added before, what we couldn't add to a managed workflow app, this package here, you can easily add this to a bare workflow app because this is just a React Native app without expo, so you can add this but now unlike in a normal React Native only app without expo, you can also bring any of the expo APIs which are listed here, like the expo location package which we used
-
-* You can now easily install this by following the installation instructions you're linked to here for the bare workflow, you would then have to follow the installation instructions you find here on the expo location package
-
-* Refer : https://github.com/expo/expo/tree/master/packages/expo-location
-
-* there you learn that you can install it with this command, then run port install in the iOS directory and no extra setup for Android is required. So fair enough, not too difficult and therefore you could maybe say you get the best of both worlds, you have a native app with React Native CLI and you can still tap into some expo features, though
-
-* be aware of course that if you run this app, if you do this of course with react-native run-android for example and therefore this requires Android Studio, it builds it locally on your system, you therefore take a bit longer, you need to set up everything on your system and for deploying the app and so on you also have to manage it all here on your local machine, 
-
-* so you get no convenience features which expo gives you in the managed workflow where this building and testing is super quick, where you can quickly test it on a real device and so on, all of that is missing here too.
-
-* You have a React Native project without expo but using certain expo APIs is easier, that's the idea behind the bare workflow and since expo has many amazing APIs, that of course is a pretty good reason for using it because these APIs, these packages are also pretty guaranteed to be continued and maintained which is not necessarily the case for all other third-party packages
-
-### Ejecting from Expo's "Managed Workflow"
-
-* Now besides setting up a new project from scratch with React Native CLI or with the expo CLI and then choosing the bare workflow,
-
-* you can even convert a managed project into a React Native bare workflow project and that's pretty cool because that means you can get all the convenience features of the managed workflow during development and once you're done for example or once you need a certain third-party package which integrates some feature you don't have built into expo and you absolutely need, in such a case you can still switch and you don't have to rebuild the app from scratch and create a brand new project and copy over your code.
-
-* How? Well in your project and this is the native device feature
-
-* we build earlier in the course where we can add places, where we are of course using the location, maps, the camera, SQLite,where we are using all these things, there in this project, you can simply run 
+* and now you can generate your APK with these command
 
 ```js
-expo eject
+$ cd android
+$ ./gradlew bundleRelease
 ```
-* this transforms your project into a non-expo managed workflow project. Important though, there is no going back, of course you can copy your folder and make a backup copy and save this or if you're using git, you can of course go back to an earlier commit but if you haven't saved your project, once you eject it, you can't transform it back, so be aware of this.
 
-* So here if you run expo eject, you should actually be asked to which kind of project you want to eject and here I got two options in the end
+* and this should now build your app and sign it for production and give you such an app bundle in the end which you can then upload to the Google Play Store.
 
-* the two options I have are bare and expo kit. Expo kit is deprecated, this is basically what we had before we had the bare workflow, so you shouldn't really switch to this, instead you can switch to bare here which simply means that now this will be transformed to a React Native project, as if it would be created with the React Native CLI without the expo wrapper but it will be preconfigured as mentioned here on the react-native-unimodules page which is it is kind of this package which expo needs to expose all these expo APIs to a non-expo app.
+* So let's wait for that to finish and once this build succeeded, you can actually take that app bundle (android/app/build/outputs/bundle/release/app-release.aab), that's your release bundle, that's what you can upload to the Google Play Store.
 
-* So it will preconfigure all these things during ejection so that you don't have to do that, so you get a React Native plus app so to say. So if I hit enter here and now important, you can't go back once this completed, 
+* For that, you can search for Google Play console and you need a Google Developer account for that which also costs you money but unlike Apple's program, it's not a subscription, it's a one-time fee of $25
 
-* but that's up to you and now this will do its job. It transforms the project, it adds an Android folder and since I'm on macOS, it also adds an iOS folder. 
+* in the Google Play console, you can now create a new application once you're logged in with your paid account, choose an app name like this, create it and then here you can manage your entire store appearance
 
-* and it preconfigures everything and installs a couple of dependencies so that you can use your existing code and all the expo packages you already installed in this bare setup, so it does not just set up all the unimodules stuff here, it also makes sure that all the packages you are already using, like expo location or expo SQLite, that those packages also work.
+* and under app releases -> click on production track, production manage, create a release there and now here you need to upload your app bundle.
 
-* Once eject done! you see it actually tells me that it generally did its job but there were two packages which require some manual setup.
+* Now you can click continue here with the default settings normally but in general, I would recommend that you dive into the Google Play Store or Google Play console documentation to learn all about the things you can set up here but in the end, this is now where you can upload the bundle which you built.
 
-* You can simply click on these links to get instructions on what you need to do there, it's the expo image picker and the React Native maps package where you need to do some manual installation to finish it up.
+* So here, you would upload this bundle file and thereafter, you can finish up your store appearance and you can publish your app in the Google Play Store as well.
 
-* So here on the expo image picker page, in the end what we need to do is we need to run port install in the iOS folder, so we need to do all the things after installing the package. So in the project folder, I'll navigate into iOS and run port install, port is like npm for iOS, it installs some dependencies which iOS needs to work correctly, so that's what's happening now and once this is done, we'll also need to add this entry here to the Android manifest, so that's also something we'll need to do. So we need to go to the Android folder, the app folder there and in the source folder, the AndroidManifest and then as described here, add this inside of the application tags. So here is application and in there, we should add this activity entry here, like this, that's required.
+* Now of course you might wonder, how do you add icons and so on because I haven't touched on this yet?
 
-* Now we have to minor configuration as per the github page suggest.. the we can run as usual..
+* A convenient and easy way of doing that is with the help of Android Studio.
 
-### When To Use Which?
+* There, you can open an existing Android Studio project and open your Android folder in your React Native project here with Android Studio, just the Android folder, not the entire React Native project. 
 
-* which approach should you use for your application?
+* you can go to the app folder -> source -> main -> res and there right click on it, you can select new and there, image asset and this opens an editor where you can conveniently add and generate new image assets, new icons for example. There you can choose launch your icons, adaptive and legacy and now what you can do, you can leave the name, you can setup your icon, you can configure it there.
 
-* using expo in general is an awesome development experience, everything is super fast, it's easy to test changes both on simulators and real devices. You don't need to build locally, therefore you can also build and test for and on iOS, on Windows systems and Linux which is not possible without the managed workflow and that's all pretty cool.
+* You can choose a foreground layer and there, you can for example choose the path of an image you want to use, a background layer where you can set a solid color or also an image you want to use in the background and then therefore generate your icon with that tool. 
 
-* But when we compare expo to non-expo setups and with non-expo, I mean both creating it with React Native CLI or using a bare expo workflow, then of course we have to compare all the things.
+* Simply click finish and of course provide your own image there if you want to and it will set everything up for you to have a nice icon which of course is pretty sweet. Now regarding how to customize the splash screen, attached you find some documentation on how you may do this on Android to set your own splash screen. Of course whenever you change your icons and/or your splash screen, you will need to rerun this build with that gradle w command and then also redeploy your new app bundle to the Google Play Store with the Google Play console and with that, this is how you would build and deploy React Native only apps.
 
-* So as mentioned with expo, with the managed workflow, it's easy to use that, easy to develop, non-expo means more manual setup and so on.
+### Configuring Android Apps
 
-* Now you also will have an easy time deploying your app as you will also see in the deployment section and you can even build and deploy for iOS if you're on the Windows or Linux machine, something which is not possible without the managed workflow.
+* As shown earlier (when adding native modules to non-Expo apps), you can manage certain aspects of your Android app with the AndroidManifest.xml file.
 
-* When in the expo managed workflow world, we also have a rich suit of native modules, so all these expo APIs which are always easy to use, just an expo installed away, don't need any setup so that's really amazing and you got pretty much everything you could want in a native app there - camera, location, filesystem, it's all there.
+* There, you can configure three important things:
 
-* If you sometimes need something which is not supported though or you need to write your own native code that you want to connect to React Native, your own package or whatever it is, then non-expo is the solution. So there you can use any native code but of course, you need to set it up manually and that might be easy with React Native link as you saw or even some autolinking libraries but you might also have libraries that take more effort.
+- The App name as it appears on the home screen: https://stackoverflow.com/questions/5443304/how-to-change-an-android-apps-name
 
-* In addition, it's worth noting that of course third-party libraries need to be maintained to stay up to date with React Native and newer versions of React Native but also they need to stay up to date with Android and iOS,
-right, because these platforms also evolve and introduce new features or deprecate old features. The expo APIs are pretty guaranteed to be maintained because the expo team is active, is working on that and it's a whole ecosystem that works together. That might not be true for all third-party packages, so this extra security you get with the expo packages is definitely pretty nice.
+- The bundle identifier & package name of the app (also requires tweaking in other files): https://developer.android.com/studio/build/application-id
 
-* That being said as you saw with the bare workflow, you can of course also add certain but not all expo APIs to non-managed apps, that is possible but takes a bit more work.
+- The permissions of the app: https://developer.android.com/guide/topics/manifest/manifest-intro#perms
 
-* Now of course the managed workflow has downsides, it's a wrapper around your app and that of course impacts both the size and performance, most likely not in a way that you will feel or see but it's worth noting, there is a thin extra wrapper and you don't have that in the bare workflow or when just working with the React Native CLI and of course as mentioned, you're restricted to the built-in native modules.
-
-* There are a bunch of those and probably everything you might ever need but if you need something else which is not built into expo, so an API which is not supported by expo, then there is no way to get it to work, then you need to eject because only non-expo and with that I mean non-managed workflow apps support all third-party packages and all native modules
-
-* So therefore my suggestion would be that for most apps, pretty much all apps probably, you work with expo because of the great development experience and the great flexibility you have there.
-
-* Since you can always eject, there there's not much to lose, you can always go back to a non-expo managed app if you want to as you saw
-
-*  starting with such a non-expo app, so with a bare app or even with just a React Native CLI app is a good idea
-if you know that you will need a lot of native functionalities that are not supported by expo or if you're building a high performance application where every kilobytes of extra wrapping matters, then of course you might start with such an app but otherwise I really see no strong reason for why not to use expo and especially if you're not working in a huge team, in a corporation or anything like that, being able to build iOS apps on Windows too is really a nice thing, so that alone is also good reason for staying in the managed world.
-
-* Refer : alternatives2 image
+* You should also set an app version and change it with every app update. This is done in the build.gradle file, see: https://developer.android.com/studio/publish/versioning
 
 * These resources might be helpful:
 
-* "Why Not Expo?": https://docs.expo.io/versions/v34.0.0/introduction/why-not-expo/
+* Expo Deployment Docs: https://docs.expo.io/versions/v34.0.0/distribution/introduction/
 
-* React Native Setup without Expo: https://facebook.github.io/react-native/docs/getting-started#installing-dependencies
+* React Native - Android App Signing (Non-Expo): https://facebook.github.io/react-native/docs/signed-apk-android
+
+* React Native - Building the iOS App: https://facebook.github.io/react-native/docs/running-on-device#building-your-app-for-production
