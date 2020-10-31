@@ -1,643 +1,1469 @@
-## Publishing React Native Apps
+## Updating to React Navigation 5+
 
 ### Intro
 
-* Now obviously, you now want to get it into the app stores, into the Apple App Store and the Google Play store.
+* The important thing is with the release of React navigation 5 so off we're in 5 of this third party library the way we set up navigation in react apps and React Native apps I should say changed.
 
-* we'll dive into how you may deploy your app, both if you're using the managed workflow expo provides or if you're having a raw app created with the React Native CLI or with the bare workflow expo offers.
+### What Changed between V3 and V4?
 
-### Deployment Steps
+* In older versions of React Navigation we have this (Refer image : V5+) way of setting up routes aware of setting up screens we could go to we set up such a registry like configuration in a file where we basically mapped our different screens to identifiers and then we could work with these identifiers from anywhere in the application to go to a specific screen.
 
-* so the next step is that we configure the app and the deployment. That means that we set a name for the app, an identifier which identifies it in the app stores, every app needs a unique identifier and so on. In the expo managed workflow, this also means that we can configure some additional nice features which I'll dive into.
+* Now when it came to configuring these different screens we could do that directly in the screen component or also globally on the stack Navigator for example with the default navigation options.Now this approach of navigating around works just fine and there isn't necessarily something wrong with it though we also had some occasions where we definitely saw that it could be tricky at times right if you wanted to update header buttons in the header of a component dynamically.You had to abuse params to do that and that was not ideal and definitely a bit tricky to wrap your head around.Nonetheless you can definitely use react navigation v3 and V4 
 
-* Now you obviously also want to add your own icons and a nice splash screen, so a loading screen before the app opens up to your app.
+* and V5 things changed a bit. we now set up roots and we navigate around a bit differently 
 
-* Last but not least, it's time to then build and deploy the app. (Refer image delpoy1)
+* now there basically is one super big change between Version 4 and 5 , We now don't set up our different round so where our different screen name mappings in this registry like way we see on the left (Refer image : V5+). But now instead we set everything up as a component tree.
 
-* building the app means that you now bundle up your app into a deployable app bundle and deploying then really means that you set up the store page in the Apple App Store or Google Play Store and that you then get your file into that store That's the last step
+* You could say so now we have a component based configuration of our different routes. We can go to all of our different parts of the app we can go to 
 
-* then of course it's all about tweaking that store page and uploading some nice images there, setting description texts and so on.
+* this certainly is a big change and a big mental models which we have to make because we set up our navigation configuration in a totally different way now it offers some nice advantages as you will see it's actually closer to the react way of building apps 
 
-* So these are the steps you typically go through and in this module, we'll have a look at the deployment related steps and the configuration steps and I will show you how you can get your app onto the devices of other users.
+* where you basically want to use components everywhere to express what the result should look like and you then let react figure out a way to get there.And if we set up our screen configuration in such a component based way then we actually justifying our end result and we let react and react navigation figure out the way to get there.
 
-* Of course there also is kind of a difference if we talk about expo apps and non-expo apps if you want to call it like this. 
+* So that's actually a good mental model to have.
 
-* With expo apps, I mean apps that use managed workflow and non-expo means bare app, so using the bare workflow offered by expo or not using expo at all created with the React Native CLI.
+* However there still is one thing I want to say react navigation this package with the turns V3 and V4 is still super important of course react navigation version 5 and so on is the future of React navigation but the vast majority of project you will find out there of React Native projects will use react navigation in v3 and v4 so you have to know those words as well
 
-*  In the managed approach, you have the app.json file which you can use to configure your application, assets like icons and splash screen are automatically created for you, you just provide some input assets there and then all the creation and optimization is handled for you. 
+### Prepare Project
 
-* You have a command which you can run to publish your app and then commands to build for the different platform, for the different operating systems and that build will happen on cloud servers provided by the expo team,
+* the first thing I'll actually do is I will run Expo upgrades to install the latest version of the Expo toolkit and make sure that Expo also updates everything in the way it needs to be updated so that it installs all packages it needs and so on.
 
-* so you can even build for iOS if you're running on Windows or Linux machine, something you can not do if you have to build manually on your own, then you can only build iOS apps on a Mac and you even get a nice feature, a nice extra feature which is called over the air updates which allows you to push basic updates, code changes and so on to apps which are running on other devices over the air, so over the Internet, over expo's servers without the need for those users to update your app physically. So they don't have to install a new version from the App Store, instead you can push such code changes behind the scenes, you can live update these apps whilst they're running on other machines or on other devices which is pretty sweet.
-
-* Now in non-expo apps, you have to configure everything manually. You have to set up the name, identifier and so on manually in different files. You have to provide all the icons manually, create them manually, so a lot of manual stuff involved there and you also have to orchestrate the entire build manually
-
-* So you have to build the app via Android Studio and Xcode and the that's of course a lot of simply manual work you have to do and you have no built-in over the air updates. 
-
-* There are other third party services you can use and therefore you can get that feature to work in this approach too but it's just not as easy as with the expo managed workflow, that's just something to be aware of.(Refer : deploy2)
-
-### Configuring the App & Publishing
-
-* What I got here is this application we built earlier in the course with the native device features, with the camera, maps and so on.
-
-* Now we should have a look at the app.json file because that's the file where we can generally configure this app for deployment and for publishing it and I want to walk you through some of the core settings you can make here and you should make here.
-
-* Refer : https://docs.expo.io/workflow/configuration/?redirected
-
-* you learn all about the possible settings you can set up there and what they mean, what they do and what you would need them for. So there's a lot you can configure but for a basic deployment, most of these things don't matter.
-
-```json
-{
-  "expo": {
-    "name": "Great Places", // this is also a name that will show up on the home screen when you build this app as a standalone app
-    "description" : "some text", // this will not show up in app store this is for expo publish page..
-    "slug": "great-places", // Now here, we also can add a slug and that should be like this in the URL format so that this could be part of the URL
-    "sdkVersion": "38.0.0", // The SDK version here simply identifies the SDK version of the expo SDK you're using
-    "platforms": [
-      "ios",
-      "android",
-      // "web"
-    ],
-    "version": "1.0.0", // you can describe for which platforms you want to publish 
-    // you change that and you have three numbers which you can change, where typically the last number should be changed if a new version only includes tiny bug fixes but no major new features.
-
-    // The middle number should be changed if you have a new version that does introduce major or important new features
-
-    // the first number should be changed whenever you have a real major new version that might also very well include some breaking changes or some huge changes.
-
-    "orientation": "default", // Orientation is a setting we already saw there you can lock the orientation of your app.You can set this to default to allow for rotation or for rotating the app, you can set it to portrait or landscape mode to lock it down. 
-    "icon": "./assets/icon.png",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    }, // Icon and splash screen, This allows you to set an app icon and an app splash screen and you just set a pointer at an input source, at a basic file and then expo will generate a bunch of icons for different device sizes, different screen sizes which is really convenient
-    "updates": {
-      "fallbackToCacheTimeout": 0 // that's related to the over the air update thing which is very interesting.
-    },
-    "assetBundlePatterns": [
-      "**/*" // this kind of has an impact on how extra assets, like images that are part of your app
-    ],
-    // you can also set platform specific settings here for iOS and Android.
-    "ios": {
-      "supportsTablet": true
-    },
-    // "web": {
-    //   "favicon": "./assets/favicon.png"
-    // }
-  }
-}
-
-
+```jsnv
+expo upgrade
 ```
-* Now if you want to publish your app, you can do this in a very simple way, you just need to run
+* and then install "npm install" then run "expo start"
+
+### More Information & Updating the Project Dependencies
+
+* Refer : https://reactnavigation.org/docs/upgrading-from-4.x
+
+* You also find a link to an upgrade document in there and upgrading guide which gives you detailed steps on how to migrate your react navigation for application to react navigation 5.
+
+* What we will do now is we will install react navigation 5. Install the required packages in your React Native project:
 
 ```js
-expo publish
-``` 
-* Now when you first run this, you will be prompted to log in with your expo account or create a new one if you don't have one yet.
+npm install --save @react-navigation/native
+```
 
-* So simply create one, it's free, it doesn't cost you anything, you just need to create one, you can do this on the fly after running expo publish, as I said you will be prompted to create an account or log in if you aren't already and there you can create the account on the go in this command line here.
+* This is new by the way. Prior to work and 5 the package name was just react navigation not at react navigation slash something. So now let's installed this new package here.
 
-* All you need is an email, a username and a password. Once you did this and you run expo publish, this will try to publish your app and no worries, it will not immediately publish it to the app stores.
-
-* with all of that, it's now uploading the Javascript bundles, we don't know where but we'll see in a second,
-
-* So did it now create an app and upload it to the app stores? No, that's not what happened here.
-
-* Instead what it did here is it created a deployment, it published our app to expo. that will create a link like below:
+* Installing dependencies into an Expo managed project
 
 ```js
-https://expo.io/@linkguna/rn-native
+expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view
 ```
-* what you find is your app now hosted on expo servers so to say and you can scan this barcode here with a real device, with the expo client app. So basically what we already did during development can now be done with our published app,
+* And once this is done we should be able to restart this application with NPM start,then again launch it on Android and Iow to see the updated application dear. Now what you'll see now is that it's broken. It's not working anymore.Just because we installed these new packages and now it's time to migrate our set up to this new component based setup.
 
-* Here's my iPhone and now again I just point my camera at this QR code or with Android, you open your expo app and scan the barcode there and now you can open that app in expo. Now again, you need the expo client installed for this.mNow what you'll also see here on the screen however is a warning that I can't open this app because I'm not the author of the experience.
+### Moving from the "Registry-like" to the "Component-based" Navigation Config
 
-* So the expo client on iOS site as you see here can no longer open published projects that don't belong to the signed in user. Now that's an iOS limitation, on Android you would be able to open this app but of course the question is in general, why would we publish our app like this?
+* The majority of our files don't need to change. What we will need to change though is what's happening in the navigation files and the navigation folder in app J.S. 
 
-* It's very hard to reach users with this,they need to have the expo client app installed which almost no one has in the world, probably just a couple of React Native developers, so this is not really how we want to distribute our app, right?
+* you might remember rendering the navigation container here and the navigation container is just a custom component.
 
-* Well this is just one step of distributing our app and this is actually not how we aim to target it or how we aim to get it to all users over the world, instead this is just one step of publishing it to the app stores. 
+```js
+// app.js old version 4!!!!!!!!!!!!!!!!!!!!!!!
+import React, { useState } from 'react';
+import { createStore, combineReducers, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import { AppLoading } from 'expo';
+import * as Font from 'expo-font';
+import ReduxThunk from 'redux-thunk';
 
-* So for this, it's nice but of course, this is not the final solution for really publishing this to unknown users.
+import productsReducer from './store/reducers/products';
+import cartReducer from './store/reducers/cart';
+import ordersReducer from './store/reducers/orders';
+import authReducer from './store/reducers/auth';
+import NavigationContainer from './navigation/NavigationContainer';
 
-### Configuring Icons & The Splash Screen
+const rootReducer = combineReducers({
+  products: productsReducer,
+  cart: cartReducer,
+  orders: ordersReducer,
+  auth: authReducer
+});
 
-* Now what I'm interested in right now is the icon and splash screen part because that's the icon people will see on the home screen, of course not yet because right now we're not publishing the apps to the App Store but that will change and the splash screen,well that's what users see when our app loads and both are things you typically want to customize.
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
-* we want to provide our own icon, our own splash screen image here. 
+const fetchFonts = () => {
+  return Font.loadAsync({
+    'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
+    'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf')
+  });
+};
 
-* Now you're really flexible regarding what you provide here but in general, it's a good idea to provide an icon in the 1024 x 1024 resolution, so a square icon as an input 
+export default function App() {
+  const [fontLoaded, setFontLoaded] = useState(false);
 
-* and for the splash screen, you can build a splash screen as described in the official docs. Refer : https://docs.expo.io/guides/splash-screens/?redirected
-
-* we can place our new icon and splashscreen inside assets folder and update the corresponding name in our app.json
-
-```json
-    "icon": "./assets/places.png",
-    "splash": {
-      "image": "./assets/splash_icon.png",
-      "resizeMode": "contain", // resize mode here can be set to contain or cover, 
-      // cover will basically stretch the icon to take the full available width and height, 
-      // contain will keep the icon size, center it and have that background color behind the icon. 
-      "backgroundColor": "#171717"
-    },
-```
-
-* lets try with our emulator
-
-* Now as you can tell, the icon doesn't look that great on Android though. The reason for that is that Android depending on the version of Android you're running on your device uses different icons, newer more recent versions of Android use these so-called adaptive icons which are these rounded icons where you have your icon in the middle and then some background color or a background image even behind them,older versions would use square icons.
-
-* Refer that doc for platform based configuration for icon and splash screen.
-
-* Now the interesting thing is for Android, you can not just set a specific icon splash screen, you can also set an adaptive icon here with the adaptive icon configuration, that's not available for iOS because adaptive icons are exclusive to Android.
-
-* Adaptive icon takes a Javascript object so to say as a configuration value, not a string and this object can have three keys - a foreground image, a background color or a background image.
-
-* Now you have either a background color or a background image but you always should have a foreground image.
-
-```json
-"android": {
-  "adaptiveIcon":{
-    "foregroundImage": "./assets/places-adaptive.png",
-    "backgroundColor" : "#171717"
+  if (!fontLoaded) {
+    return (
+      <AppLoading
+        startAsync={fetchFonts}
+        onFinish={() => {
+          setFontLoaded(true);
+        }}
+      />
+    );
   }
+  return (
+    <Provider store={store}>
+      <NavigationContainer />
+    </Provider>
+  );
 }
 ```
-* he new one will be taken into account though once we built this app as a standalone app and distribute it to the app stores. In general, the recommendation is that for Android, you do set such an adaptive icon because you cover more Android versions which doesn't hurt of course. 
-
-* Setting such a general icon is also not a bad idea and of course we can either use one and the same icon for both iOS and Android or you set specific icons for iOS and for Android, as mentioned for Android possibly, the adaptive icon.
-
-Refer Splash Screen : https://docs.expo.io/guides/splash-screens/?redirected
-Refer Icon : https://docs.expo.io/guides/app-icons/?redirected
-
-### Working with Offline Asset Bundles
-
-* Now besides icons and splash screen, our app also might include other assets. This app actually doesn't but you might have other images here in the asset folder which you're using in your app with image component, so not network images but local images as we also use them earlier or you might be using custom fonts as I did
-
-* Now if you do that, there is actually something interesting happening in a managed expo app. When you publish your app and even if you later deploy it to the app stores which I will show you, these assets by default are actually taken by expo, are optimized and so on and are then uploaded onto one of their servers for free but they're uploaded there and your app is configured to download them from the servers when it launches.
-
-* Now the advantage of this is that your app bundle is kept a bit smaller because the files are not included in your app but instead live on a server and are downloaded into the running app
-
-* but the disadvantage of this approach can be that your app always needs an Internet connection because if you don't have an internet connection, your images and your fonts can't be loaded into the app and that of course might lead to your app not working in the way it should.
-
-* So therefore, you actually might not want to have your images or fonts uploaded to expo's servers or at least not all of them and that's what you can control with that asset bundle patterns setting in the app.json file. Whichever path or paths you provide here will be excluded from uploading and you can use wild cards.
-
-```json
-"assetBundlePatterns": [
-      "**/*"
-    ],
-```
-* Now as you see, what this basically says is all files should not be uploaded, so all files should be included into the app bundle.
-
-* If this would be an empty array or if this would not be set at all, this option, then you would have the default behavior of uploading all assets to the servers.
-
-* With this approach which was preconfigured here, you say upload everything to expo's servers except for what you find in this path and this path on the other hand is a wild card that says everything, so every file in every folder of this project should be part of the app bundle, so actually nothing will be uploaded with this setting.
-
-* You could also be saying everything in assets or maybe everything in assets and subfolders of assets should be part of the asset bundle, if you had any other files which you use the app in other folders, you would upload them. So you can really control this in great detail
-
-```json
-"assetBundlePatterns": [
-      "assets/**/*"
-    ]
-```
-
-* and therefore you can control what's part of your bundle, therefore increasing the size of it a little bit and the loading time of the app a little bit or what should be stored on servers, which might make your bundle a bit smaller but which forces you to always have an internet connection.
-
-* Refer : https://docs.expo.io/guides/offline-support/?redirected
-
-### Using "Over the Air Updates" (OTA Updates)
-
-* There also are more things you can set up of course, one thing I want to dive into are the over the air updates though which you control with the updates key in the app.json file.
-
-* Now that's a neat feature, which means that people running your app on their device no matter if it's just running in the expo client because they scan such a barcode which as I mentioned isn't too useful or if they really downloaded it from the app stores, as long as you build your app in the managed expo workflow, you get the over the air update functionality built in your code.
-
-* that means that if you change something in your code, no matter what you do, whenever you publish this update with the expo publish command, all your users, even if they installed the app from the app stores will get this update in their app the next time they open the app and that's important. 
-
-* You can configure the functionality here in the updates key. 
+* Old NavigationContainer!!! here where we in the end have our logic for checking whether the user is authenticated and then we render a shop Navigator which is our route navigator created here with react navigation and that is where things have to change now.
 
 ```js
- "updates": {
-  "fallbackToCacheTimeout": 0 // you can configure how long the app when users launch it
-// on their device should check for updates and try to load them before it displays the recent available version
-// By setting this to zero, you're saying whenever the app launches, it immediately displays what it has.
-},
-```
-*  Again in the official docs, you learned more about this update key and what you can set there. What you can set, for example is if it's generally enabled which by default it is
+// Old Verion 4+ NavigationContainer
+import React, { useEffect, useRef } from 'react';
+import { useSelector } from 'react-redux';
+import { NavigationActions } from 'react-navigation';
 
-*  It looks for updates behind the scenes and for the next launch, it might then take them into account but it doesn't try to look for updates and download them before actually loading the app.
+import ShopNavigator from './ShopNavigator';
+
+const NavigationContainer = props => {
+    const navRef = useRef();
+    const isAuth = useSelector(state => !!state.auth.token);
+
+    useEffect(() => {
+        if (!isAuth) {
+            navRef.current.dispatch(
+                NavigationActions.navigate({ routeName: 'Auth' })
+            );
+        }
+    }, [isAuth]);
+
+    return <ShopNavigator ref={navRef} />;
+};
+
+export default NavigationContainer;
+```
+
+* Now let's start with the navigation container.
 
 ```js
- "updates": {
-  "fallbackToCacheTimeout": 5000 
-},
+import React from 'react'; // we don't need { useEffect, useRef } hooks here
+import { useSelector } from 'react-redux';
+// import { NavigationActions } from 'react-navigation'; this is also not need anymore
+
+import ShopNavigator from './ShopNavigator';
+
+const NavigationContainer = props => {
+    // const navRef = useRef();
+    const isAuth = useSelector(state => !!state.auth.token);
+
+    // We won't need this code here anymore where we manually navigate somewhere else if the user is authenticated
+    //because you will see later that this will now be handled differently with this component based configuration so you can delete useEffect
+
+    // useEffect(() => {
+    //     if (!isAuth) {
+    //         navRef.current.dispatch(
+    //             NavigationActions.navigate({ routeName: 'Auth' })
+    //         );
+    //     }
+    // }, [isAuth]);
+
+    return <ShopNavigator />; // here we removed ref={navRef}
+};
+
+export default NavigationContainer;
 ```
-* Now you could change this to let's say five seconds, this is a millisecond value, so five thousand milliseconds which is five seconds.This would mean that when people launch the app, they will see the launch screen for up to five seconds which is of course quite long because after loading everything else, expo or your app tries to look for an update and if it finds an update, it tries to download it and take it into account.That might be done in five seconds, it might be done faster in which case your app will also launch faster
 
-* but if it takes longer than five seconds, then it'll continue with the updating but not immediately load it but instead load the most recent version that is available. Now it's of course up to you what you prefer,
+* So we just have the shop navigator left and that's also not really something we need here anymore. We're not adding a shop Navigator as a component like this where we then refer to the overall configuration from the shop navigator file because that overall configuration is of course all set up with that old logic of having that global registry like configuration which is simply not working anymore with react navigation 5.
 
-* this approach  ("fallbackToCacheTimeout": 0 )makes sure that users have the fastest possible startup experience but they only get your updated code the next time the app is launched.
+* Instead we now need to migrate all of that to the new approach and to do that. to this component based approach I want to start quite simple in the navigation container. I will setup a new stack Navigator which is just a dummy Navigator for now.
 
-* This approach or setting this to an even higher value like 10 seconds means that users get newer versions more frequently or quicker because they get it on the next app launch already but the downside is that the app launch might take a bit longer, which is maybe not what you want.
+* So did you see how it generally works before we then later will actually well apply this to our real application for that.
 
-* So it really depends on which type of app you're building and which type of users you're targeting, what you want to set there.
+```js
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; // lets import NavigationContainer
 
-* If it's a business app let's say which you distribute to your employees which needs to be updated all the time and where the user experience is not that important, you might want to take a value like 10 seconds here,
+// Now that can be confusing because our own component here is all the named navigation container.
 
-* if it's an app you share with normal end users around the world, you might want to go for a faster start up time to provide a good user experience and sacrifice update speed for that, so users would then only get the update on the next launch after this launch.
+// So to avoid confusion here I will rename our own component here to app navigator or whatever you want
 
-* With all of that out of the way, let's actually have a look at all of this and also at this over the air update feature.
+// to name it like so I will rename it here and all the to avoid confusion even though it's not technically required 
 
-* I changed a couple of settings here and therefore what I'll now do is I'll run expo publish again, still that's the command which will not get it in the app stores but which will share it here on this expo page so to say. 
+const AppNavigator = props => {
 
-* Now let's change that in our code. So let's go to the code here and on the screen here in the new place screen where we set this title, let's change this to add new place, it's a tiny change but still. So now if I run expo publish again, this app will be bundled up and will be published to the expo servers again.
+    const isAuth = useSelector(state => !!state.auth.token);
 
-* since we used "fallbackToCacheTimeout": 0 you could see the update only after the second launch.
+    return ;
+};
 
-* Now the app on the device technically didn't change, just what's in there changed, our Javascript code changed and since we have this expo wrapper, this means that expo can take this into account and use this new code
+export default AppNavigator; // we will import the same name in app.js also but still not technically required 
+```
+* Now we're importing navigation container from React Native. But dad will be a different component than what we built in the past. It just shared the same name which is why I renamed it more important than this navigation container.
 
-* and this will also work if you publish your app to the app stores because there whilst you will build a standalone app and people won't need the expo client, you will still include that expo client app into your standalone app as I mentioned earlier, so your standalone app kind of has the thin expo wrapper the expo client built in and wrapped around your app, that's why over the air updates will even work there.
+```js
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; // lets import NavigationContainer -> this is react-navigation/native component not our custom component 
 
-### Building the Apps for Deployment (iOS & Android)
+const AppNavigator = props => {
 
-Refer : https://docs.expo.io/distribution/building-standalone-apps/?redirected
+    const isAuth = useSelector(state => !!state.auth.token);
 
-* When building for the app stores, the expo CLI,will help you but you might need to tweak your configuration in the app.json file depending on which features your application uses.
+    return ;
+};
 
-* So our application here uses a bunch of native modules, these modules all need to request permissions and we kind of do this with the permissions API, like for example in the image picker here when we ask for permissions but for Android for example, you also need to provide a list of the permissions your app needs in a configuration file which you, when you use React Native only have but which you don't have when using expo because expo provides this wrapper and does all of that for you in the expo client
+export default AppNavigator;  
+```
+* Now we can use this AppNavigator in our app.js
+* Now let us install stack and drawer navigation
 
-* but now we don't plan on using the expo client anymore and whilst it will include this into your standalone app as I mentioned, you now need to tell expo which permissions it should request there.
+```js
+npm install --save @react-navigation/stack @react-navigation/drawer
+```
+* Now we can use stack navigation
 
-* In addition for example if you're using Google Maps, you also need to provide your Google Maps API key and with that, I don't mean as we're doing it here which we use in some parts of our Javascript code but to use the React Native maps package.
+```js
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { createStackNavigator } from '@react-navigation/stack'; //Now create stack Navigator is a function we we already know
+// Now we used create stack navigator to create our configuration setup our navigation registry
+// earlier in shop app we put together into one stack and then we had multiple such stacks to compose them to
+// gather in our draw Navigator which we ultimately then combined with the off screen in the switch navigator.
 
-* Again the expo client app basically uses its own key for development and so on but as soon as you plan on offering a standalone app, you need to bring your own keys so that the expo wrapper which will be included in your standalone app will use your key because the expo team won't give you a key owned by them for that.
+// what do we do with create stack navigator here.??? It now works differently.
 
-* Again, the official docs are your friends, there you can learn what you can set up in the app.json file and let's start with Android because there, you'll have to configure a bit more before we dive into what's specific about iOS.
+// Now we use it to create a new component with it and I will name it my stack.
 
-* So for Android, besides icon and so on, what you can configure there are the permissions.
+const MyStack = createStackNavigator(); // You now don't pass any object to create stack navigator to configure it.Instead it is a function that doesn't want an object.
 
-* Now the thing is you can just omit the permissions key and in that case as you see here, expo will actually setup your app to request all permissions.
+const AppNavigator = props => {
 
-* Now I would not recommend doing that because people will look at your app in the App Store and if they see that your basic place management app wants permissions to read their contacts or make calls, well I don't know about you but I wouldn't download such an app.
+    const isAuth = useSelector(state => !!state.auth.token);
 
-* So my recommendation would be that you are specific regarding the permissions your app needs and you do that by going to your app.json file and there in the Android node, you add the permissions key and now you add permissions.
+    return ;
+};
 
-* Refer : https://docs.expo.io/versions/latest/config/app/#permissions
+export default AppNavigator;  
+```
+* It is a function that needs no object so what does it do then. What is my stack ?? my stack is now a react component and we use it as such here in the app navigator to be precise.
 
-* Now some base permissions will always be requested and you find these permissions here, for example permissions to get data from the Internet and so on but you can now also for example add permissions to use the user location and access the camera because that's something we will do.
+* We need to wrap all navigation logic with the navigation container component which we're importing from react navigation native.
 
-```json
-"android": {
-  "adaptiveIcon":{
-    "foregroundImage": "./assets/places-adaptive.png",
-    "backgroundColor" : "#171717"
+* You can think of that navigation container component basically as the component version of the app container which we created with create app container in the old setup.Right there we had to wrap our finished navigator with create app container.
+
+* Now we have to wrap our navigation setup with navigation container.So in here we now setup our logic when it comes to which pages we want to be able to load. And here we now use my stack as a react component 
+
+```js
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { createStackNavigator } from '@react-navigation/stack'; 
+
+const MyStack = createStackNavigator(); 
+
+const AppNavigator = props => {
+    const isAuth = useSelector(state => !!state.auth.token);
+    // So what my stack actually is is it's an object with a navigator property and the values stored in that property is now a component.
+    //MyStack screen property also holds a react component and hence we can render it like this.
+    return <NavigationContainer>
+            <MyStack.Navigator> 
+              <MyStack.Screen />
+            </MyStack.Navigator>
+          </NavigationContainer>;
+};
+
+export default AppNavigator;  
+```
+* This is now a component which allows us to define a screen that should be part of that stack navigator here 
+* we configure it with the help of props now because we're working with a component here so configuration works with props just as it's always the case when we work with components to give this screen a name we add a name prop 
+
+* to let react navigation know which component to load when we target this name when we do that with an immigration action for example we add a second prop the component prop and this should hold a pointer at the component we want to load when we want to go to this screen with this name.
+
+```js
+// AppNavigator
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { createStackNavigator } from '@react-navigation/stack'; 
+import { ProductsOverviewScreen } from '../screens/shop/ProductsOverviewScreen' // imported ProductsOverviewScreen component
+
+const MyStack = createStackNavigator(); 
+
+const AppNavigator = props => {
+    const isAuth = useSelector(state => !!state.auth.token);
+    return <NavigationContainer>
+            <MyStack.Navigator> 
+              <MyStack.Screen name="ProductsOverview" component={ProductsOverviewScreen}/>
+            </MyStack.Navigator>
+          </NavigationContainer>;
+};
+
+export default AppNavigator;  
+```
+* Now important we don't create the component here. We just point at it we just use its name which is exported from that file.
+
+* Let's save everything and launched his on Android let's say. And when you do that it builds the javascript bundle and opens up on the Android device. And what you'll see is our products overview screen. Of course it looks a bit different.
+
+### First Migration Steps
+
+
+* Now it's up to you where you do that configuration but since we did it basically in the shop navigator file before. I will also keep on doing it there. Even with that new logic.
+
+* So what I'll do is an app navigator.I'll actually get rid of that my stack here and I'll get rid of this import and I'll get rid of this here I'll leave the navigation container of though and I'll reset this import though ultimately will change this a bit.
+
+```js
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+
+
+const AppNavigator = props => {
+    const isAuth = useSelector(state => !!state.auth.token);
+    return <NavigationContainer>
+    
+          </NavigationContainer>;
+};
+
+export default AppNavigator;  
+```
+* Now in shop Navigation
+
+```js
+
+import React from 'react';
+// No need to import like this
+// import {
+//   createStackNavigator,
+//   createDrawerNavigator,
+//   createSwitchNavigator,
+//   createAppContainer,
+//   DrawerItems
+// } from 'react-navigation';
+
+import { createStackNavigator } from '@react-navigation/stack'; 
+import {
+  createDrawerNavigator,
+  DrawerItemList
+} from '@react-navigation/drawer';
+
+import { Platform, SafeAreaView, Button, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+
+import ProductsOverviewScreen from '../screens/shop/ProductsOverviewScreen';
+import ProductDetailScreen from '../screens/shop/ProductDetailScreen';
+import CartScreen from '../screens/shop/CartScreen';
+import OrdersScreen from '../screens/shop/OrdersScreen';
+import UserProductsScreen from '../screens/user/UserProductsScreen';
+import EditProductScreen from '../screens/user/EditProductScreen';
+import AuthScreen from '../screens/user/AuthScreen';
+import StartupScreen from '../screens/StartupScreen';
+import Colors from '../constants/Colors';
+import * as authActions from '../store/actions/auth';
+
+// Now we can scroll down and we can leave the default nav options here actually.
+// Thankfully the name rings and how you generally configure things and what you can configure did not really change just how you apply the configuration changed
+
+const defaultNavOptions = {
+  headerStyle: {
+    backgroundColor: Platform.OS === 'android' ? Colors.primary : ''
   },
-  "permissions" : ["ACCESS_FINE_LOCATION","CAMERA","WRITE_EXTERNAL_STORAGE"]
-}
-```
-* So let's add these keys here to permissions like this, to string keys with double quotes by the way, that's important in this file, added to this permissions array.
-
-* but of course depending on the application you're building, carefully check which permissions your app will need,
-
-* So permissions are one thing, in addition if you're using Google Maps, you should add the Google Maps node to your Android configuration.
-
-* Again you didn't need that for the expo client when we publish the app to this expo page and used the expo client app because there the expo team basically gives you their own Google Maps key but if you're building a standalone app, you need to provide your own one.
-
-```json
-"android": {
-      "adaptiveIcon":{
-        "foregroundImage": "./assets/places-adaptive.png",
-        "backgroundColor" : "#171717"
-      },
-      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
-      "config": {
-        "googleMaps" : {
-          "apiKey": "Get_REAL_API_KEY"
-        }
-      }
-    }
-```
-
-* so in the Google cloud console when you check your API library, you make sure that the maps SDK for Android is enabled for this project to which this API key you provided belongs. So here it is enabled,this has to belong to the project for which you created that API key which you now are providing here, otherwise this won't work.
-
-* So these are the permissions and Google Map settings and you might need other specific settings which you can learn about here in the app.json file depending on which features you're using.
-
-* one thing you absolutely need to provide to build your app is also this package key.This is something you always have to add no matter what your app uses, here in the Android node, you need to provide the package key
-
-* and this now has to have a certain format. It's basically an inverse URL, a fictional URL which doesn't have to exist but which acts as a unique identifier across the entire Google Play Store,
-
-* so it should be an inverse URL which no one else has used before and therefore typically if you own a domain, you would use your domain for example com.cisco, 
-
-```json
-"android": {
-      "package": "com.cisco.great-places",
-      "adaptiveIcon":{
-        "foregroundImage": "./assets/places-adaptive.png",
-        "backgroundColor" : "#171717"
-      },
-      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
-      "config": {
-        "googleMaps" : {
-          "apiKey": "Get_REAL_API_KEY"
-        }
-      }
-    }
-```
-* so an inverse domain and then a unique identifier, like great places. You can come up with any URL you want here but of course again it should be unique and you should therefore use your own domain or a fictional domain which isn't owned by anyone,
-
-* You also need to provide something similar on iOS, there if you go to iOS, you don't need to provide this permission setting stuff because iOS permissions work differently, you would need to provide a Google Maps API key if you use the Google Maps version of the maps package for iOS, the default of this package however is to use Apple Maps and I haven't changed this in my app so I don't need to provide Google Maps API here but what you definitely need to provide here is a bundle identifier.
-
-```json
-"ios": {
-      "bundleIdentifier": "com.cisco.great-places",
-      "supportsTablet": true
-    },
-```
- * Now besides these identifiers, you also need to set something else, on iOS you need to add a build number
-
- * build number should be a string which identifies your build. There, you should have a build number just like this version up there and working in the way I explained it up there.
-
- * So it should be a number consisting of three digits where you have a patch number for patches, bug fixes, then this minor update number for new features which don't break everything though and this major update number,
-
- ```json
- "ios": {
-      "bundleIdentifier": "com.cisco.great-places",
-      "buildNumber" : "1.0.0",
-      "supportsTablet": true
-    },
- ```
- * you can change this however you want but you should change it for every new version you publish and you deploy and you should of course change it such that you reflect what changed.
-
- * Now you need something similar for Android, ie versionCode , and now here this is not a string but a number which you should simply increment by one for every new release. So you start at one,the next version you release, even if it's just containing some tiny fixes should be two and then to three and so on.
-
- ```json
- "android": {
-      "package": "com.cisco.great_places",
-      "versionCode": 1,
-      "adaptiveIcon":{
-        "foregroundImage": "./assets/places-adaptive.png",
-        "backgroundColor" : "#171717"
-      },
-      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
-      "config": {
-        "googleMaps" : {
-          "apiKey": "Get_REAL_API_KEY"
-        }
-      }
-    }
- ```
- * we're now prepared to deploy this or to build it first and as I mentioned, the cool thing about expo managed is that now you can build this on expo's cloud servers.
-
- * So what you should do is you should run expo publish to publish the latest version of your app to expo's servers just like that which will not yet build it as a standalone app 
-
- * Now the difference between publishing and building is that publishing just pushes your code and configuration to expo's servers and you can then scan the barcode with the expo client and so on.
-
- * Building means that you'll leverage expo's cloud build service to really build an Android app bundle or an iOS IPA file, these are the files which you then upload to the app stores thereafter so there is a huge difference here. 
-
- * Now these bundles which you build as mentioned before include the expo client so to say, they include this as a wrapper around your app but it's a real native app therefore after all, so it's a native app with just this little extra tiny wrapper around it taking into account the configuration you set up here for example regarding the permissions.
-
- * In addition, these apps which you build on expo's servers which you then can distribute through the app stores will talk to expo's servers for the over the air updating functionality. So you will still just publish new updates with expo publish thereafter and your standalone apps which are running on other devices will get these published updates,
-
- * so publishing is still important even if you're building standalone apps, if you're building app bundles because these app bundles will continue to talk to expo's servers to get new versions.
-
- * But speaking of that, how do we build these bundles now?
-
- ```js
- expo build:android
- ```
- * Refer : https://docs.expo.io/distribution/building-standalone-apps/?redirected
-
- * When building for android you can choose to build APK (expo build:android -t apk) or Android App Bundle (expo build:android -t app-bundle). 
-
- * Now first of all, it will ask you because apps need to be signed, that happens with a private public key pair which in the end is used to identify you as the author of the app, future updates of the app and with that I don't mean updates which you published to expo's servers with the expo publish command but when you rebuild the app, when you rebuild the package which you then reupload to the app stores which you'll occasionally need to do if you for example change the icon or something else which can't be shared with expo publish, in such cases, you need to sign the update with the same keys you used for creating the original app to identify you as the author otherwise the App Store will deny this update, it will not accept your next version of the app.
-
- * So therefore you need to sign your app and if you know what you're doing, you can create and upload your own keys store but here I will stick to version one and let expo handle that which means it will create such a key for assigning and do all the signing stuff for you on their servers, so that's what I choose here.
-
- * now it's just doing the same as expo publish it but thereafter, it will schedule this to be built on expo's servers. So now publishing is done and now it schedules such a build and it queues it up
-
- * by the way is a process you can now quit as it says here, you can always check the status of your build by entering this URL,
-
- * something like this https://expo.io/accounts/linkguna/builds/c4ad56a6-de80-4d10-bedd-fdb6a1785ba0
-
- * Now important, this build can take very long, the build itself not so much but until your build is built because it's scheduled keep in mind that this is a free service, so of course it's not built immediately but when the expo's servers have room for it. This can take a couple of minutes, even hours until that happens,
- so don't worry if that takes some time, you can always check this URL which you're seeing in your command line to see what's happening
-
- * now, let's do the same for iOS therefore. This can be done by running expo build iOS. Now important, to build iOS apps, you need a paid Apple Developer account, that's a must have.
-
- * So you will need to go to developer.apple.com and there, you will need to login with your Apple ID and then basically get such a paid account, so you will need to add your credit card and pay a fee of $99. That is required, there is no way around that, Apple requires that for you to build apps which you want to publish to their stores.
-
- * You don't need that during development but now for sharing the app, you need to have that. It's basically a fee that's there to only allow people to the store who have at least some kind of serious goals there I guess.
-
- * So make sure you sign in here and set up your paid Apple Developer account to join the Apple Developer Program and thereafter, you can run this command and it will ask you to log in with your apple developer account. So you log in with your Apple ID and password and that data will not be stored on expo's servers, no worries but it needs it to set up everything to build your app because for the Apple build process, you need special certificates and so on which it can request on your behalf with this data.
-
- * Now there is one important thing you also have to do after this Android build is done which it isn't yet, you should run
-
- ```js
- expo fetch:android:keystore
- ```
-
- * Again this only works after the build completed because this will then fetch this automatically generated keystore which expo generates for you if you chose that in the setup which you need for future updates of this app. 
-
- * You will definitely need that and in future updates when you rebuild the app, you then have to choose that you provide your own keystore and you need to provide this keystore
-
- * so enter the path to this keystore which you then download. So this command will in the end download a file generated on expo's servers which you need to store on your system for future update of the same app, otherwise you'll not be able to update.
-
- * Now you can also check the official docs on how you can continue with testing this on your device or simulator or then go to the part where you upload the app to the Apple App Store and Google Play Store.
-
- * So we build the app, now you can upload it by running
-
- ```js
- expo upload:ios
- ```
- * this will by default use your latest app and upload it to the App Store.
-
- * Now follow the steps you find here in the docs to create the appropriate accounts and set up everything correctly so that this command can succeed and with that, you will have your app deployed to the Apple App Store and to the Google Play Store so that you can get your app to any user around the world as a standalone app, not dependent on the expo client being installed on the devices which is pretty neat.
-
-### Publishing iOS Apps without Expo
-
-* So we saw how we can build and deploy an app with expo in the managed workflow which was pretty convenient.
-
-* Now let's say we have an app for example built with the React Native CLI. Here I'm not using any native modules but if I were, I would of course have updated my Android and iOS configuration files to request the right permissions and so on and I showed all of that in the non-expo module earlier
-
-* So now let's say we're happy with the app and we want to publish it to the Apple App Store and the Google Play Store.
-
-* To run you app on device Refer : https://reactnative.dev/docs/running-on-device#docsNav
-
-* Important, you can only build for iOS on macOS now, Linux and Windows don't work because now we're not building the app in the cloud as we did with expo but locally on our machine and there, Apple has this restriction that you can only build iOS apps on a Mac, it is what it is.
-
-* So now what you need now is an apple developer account, right now not necessarily a paid one, just build the app however if you want to build it, for the app stores you need a paid one
-
-* So you should set up such an Apple Developer account and then open your project here, your iOS project to be precise with Xcode. There you can click open another project, go into your project folder, there to the iOS folder and there select this XC workspace folder or file here to open this with Xcode. (Refer Image : deploy3)
-
-* Now it's there where you now configure this app, where you set up your identifier for example, that's this inverse URL
-
-* where you set a version number which your users will see and your build number which can simply be a number that you increment here,
-
-* where you should choose automatically manage signing and where you now need to choose a team which should be shown here, if not add an account and there, log in with your Apple ID to add your apple developer account as an account here and thereafter, you should be able to choose your team here which will be required for automatically signing the app which will then be done by Apple. (Refer : deploy4)
-
-* You can in general configure your app here of course and prepare it for deployment and one important configuration is of course related to the icons you want to use.
-
-*  In expo, we set up the icons conveniently in a configuration and expo generated all the icons for us. Now it won't work like this, now you need to set up these icons on your own. and you do this by clicking on this arrow here (Refer : deploy5)
-
-* which takes you to the assets catalog and there you can now provide icons and you need to provide icons in different sizes here as you can tell. (Refer : deploy6) Now obviously that was a convenient thing by expo, it did create these icons for you and you didn't have to manually create all these icons.
-
-* Then you could upload appropriate image icon configured.
-
-* You also might want to configure the launch screen, for that you can expand this folder and there you find this launch screen zip file. This in the end allows you to customize your launch screen, there you can add new widgets to it, drag images into it, change the text, you see here for example and configure the launch screen in general. (Refer : deploy7)
-
-* Refer : https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/launch-screen/
-* Refer : https://justinnoel.dev/2019/02/19/adding-a-splash-screen-image-in-xcode/
-
-* once you did configure all of that, you can build your app here. before that run your app on simulator.thereafter of course, we can also build it for deployment.and now this succeeded and it launches the app on a simulator.
-
-* In official documentation - Building your app for production - https://reactnative.dev/docs/running-on-device#docsNav
-
-* we now got two important things to do.
-
-* The first important thing is that in our project view , info.plist and now there, you'll find this app transport security settings key.
-
-* This kind of controls how iOS controls to which web pages or web servers your app may talk and by default, it only allows access to https servers, so SSL secure servers. That's a good default but you might have some exceptions which you can add here and one exception in the exception domains list is localhost.(Refer image: deploy8)
-
-* Now that's required for development because your React Native app in the end talks to this development server here which runs on your localhost which is not using SSL. Normally iOS would block this, now to not block it, this is in the exceptions list. To build this for production, you should remove this,(Refer Image: deploy9) you can simply clear this key here by removing it with the delete key and that's it. That's one thing
-
-* and then you need to configure such a release scheme. go to Product → Scheme → Edit and set this from debug to release and then close this. (Refer Image : deploy10) 
-
-* With that, you can now run product build here to build your app and now this is built for release, built for production, so it's optimized and so on.So this builds your app now for production.
-
-* let's make sure we can also upload it to the Apple App Store and for this, you should go to your Apple Developer account and here you now definitely need a paid account and there, you now need to set up a couple of things. 
-
-* You need to go to certificates ,IDs and profiles -> identifiers -> add a new app ID, you need to add the app ID which is set up in your project, so the app ID, the bundle identifier you find here, that exact identifier needs to be added here.
-
-* You can add a description, whatever you want but then here (Build Id) you need to add this ID. 
-
-* Now you can check any special capabilities your app requires which my app doesn't, so I don't need to check anything there and then I can continue, confirm this and register. Now this is required, otherwise you won't be able to publish your app.
-
-* Now with that ID registered, you need to go to iTunes Connect (https://itunesconnect.apple.com/) where you now need to set up your app. 
-
-* There you can go to my apps and add a new app here by clicking the plus new app here, then give it a name, then choose the language you're building your app for, choose the bundle ID and there, choose the ID you just set up, if it's not showing up yet, come back a couple of minutes later it will be there then. then also add your own custom identifier which will show up on your invoices basically and so on, RNNoExpo, whatever you want and click create and this now creates the app here in iTunes Connect.
-
-* This is then also where you can manage the app for the App Store and set it up, set up its pricing and so on.
-
-* Now with all of that done, let's wait for our build to finish here , if it failed then
-
-* If you're still getting an error as I do, press command 1 here in Xcode, click on build settings here with all these things selected as you see it here, in the linking section which you'll find if you scroll down a bit and in that code stripping part here, under release, set this from yes to no. (Refer Image : deploy11)
-
-* This is a workaround around this error which seems to be related to the automatic tests which are set up and once you did this, try this again, run the build one more time and now this should succeed.
-
-* Once this build succeeded, you can go back to product -> now the archive option is available.
-
-* If you now run this, this archives your app which is nothing else than building that bundle which previously was built on expo's cloud servers, so let's wait for this to finish.
-
-* Once this is done, you should see your archive or archives if you are in the process more than once here and now here you could distribute your app to the App Store with the configurations made on iTunes Connect and so on which I showed earlier.
-
-* this is how you would deploy your React Native only app without expo managed.
-
-### Publishing Android Apps without Expo
-
-* the official React Native docs, under guides, Android, you find instructions on how to publish your app to the Google Play Store and in the end, you can just follow the instructions you find here.
-
-* Refer : https://reactnative.dev/docs/signed-apk-android#docsNav
-
-* It all starts with creating such a keystore which I already mentioned in the expo managed workflow but there expo did that for us on their servers, here we need to do that and we can do this inside of our project
-
-```js
-keytool -genkeypair -v -keystore my-upload-key.keystore -alias my-key-alias -keyalg RSA -keysize 2048 -validity 10000
-
-```
-
-* So here, you can enter an arbitrary password what you want to choose and then some information about you which technically could be wrong but which should be correct kind of since this is your identifier with instance, since this is used for assigning your app in the end and once you entered all this and confirmed it and you chose your passwords, this now creates this "my-upload-key.keystore" file, and now you can use that to sign your application. 
-
-*  Next you need to set up some gradle variables as you see here and for that make sure you move the key storage to the Android app folder, (android -> app folder -> y-upload-key.keystore)  move it up into Android and there into the app folder so that the file is there
-
-* and then go to the gradle properties file, the Android gradle properties file (android -> gradle.properties)
-
-* and in there add the below lines
-
-```js
-MYAPP_UPLOAD_STORE_FILE=my-upload-key.keystore
-MYAPP_UPLOAD_KEY_ALIAS=my-key-alias
-MYAPP_UPLOAD_STORE_PASSWORD=*****
-MYAPP_UPLOAD_KEY_PASSWORD=*****
-```
-* Once you did that, you can close that file, you should go to the Android app build gradle file,(android/app/build.gradle)
-
-```js
+  headerTitleStyle: {
+    fontFamily: 'open-sans-bold'
+  },
+  headerBackTitleStyle: {
+    fontFamily: 'open-sans'
+  },
+  headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primary
+};
+
+
+
+// const ProductsNavigator = createStackNavigator(
+//   {
+//     ProductsOverview: ProductsOverviewScreen,
+//     ProductDetail: ProductDetailScreen,
+//     Cart: CartScreen
+//   },
+//   {
+//     navigationOptions: {
+//       drawerIcon: drawerConfig => (
+//         <Ionicons
+//           name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+//           size={23}
+//           color={drawerConfig.tintColor}
+//         />
+//       )
+//     },
+//     defaultNavigationOptions: defaultNavOptions
+//   }
+// );
+
+
+const ProductsStackNavigator = createStackNavigator();
+
+export const ProductsNavigator = () => {
+  return (
+    <ProductsStackNavigator.Navigator>
+      <ProductsStackNavigator.Screen
+        name="ProductsOverview" // ProductsOverview ==> name
+        component={ProductsOverviewScreen} // component
+      />
+      <ProductsStackNavigator.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+      />
+      <ProductsStackNavigator.Screen
+        name="Cart"
+        component={CartScreen}
+      />
+    </ProductsStackNavigator.Navigator>
+  );
+};
+// Above ..... So now we set up this navigation stack with this new component based logic.
 ...
-android {
-    ...
-    defaultConfig { ... }
-    signingConfigs {
-        release { //  append this 
-            if (project.hasProperty('MYAPP_UPLOAD_STORE_FILE')) {
-                storeFile file(MYAPP_UPLOAD_STORE_FILE)
-                storePassword MYAPP_UPLOAD_STORE_PASSWORD
-                keyAlias MYAPP_UPLOAD_KEY_ALIAS
-                keyPassword MYAPP_UPLOAD_KEY_PASSWORD
+......
+........
+```
+
+* Now we could import this ProductsNavigator in our AppNavigator
+
+```js
+// AppNavigator
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { ProductsNavigator } from './ShopNavigator';
+
+
+const AppNavigator = props => {
+    const isAuth = useSelector(state => !!state.auth.token);
+    // we can now add the product navigator like this
+    return <NavigationContainer>
+            <ProductsNavigator/> 
+          </NavigationContainer>;
+};
+
+export default AppNavigator;  
+```
+
+* Now back to the shop navigator. Let's have a look at those options. Next the navigation options we had here on this stack What do we do with that.
+
+* Well we actually have two options here on our products navigator on the old navigator with the old logic one is the icon This stack should have in the drawer which we will add later
+
+* the second are our default navigation options which should be applied to all screens that are part of this navigator.
+
+* And actually there then also is a third place where we configure things in the past. And that was in some of the screens.
+
+* Let's have a look at our product overview screen what's in the shop folder there if we scroll down. We had this navigation options property we added to the products overview screen functional object and that was a function where we configure things like the header title but also what's on the left and the right set of the header now with this new logic.
+
+```js
+// old  ProductsOverviewScreen navigationOptions XXXXXXXXX 
+
+// ProductsOverviewScreen.navigationOptions = navData => {
+//   return {
+//     headerTitle: 'All Products',
+//     headerLeft: (
+//       <HeaderButtons HeaderButtonComponent={HeaderButton}>
+//         <Item
+//           title="Menu"
+//           iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+//           onPress={() => {
+//             navData.navigation.toggleDrawer();
+//           }}
+//         />
+//       </HeaderButtons>
+//     ),
+//     headerRight: () => (
+//       <HeaderButtons HeaderButtonComponent={HeaderButton}>
+//         <Item
+//           title="Cart"
+//           iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+//           onPress={() => {
+//             navData.navigation.navigate('Cart');
+//           }}
+//         />
+//       </HeaderButtons>
+//     )
+//   };
+// };
+```
+* now with this new logic. You don't do that like this anymore!!!  
+
+* Now on the screen(Shop Navigation) we want to have those options, to You can pass exactly what you had in the component before.
+
+* so you pass of function Which receives the navData parameter which then returns a configuration object the concrete value for this parameter will be fed in by react navigation and the configuration names we can set here the things we can configure haven't changed.So we still can set up a header title ahead or left. So this all is exactly the same as you learned. It works in exactly the same way.
+
+* now we could do that here and shop navigator. But this of course would quickly become very very large if we had all the different screen specific configurations in here.So it's actually not what I will do here.
+
+* Instead I see two options.
+
+* One is that we actually do our set up off the products stack navigator screen in the screen component.
+
+* The second is that we just keep our options there and that's the approach we will follow. Let us uncomment navigation option
+
+* So back in product overview I'll comment this back in but now in here we no longer set is functioning as a value for the navigation options prop but we simply export it as a constant 
+
+```js
+// new  ProductsOverviewScreen navigationOptions XXXXXXXXX 
+
+// ProductsOverviewScreen.navigationOptions = navData => {
+
+export const screenOptions = navData => {
+  return {
+    headerTitle: 'All Products',
+    headerLeft: (
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        <Item
+          title="Menu"
+          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+          onPress={() => {
+            navData.navigation.toggleDrawer();
+          }}
+        />
+      </HeaderButtons>
+    ),
+    headerRight: () => (
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        <Item
+          title="Cart"
+          iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+          onPress={() => {
+            navData.navigation.navigate('Cart');
+          }}
+        />
+      </HeaderButtons>
+    )
+  };
+};
+
+// this screen options no screen options holds this function and we export it by its name.
+
+// It does not clash with the component export because we do that with the default here.
+
+export default ProductsOverviewScreen;
+```
+
+* Since we export screen option here in our ProductsOverviewScreen we can import and use this in our shopNavigator component
+
+```js
+
+//Shop  Navigator 
+
+import ProductsOverviewScreen, {
+  screenOptions as productsOverviewScreenOptions
+} from '../screens/shop/ProductsOverviewScreen';
+
+
+export const ProductsNavigator = () => {
+  return (
+    <ProductsStackNavigator.Navigator>
+      <ProductsStackNavigator.Screen
+        name="ProductsOverview"
+        component={ProductsOverviewScreen}
+        options={productsOverviewScreenOptions} // here we can use this options
+        // I just pass a pointer at this function don't execute it just pointed it. Let's react navigation executed for you 
+      />
+      ...
+      ....
+    </ProductsStackNavigator.Navigator>
+  );
+};
+```
+* For the default navigation options. The good news are we can still apply those we don't have to set up everything on a screen level. If we have a shared configuration that affects all screens of a navigator.
+
+* And how would you think we can set up such general options for all these three screens here. Well we set them up directly on the navigator there. We also have a little screen options property so not named options but screen options.
+
+```js
+const defaultNavOptions = {
+  headerStyle: {
+    backgroundColor: Platform.OS === 'android' ? Colors.primary : ''
+  },
+  headerTitleStyle: {
+    fontFamily: 'open-sans-bold'
+  },
+  headerBackTitleStyle: {
+    fontFamily: 'open-sans'
+  },
+  headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primary
+};
+
+const ProductsStackNavigator = createStackNavigator();
+
+export const ProductsNavigator = () => {
+  // here defaultNavOptions added to screenOptions
+  return (
+    <ProductsStackNavigator.Navigator screenOptions={defaultNavOptions}> // g
+      <ProductsStackNavigator.Screen
+        name="ProductsOverview"
+        component={ProductsOverviewScreen}
+        options={productsOverviewScreenOptions}
+      />
+      <ProductsStackNavigator.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={productDetailScreenOptions}
+      />
+      <ProductsStackNavigator.Screen
+        name="Cart"
+        component={CartScreen}
+        options={cartScreenOptions}
+      />
+    </ProductsStackNavigator.Navigator>
+  );
+};
+```
+* But these are the options which will be applied to every screen here and screen specific options will be merged with these general options just as we saw earlier.
+
+* Well there is one thing we actually need to adjust and the product overview component in our screen option steer header left. This now needs to be function here which returns our JSX
+
+```js
+ProductsOverviewScreen.navigationOptions = navData => {
+  return {
+    headerTitle: 'All Products',
+    //headerLeft: (props) => (  // we can also receive props here 
+    headerLeft: () => (  // here
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        <Item
+          title="Menu"
+          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+          onPress={() => {
+            navData.navigation.toggleDrawer();
+          }}
+        />
+      </HeaderButtons>
+    ),
+    headerRight: () => (   // here
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        <Item
+          title="Cart"
+          iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+          onPress={() => {
+            navData.navigation.navigate('Cart');
+          }}
+        />
+      </HeaderButtons>
+    )
+  };
+};
+```
+* So we need to convert both into functions and you can simply do that by adding an empty parameter list and then the arrow here. Side note you could accept the parameter here if you wanted to and that would be props because this actually is now a react component defining here a concrete value for props will be defined react navigation and the values you can get from there can be found in the official docs.
+
+* with that we learned how we can configure our components our screens and the overall stack navigator with that new logic with that done.
+
+### Converting More Stack Navigators to the New Config
+
+* Lets do the similar screenOptions for productDetailScreen also...
+
+```js
+export const screenOptions = navData => {
+  return {
+    headerTitle: navData.navigation.getParam('productTitle')
+  };
+};
+```
+* Same we do in our cart scree too
+
+```js
+export const screenOptions = {
+  headerTitle: 'Your Cart'
+};
+// And here you see it's now actually not a function but just an object. This however should also work.
+```
+* with that back in the shop navigator. Let's add that here on this detail screen with the options prop
+
+```js
+import ProductsOverviewScreen, {
+  screenOptions as productsOverviewScreenOptions // to avoid name collisions
+} from '../screens/shop/ProductsOverviewScreen';
+import ProductDetailScreen, {
+  screenOptions as productDetailScreenOptions
+} from '../screens/shop/ProductDetailScreen';
+import CartScreen, {
+  screenOptions as cartScreenOptions
+} from '../screens/shop/CartScreen';
+
+
+export const ProductsNavigator = () => {
+  return (
+    <ProductsStackNavigator.Navigator screenOptions={defaultNavOptions}>
+      <ProductsStackNavigator.Screen
+        name="ProductsOverview"
+        component={ProductsOverviewScreen}
+        options={productsOverviewScreenOptions}
+      />
+      <ProductsStackNavigator.Screen
+        name="ProductDetail"
+        component={ProductDetailScreen}
+        options={productDetailScreenOptions}
+      />
+      <ProductsStackNavigator.Screen
+        name="Cart"
+        component={CartScreen}
+        options={cartScreenOptions}
+      />
+    </ProductsStackNavigator.Navigator>
+  );
+};
+```
+* Do similar way of stack navigation for order also
+
+```js
+import OrdersScreen, {
+  screenOptions as ordersScreenOptions
+} from '../screens/shop/OrdersScreen';
+
+const OrdersStackNavigator = createStackNavigator();
+
+export const OrdersNavigator = () => {
+  return (
+    <OrdersStackNavigator.Navigator screenOptions={defaultNavOptions}>
+      <OrdersStackNavigator.Screen
+        name="Orders"
+        component={OrdersScreen}
+        options={ordersScreenOptions}
+      />
+    </OrdersStackNavigator.Navigator>
+  );
+};
+```
+* now for the screen specific options let's check out the orders screen
+
+```js
+// we already imported and used in appNavigation above
+export const screenOptions = navData => {
+  return {
+    headerTitle: 'Your Orders',
+    headerLeft: () => (
+      <HeaderButtons HeaderButtonComponent={HeaderButton}>
+        <Item
+          title="Menu"
+          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
+          onPress={() => {
+            navData.navigation.toggleDrawer();
+          }}
+        />
+      </HeaderButtons>
+    )
+  };
+};
+```
+* Similarly to admin navigator also
+
+```js
+import UserProductsScreen, {
+  screenOptions as userProductsScreenOptions
+} from '../screens/user/UserProductsScreen';
+import EditProductScreen, {
+  screenOptions as editProductScreenOptions
+} from '../screens/user/EditProductScreen';
+
+const AdminStackNavigator = createStackNavigator();
+
+export const AdminNavigator = () => {
+  return (
+    <AdminStackNavigator.Navigator screenOptions={defaultNavOptions}>
+      <AdminStackNavigator.Screen
+        name="UserProducts"
+        component={UserProductsScreen}
+        options={userProductsScreenOptions}
+      />
+      <AdminStackNavigator.Screen
+        name="EditProduct"
+        component={EditProductScreen}
+        options={editProductScreenOptions}
+      />
+    </AdminStackNavigator.Navigator>
+  );
+};
+```
+### Migrating the Drawer Navigation
+
+* So we work with the stack navigator. Now what about the draw. The logic is exactly the same.
+
+* Again you could have that in a separate file.
+
+```js
+const ShopDrawerNavigator = createDrawerNavigator();
+
+export const ShopNavigator = () => {
+
+  return (
+    <ShopDrawerNavigator.Navigator >
+      <ShopDrawerNavigator.Screen
+        name="Products"
+        component={ProductsNavigator} // here we used ProductsNavigator(Stack Navigator) as componet for drawer navigator as we did before..
+
+        // And second we want to configure our different screens like the product's navigator or the order's navigator to have your own icons in the drawer.
+
+        //Well let's start with the icons. Previously we set up that I can directly in the configuration of the stack Navigator which we wanted to use in a draw
+
+        options={{
+          drawerIcon: props => (
+            <Ionicons
+              name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+              size={23}
+              color={props.color} //So this all works justice before one small adjustment however we now get props here as well fed in by react navigation and these props will have a color key 
+            />
+          )
+        }}
+      />
+      <ShopDrawerNavigator.Screen
+        name="Orders"
+        component={OrdersNavigator}
+        options={{
+          drawerIcon: props => (
+            <Ionicons
+              name={Platform.OS === 'android' ? 'md-list' : 'ios-list'}
+              size={23}
+              color={props.color}
+            />
+          )
+        }}
+      />
+      <ShopDrawerNavigator.Screen
+        name="Admin"
+        component={AdminNavigator}
+        options={{
+          drawerIcon: props => (
+            <Ionicons
+              name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
+              size={23}
+              color={props.color}
+            />
+          )
+        }}
+      />
+    </ShopDrawerNavigator.Navigator>
+  );
+};
+```
+* So now we have our screen specific configuration here. You could say now what about the draw overall because previously in the app with the old react navigation wherein we actually had our draw and we configure the active tint color and also the content of the draw.Well you can still do that with that new approach. We go to our draw navigator so where we set up the overall navigator and we configure it via props just as before.
+
+```js
+import {
+  createDrawerNavigator,
+  DrawerItemList
+} from '@react-navigation/drawer';
+
+const ShopDrawerNavigator = createDrawerNavigator();
+export const ShopNavigator = () => {    
+const dispatch = useDispatch(); // we can't use useDispatch inside ShopDrawerNavigator
+
+    return ( 
+      <ShopDrawerNavigator.Navigator
+            // here we added drawerContent
+            drawerContent={props => {
+              // since we are using DrawerItemList!!!! here, make sure you have already imported
+              return (
+                <View style={{ flex: 1, paddingTop: 20 }}>
+                  <SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
+                    <DrawerItemList {...props} /> 
+                    <Button
+                      title="Logout"
+                      color={Colors.primary}
+                      onPress={() => {
+                        dispatch(authActions.logout()); //onPress dispacth logout
+                      }}
+                    />
+                  </SafeAreaView>
+                </View>
+              );
+            }}
+            // here we added drawerContent
+            drawerContentOptions={{
+              activeTintColor: Colors.primary
+            }}
+          >
+            <ShopDrawerNavigator.Screen
+              name="Products"
+              component={ProductsNavigator}
+              options={{
+                drawerIcon: props => (
+                  <Ionicons
+                    name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
+                    size={23}
+                    color={props.color}
+                  />
+                )
+              }}
+            />
+            <ShopDrawerNavigator.Screen
+              name="Orders"
+              component={OrdersNavigator}
+              options={{
+                drawerIcon: props => (
+                  <Ionicons
+                    name={Platform.OS === 'android' ? 'md-list' : 'ios-list'}
+                    size={23}
+                    color={props.color}
+                  />
+                )
+              }}
+            />
+            <ShopDrawerNavigator.Screen
+              name="Admin"
+              component={AdminNavigator}
+              options={{
+                drawerIcon: props => (
+                  <Ionicons
+                    name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
+                    size={23}
+                    color={props.color}
+                  />
+                )
+              }}
+            />
+      </ShopDrawerNavigator.Navigator>
+    );
+```
+###  Replacing the "Switch" Navigator & Auth Flow
+
+* Well what about the switch navigator. Well we won't need to switch navigator anymore. There is no @reactnavigation/switch package or anything like that. But I'll come back to that when we need it. So for now let's create our auth stack navigator
+
+```js
+const AuthStackNavigator = createStackNavigator();
+
+export const AuthNavigator = () => {
+  return (
+    <AuthStackNavigator.Navigator screenOptions={defaultNavOptions}>
+      <AuthStackNavigator.Screen
+        name="Auth"
+        component={AuthScreen}
+        options={authScreenOptions}
+      />
+    </AuthStackNavigator.Navigator>
+  );
+};
+```
+
+* Now we also got these Startup screen but if we have a closer look in the past we just pointed at that directly from inside our switch Navigator which leaves us with just one question. What about this switch navigator.
+
+```js
+// Old Navigator!!!!!!!!
+
+// const MainNavigator = createSwitchNavigator({
+//   Startup: StartupScreen,
+//   Auth: AuthNavigator,
+//   Shop: ShopNavigator
+// });
+
+// export default createAppContainer(MainNavigator);
+```
+* Now in the past this would have been the first screen you see once the apple loaded because it's the topmost first screen in this configuration.
+
+* And then we had logic in that old navigation container we built earlier where we checked whether we are authenticated and if that was not true if we were not authenticated we would redirect the user to that authscreen. 
+
+* Now when would we reach the shop's screen.Well for that let's have a look at the start up screen. There we see that we tried authenticating and here we would go to the shops screen eventually when automatically logging us in succeeded.That was the logic we wrote there(in startupScreen)
+
+* Now that's still some logic that makes a lot of sense. We just need to adjust it for the new navigation package. in the end what we can see here is that in the start of screen we're trying to lock the user in and if we can't find user data stored on the device we go to the Auth page. If we find data about the token is expired or not there we go to the auth page.
+
+* If we do succeed with everything though and we have a valid token then we instead go to the shop page and we dispatch an action where we authenticate the user which changes state and our redux store which sets the tokens and so on.
+
+* initially that token in our store is "null" now we can use that.
+
+* What if we get rid of all these navigate calls ie "props.navigation.navigate('Auth');" well this function will stops in the end. we definitely don't dispatch does action. So we definitely don't set the token to anything. It's still "null"
+
+```js
+const StartupScreen = props => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const tryLogin = async () => {
+      const userData = await AsyncStorage.getItem('userData');
+      if (!userData) {
+        // props.navigation.navigate('Auth');
+        dispatch(authActions.setDidTryAL());
+        return;
+      }
+      const transformedData = JSON.parse(userData);
+      const { token, userId, expiryDate } = transformedData;
+      const expirationDate = new Date(expiryDate);
+
+      if (expirationDate <= new Date() || !token || !userId) {
+        // props.navigation.navigate('Auth');
+        dispatch(authActions.setDidTryAL());
+        return;
+      }
+
+      const expirationTime = expirationDate.getTime() - new Date().getTime();
+
+      // props.navigation.navigate('Shop');
+      dispatch(authActions.authenticate(userId, token, expirationTime));
+    };
+
+    tryLogin();
+  }, [dispatch]);
+
+  return (
+    <View style={styles.screen}>
+      <ActivityIndicator size="large" color={Colors.primary} />
+    </View>
+  );
+};
+```
+
+* So that token which we manage with redux is even "null" or it holds a value. Now I want to adjust the redux store a bit.
+
+* In the auth I'll add a new piece of data to this state  ie didTryAutoLogin
+
+```js
+// reducer/auth.js
+const initialState = {
+  token: null,
+  userId: null,
+  didTryAutoLogin: false
+};
+```
+
+* I want to store whether we tried logging the user in or not. Now if we authenticate. So if we dispatch an action with that identifier then I will set did try auto log in to true.
+
+```js
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case AUTHENTICATE:
+      return {
+        token: action.token,
+        userId: action.userId,
+        didTryAutoLogin: true // here..
+      };
+    case SET_DID_TRY_AL:
+      return {
+        ...state,
+        didTryAutoLogin: true // here..
+      };
+    case LOGOUT:
+      return {
+        ...initialState,
+        didTryAutoLogin: true // here..
+      };
+    // case SIGNUP:
+    //   return {
+    //     token: action.token,
+    //     userId: action.userId
+    //   };
+    default:
+      return state;
+  }
+};
+```
+
+* I will also add a new action here in actions auth 
+
+```js
+//actions/auth
+
+export const SET_DID_TRY_AL = 'SET_DID_TRY_AL';
+
+export const setDidTryAL = () => {
+  return { type: SET_DID_TRY_AL };
+};
+```
+* Now why am I doing that ? Let's go back to the reducer to your auth reducer and handle this new case.
+
+```js
+import { AUTHENTICATE, LOGOUT, SET_DID_TRY_AL } from '../actions/auth'; // make sure you import SET_DID_TRY_AL in actions
+
+const initialState = {
+  token: null,
+  userId: null,
+  didTryAutoLogin: false
+};
+
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case AUTHENTICATE:
+      return {
+        token: action.token,
+        userId: action.userId,
+        didTryAutoLogin: true
+      };
+    case SET_DID_TRY_AL: //here 
+      return {
+        ...state, // where I copy the old state 
+        didTryAutoLogin: true // I said did try auto log into true so the token might still be null i set this to true
+      };
+    case LOGOUT:
+      return {
+        ...initialState,
+        didTryAutoLogin: true
+      };
+    default:
+      return state;
+  }
+};
+
+```
+* Now my idea is that I dispatch this action here in the startup screen. In all scenarios where we previously went to the auth screen so where we tried logging in but where we didn't succeed.
+
+```js
+const StartupScreen = props => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const tryLogin = async () => {
+      const userData = await AsyncStorage.getItem('userData');
+      if (!userData) {
+        // props.navigation.navigate('Auth');
+        dispatch(authActions.setDidTryAL());
+        return;
+      }
+      const transformedData = JSON.parse(userData);
+      const { token, userId, expiryDate } = transformedData;
+      const expirationDate = new Date(expiryDate);
+
+      if (expirationDate <= new Date() || !token || !userId) {
+        // props.navigation.navigate('Auth');
+        dispatch(authActions.setDidTryAL()); //here we dispatch setDidTryAL action
+        return;
+      }
+
+      const expirationTime = expirationDate.getTime() - new Date().getTime();
+
+      // props.navigation.navigate('Shop');
+      dispatch(authActions.authenticate(userId, token, expirationTime));
+    };
+
+    tryLogin();
+  }, [dispatch]);
+
+  return (
+    <View style={styles.screen}>
+      <ActivityIndicator size="large" color={Colors.primary} />
+    </View>
+  );
+};
+```
+* So now we have this new field and redux and why am I doing that. Why is this helpful. Well because with react navigation 5 there is no switch navigator anymore because we don't need it anymore since we now manage our entire route setup via components we can just dynamically render components to have them have an effect or not render them 
+
+* so in the shop navigator (Drawer Navigator) where I render my products navigator (Stack Navigator). It's now time to add all these navigators be configured and then decide which navigator should be rendered when so from the shop navigator.
+
+* In App navigator i import our drawer navigator (shop navigator)
+
+```js
+// AppNavigator
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { ShopNavigator } from './ShopNavigator';
+
+
+const AppNavigator = props => {
+    const isAuth = useSelector(state => !!state.auth.token);
+    // we can now add the ShopNavigator like this
+    return <NavigationContainer>
+            <ShopNavigator/> 
+          </NavigationContainer>;
+};
+
+export default AppNavigator;  
+```
+* So this is basically what I want to render if we are locked in that's our shop right 
+
+* Now we all need the auth navigator and the startup screen. so in AppNavigator i will import auth navigator also
+
+* but what will also need to import into app navigator is the start up screen now.
+
+```js
+// AppNavigator
+import React from 'react'; 
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native'; 
+import { ShopNavigator, AuthNavigator } from './ShopNavigator'; //ShopNavigator, AuthNavigator
+import StartupScreen from '../screens/StartupScreen'; // StartupScreen 
+
+const AppNavigator = props => {
+    const isAuth = useSelector(state => !!state.auth.token);
+    // we can now add the ShopNavigator like this
+    return <NavigationContainer>
+            <ShopNavigator/> 
+            <AuthNavigator />
+            <StartupScreen />
+          </NavigationContainer>;
+};
+
+export default AppNavigator;  
+```
+* Now it will render one of the three componenet and this is where we need to use redux
+
+```js
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { NavigationContainer } from '@react-navigation/native';
+
+import { ShopNavigator, AuthNavigator } from './ShopNavigator';
+import StartupScreen from '../screens/StartupScreen';
+
+const AppNavigator = props => {
+  const isAuth = useSelector(state => !!state.auth.token);
+  const didTryAutoLogin = useSelector(state => state.auth.didTryAutoLogin);
+  // ShopNavigator  --> if we are authenticated.I always render to shop I don't care about anything else.
+  // AuthNavigator  --> if we are not authenticated and also did Try to AutoLogin
+  // StartupScreen  --> if we are not authenticated and if we haven't tried logging in automatically Well then we don't know whether the user might be a authenticator or not. then I actually want to render the startup screen
+  return (
+    <NavigationContainer>
+      {isAuth && <ShopNavigator />} 
+      {!isAuth && didTryAutoLogin && <AuthNavigator />}
+      {!isAuth && !didTryAutoLogin && <StartupScreen />}
+    </NavigationContainer>
+  );
+};
+
+export default AppNavigator;
+```
+* why we're now using this instead of the switch navigator.
+
+* Now first of all there is no switch navigator anymore in react navigation 5.
+
+* But why was it removed? Well since we now configure everything with components we can use regular react tools to either render a component or not.
+
+* If you're not thinking about navigation but a normal screen where you maybe have a text which you only want to show conditionally then you would use some state and then in JSX you would only sometimes rendered a text with a ternary expression for example.
+
+* And we're doing the same here with our route configuration with our screen configurations here 
+
+* react navigation behind the scenes dusty heavy lifting off interpreting our configuration and making sure that the correct component gets rendered on the screen.
+
+* Now if we use isAuth and didTryAutoLogin to control which navigator is actually rendererable by react by using such a ternary expression then we ensure that if for example isAuth is not true then there is no way that shop navigator screens can be brought to the screen.
+
+* Why. Because the shop navigator component which holds our shop related root configuration our screen configuration that component is only rendered if isAuth is true.
+
+* So there is no way for a shop related screen to be rendered to the screen if isAuth is false.Really make that comparison to normal text elements or normal boxes on a screen which you render conditionally.We're doing the same here but not with boxes and text but instead with our entire navigation stack.
+
+* Now if I do try to log in here I now actually get a problem here. I get an error that navigate with a payload of shop was not handled .
+
+* This now makes sense if you think about it. We got no switch navigator anymore. Instead we just control which navigator we want to render under which circumstances. So why are we getting this.
+
+### Logout & Further Fixes/ Adjustments
+
+* in the past year in our switch navigator. There we had the shop screen but now we have a different logic for rendering this navigator and all the screens and sup navigators that belong to it.
+
+```js
+// const MainNavigator = createSwitchNavigator({
+//   Startup: StartupScreen,
+//   Auth: AuthNavigator,
+//   Shop: ShopNavigator
+// });
+```
+
+* So let's actually go to the place where we triggered does navigation action and that's actually on the off screen there if I search for navigate you'll see here's our navigation action. I dispatch my action but I also navigate we shouldn't navigate anymore dispatching is enough because this will set a token set us to authenticate it.
+
+```js
+// screens/user/AuthScreen.js
+const authHandler = async () => {
+    let action;
+    if (isSignup) {
+      action = authActions.signup(
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+    } else {
+      action = authActions.login(
+        formState.inputValues.email,
+        formState.inputValues.password
+      );
+    }
+    setError(null);
+    setIsLoading(true);
+    try {
+      await dispatch(action);
+      // props.navigation.navigate('Shop'); This is not required in 5+
+    } catch (err) {
+      setError(err.message);
+      setIsLoading(false);
+    }
+  };
+```
+* And if we are authenticated well then we render the proper Navigator. 
+
+* With This if we reload login works and then if we logout here I get an error. So we should fix data as well. And for this let's actually go to our shop navigator again and there to the drawer where we render it at logout button and there we're dispatching does logout action
+
+```js
+// in auth reducer
+
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case AUTHENTICATE:
+      return {
+        token: action.token,
+        userId: action.userId,
+        didTryAutoLogin: true
+      };
+    case SET_DID_TRY_AL:
+      return {
+        ...state,
+        didTryAutoLogin: true
+      };
+    case LOGOUT:
+      // return initialState;  // here we should not just set initialState we should add didTryAutoLogin also
+      return {
+        ...initialState,
+        didTryAutoLogin: true // like this 
+      };
+
+    default:
+      return state;
+  }
+};
+```
+* We didn't really try it but since we locked out deliberately we know that trying it won't make any sense. Right. Because we can't log in automatically we just locked out.
+
+* and let's try logging out and we're getting that regarding the will focus remove function in the products overview screen indeed I am checking whether this screen is getting focused or not 
+
+* There is no will focus event anymore. There is just focus and blur. There isn't a will focus did focus will blur did blur just focus and blur.
+
+```js
+// useEffect(() => {
+//     const willFocusSub = props.navigation.addListener(
+//       'willFocus',
+//       loadProducts
+//     );
+
+//     return () => {
+//       willFocusSub.remove();
+//     };
+//   }, [loadProducts]);
+
+useEffect(() => {
+    const unsubscribe = props.navigation.addListener('focus', loadProducts);
+
+    return () => {
+      unsubscribe();
+    };
+  }, [loadProducts]);
+```
+### Extracting Screen Params
+
+* We get this error that get param is not a function.And indeed with react navigation 5+ get param days function you would use to get the parameters for a given navigation action was removed.So let's see what else we can do for that.
+
+* Let's go to these added product screen which is the screen we're trying to visit which fails here and we certainly use get param here but also here in the main added product screen component. Now with reactivation 5 there is no get param function anymore.
+
+```js
+// const prodId = props.navigation.getParam('productId');
+
+const prodId = props.route.params ? props.route.params.productId : null; // this will work in 5+
+
+```
+* similarly we can use in screenOptions also
+```js
+export const screenOptions = navData => {
+  const routeParams = navData.route.params ? navData.route.params : {};
+  return {
+    headerTitle: routeParams.productId ? 'Edit Product' : 'Add Product'
+  };
+};
+```
+* Now depending on your application you might not always be getting a value for this parameter. So sometimes it might be undefined and for that reason you could of course all check whether this is null or whether this is undefined before you try to use it.
+
+* Now when it comes to set param which were also using here in this component that does not change  we can still use it same way
+
+* So that's important to keep in mind. param itself will be undefined if there are no param. And if we're opening this screen in order to add a product indeed there are no param initially this submit param isn't set initially because that's only done from inside the component. So after the screen has been loaded and product I.D. definitely isn't set because we're not editing but adding. So there is no product I.D. fed into this screen when we navigate to it.
+
+* So how do we make sure we're not getting an error then we could check and the the get params like above using ternary operator 
+
+### Setting Screen Options Dynamically
+
+* Previously we needed to abuse param to get data from our component. So that changed in our component into the navigation options with react navigation5+ that's no longer needed in this scenario here we have to submit function and we want to pass a different submit function to our options. Now we did this by setting params here and setting the submit param to our submit handler
+
+```js
+// useEffect(() => {
+//     props.navigation.setParams({ submit: submitHandler });
+//   }, [submitHandler]);
+```
+* Instead what we can now do is we can use a new function called set options still on the navigation prop that does not change but this set options function here is new and this allows us to set new options dynamically from inside the component.
+
+```js
+useEffect(() => {
+    props.navigation.setOptions({
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Save"
+            iconName={
+              Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'
             }
-        }
-    }
-    buildTypes {
-        release {
-            ...
-            signingConfig signingConfigs.release //this
-        }
-    }
-}
-...
+            onPress={submitHandler}
+          />
+        </HeaderButtons>
+      )
+    });
+  }, [submitHandler]);
 ```
+* So now I set my header right screen option here from inside the component. And since this is in use of fact whenever that handler changes we'll reset that option.
 
-* and now you can generate your APK with these command
+* this now works and using params now works and we now don't have to use params for things that don't really have something to do with params. Right.
+
+* params should only be for transporting data from screen A to B when navigating and not from inside a screen with set options.We can now update our options dynamically without abusing params.
+
+### A Summary Of All Important Changes
+
+* So we spent quite some time on migrating this to react navigation five now and maybe it looks a bit overwhelming right now. So let me sum up the key changes we made here and the key changes the key differences react navigation five introduced
+
+* the biggest change is how we set up our screen configuration instead of having this registry like approach we now use components to set up our configuration but the pattern here is actually quite simple.the biggest change is how we set up our screen configuration instead of having this registry like approach we now use components to set up our configuration but the pattern here is actually quite simple.
+
+* You always create a navigator that could be a stack Navigator a draw navigator or also a tap navigator and then you use that navigator does Navigator a component here as a route component for this set of screens that belongs to this Navigator.
+
+* The screens are the nested components in there and there you provide a name and a component that should be loaded for that screen.
+
+* Now when it comes to navigating you still navigate with the navigation prop and then the navigate function by identifying the screen by name.So that does not change at all. You also still pass params as before.
+```js
+// like this
+const selectItemHandler = (id, title) => {
+    props.navigation.navigate('ProductDetail', {
+      productId: id,
+      productTitle: title
+    });
+  };
+```
+* The only important thing here or the one thing you should keep in mind is that the name you use here of course should be the name you also use here. When you set up your screens.
+
+* So that's the biggest change that you set up your configuration as components.Ultimately you then can still nest your different navigators into each other as we're doing it here where we have to draw a Navigator which also has stack navigators as screens. That also doesn't change 
+
+* And what changed is where you configure things screen wide configuration options so options that affect all screens of a navigator are set up directly on the Navigator a component with the screen options prop
+
+* and screen specific configuration is set up with the options prop on the screen component. Now where you manage that configuration if you do it all in one big file or as we're doing it here if you're doing it in the screen and you then just export it.
+
+* One thing that did change because of that is how you handle authentication or related cases. You don't have to switch navigator anymore.
+
+* Instead you control which navigators should be rendered by react and what's not rendered can't be effective can't do anything. So if we don't render to shop navigator because we're not authenticated then there is no way a shop screen can be loaded.
 
 ```js
-$ cd android
-$ ./gradlew bundleRelease
+<NavigationContainer>
+  {isAuth && <ShopNavigator />}
+  {!isAuth && didTryAutoLogin && <AuthNavigator />}
+  {!isAuth && !didTryAutoLogin && <StartupScreen />}
+</NavigationContainer>
 ```
+* That's how we now control which screens are accessible 
 
-* and this should now build your app and sign it for production and give you such an app bundle in the end which you can then upload to the Google Play Store.
+* And then we have one other big or important change and that is how we extract params
 
-* So let's wait for that to finish and once this build succeeded, you can actually take that app bundle (android/app/build/outputs/bundle/release/app-release.aab), that's your release bundle, that's what you can upload to the Google Play Store.
+* we extract params on this new route prop with the params key the params key can be undefined if there are no params received and this component and params should now really only be used to get data from component A to component B. So from screen A to screen B
 
-* For that, you can search for Google Play console and you need a Google Developer account for that which also costs you money but unlike Apple's program, it's not a subscription, it's a one-time fee of $25
+* if you needed to use parents to get data from insight to component into your screen options you don't need to do that anymore.Instead what you do now is you used the new set options Function which you can call directly on your navigation prop
 
-* in the Google Play console, you can now create a new application once you're logged in with your paid account, choose an app name like this, create it and then here you can manage your entire store appearance
+```js
+useEffect(() => {
+    props.navigation.setOptions({
+      headerRight: () => (
+        <HeaderButtons HeaderButtonComponent={HeaderButton}>
+          <Item
+            title="Save"
+            iconName={
+              Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'
+            }
+            onPress={submitHandler}
+          />
+        </HeaderButtons>
+      )
+    });
+  }, [submitHandler]);
+```
+* So we call set options on this navigation prop and then we can dynamically adjust the navigation options from inside the component.
 
-* and under app releases -> click on production track, production manage, create a release there and now here you need to upload your app bundle.
+* Refer : https://reactnavigation.org/blog/2020/02/06/react-navigation-5.0/
 
-* Now you can click continue here with the default settings normally but in general, I would recommend that you dive into the Google Play Store or Google Play console documentation to learn all about the things you can set up here but in the end, this is now where you can upload the bundle which you built.
+* And with that it's up to you whether you want to use react navigation 3 or 4 or if you want to switch to 5 or later.The majority of projects out there in the wild will certainly still use Version three and four because these versions have been around for so long.New projects might switch to Where's in five but might also still use the older version.
 
-* So here, you would upload this bundle file and thereafter, you can finish up your store appearance and you can publish your app in the Google Play Store as well.
+* Official Docs: https://reactnavigation.org/docs/getting-started
 
-* Now of course you might wonder, how do you add icons and so on because I haven't touched on this yet?
+* React Navigation v5 Announcement Blog Post: https://reactnavigation.org/blog/2020/02/06/react-navigation-5.0/
 
-* A convenient and easy way of doing that is with the help of Android Studio.
-
-* There, you can open an existing Android Studio project and open your Android folder in your React Native project here with Android Studio, just the Android folder, not the entire React Native project. 
-
-* you can go to the app folder -> source -> main -> res and there right click on it, you can select new and there, image asset and this opens an editor where you can conveniently add and generate new image assets, new icons for example. There you can choose launch your icons, adaptive and legacy and now what you can do, you can leave the name, you can setup your icon, you can configure it there.
-
-* You can choose a foreground layer and there, you can for example choose the path of an image you want to use, a background layer where you can set a solid color or also an image you want to use in the background and then therefore generate your icon with that tool. 
-
-* Simply click finish and of course provide your own image there if you want to and it will set everything up for you to have a nice icon which of course is pretty sweet. Now regarding how to customize the splash screen, attached you find some documentation on how you may do this on Android to set your own splash screen. Of course whenever you change your icons and/or your splash screen, you will need to rerun this build with that gradle w command and then also redeploy your new app bundle to the Google Play Store with the Google Play console and with that, this is how you would build and deploy React Native only apps.
-
-### Configuring Android Apps
-
-* As shown earlier (when adding native modules to non-Expo apps), you can manage certain aspects of your Android app with the AndroidManifest.xml file.
-
-* There, you can configure three important things:
-
-- The App name as it appears on the home screen: https://stackoverflow.com/questions/5443304/how-to-change-an-android-apps-name
-
-- The bundle identifier & package name of the app (also requires tweaking in other files): https://developer.android.com/studio/build/application-id
-
-- The permissions of the app: https://developer.android.com/guide/topics/manifest/manifest-intro#perms
-
-* You should also set an app version and change it with every app update. This is done in the build.gradle file, see: https://developer.android.com/studio/publish/versioning
-
-* These resources might be helpful:
-
-* Expo Deployment Docs: https://docs.expo.io/versions/v34.0.0/distribution/introduction/
-
-* React Native - Android App Signing (Non-Expo): https://facebook.github.io/react-native/docs/signed-apk-android
-
-* React Native - Building the iOS App: https://facebook.github.io/react-native/docs/running-on-device#building-your-app-for-production
+* Official Upgrading Guide: https://reactnavigation.org/docs/getting-started/en/upgrading-from-4.x.html
