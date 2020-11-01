@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "rn-native",
+    "slug": "rn-native",
+    "description" : "some text",
+    "platforms": [
+      "ios",
+      "android"
+    ],
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/places.png",
+    "splash": {
+      "image": "./assets/splash_icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#171717"
+    },
+    "updates": {
+      "fallbackToCacheTimeout": 0
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "bundleIdentifier": "com.cisco.great-places",
+      "buildNumber" : "1.0.0",
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "com.cisco.great_places",
+      "versionCode": 1,
+      "adaptiveIcon":{
+        "foregroundImage": "./assets/places-adaptive.png",
+        "backgroundColor" : "#171717"
+      },
+      "permissions" : ["ACCESS_FINE_LOCATION","CAMERA"],
+      "config": {
+        "googleMaps" : {
+          "apiKey": "Get_REAL_API_KEY"
+        }
+      }
+    }
+  }
+}
