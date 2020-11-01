@@ -1,1469 +1,1087 @@
-## Updating to React Navigation 5+
+## Push Notifications
 
 ### Intro
 
-* The important thing is with the release of React navigation 5 so off we're in 5 of this third party library the way we set up navigation in react apps and React Native apps I should say changed.
+* A feature which you actually need in quite a lot of applications is push notifications, or showing notifications in general to your users,To be precise we'll have a look at what kind of notifications we have, because it turns out that it's not just push notifications. We'll then work with the first type of notifications,which would be local notifications, and I will show you how to trigger those and how to handle those.we will dive into triggering and handling push notifications. I will also show you how you could integrate push notifications into the Shop App 
 
-### What Changed between V3 and V4?
+### Understanding Notifications
 
-* In older versions of React Navigation we have this (Refer image : V5+) way of setting up routes aware of setting up screens we could go to we set up such a registry like configuration in a file where we basically mapped our different screens to identifiers and then we could work with these identifiers from anywhere in the application to go to a specific screen.
+* As I mentioned, there are basically two types of notifications and that would be 
+  * local notifications
+  * and push notifications.
 
-* Now when it came to configuring these different screens we could do that directly in the screen component or also globally on the stack Navigator for example with the default navigation options.Now this approach of navigating around works just fine and there isn't necessarily something wrong with it though we also had some occasions where we definitely saw that it could be tricky at times right if you wanted to update header buttons in the header of a component dynamically.You had to abuse params to do that and that was not ideal and definitely a bit tricky to wrap your head around.Nonetheless you can definitely use react navigation v3 and V4 
+* Now the two types are related as you will see, but it is important to understand that we generally have these two types.
 
-* and V5 things changed a bit. we now set up roots and we navigate around a bit differently 
+* Now, what are local notifications?
 
-* now there basically is one super big change between Version 4 and 5 , We now don't set up our different round so where our different screen name mappings in this registry like way we see on the left (Refer image : V5+). But now instead we set everything up as a component tree.
+* Local notifications are notifications that are scheduled and triggered and handled on one and the same device. So they are triggered by the app and displayed locally to the user. They never leave the device.
 
-* You could say so now we have a component based configuration of our different routes. We can go to all of our different parts of the app we can go to 
+* Local notifications are never sent or shown to other users or other devices. They stay on your device.
 
-* this certainly is a big change and a big mental models which we have to make because we set up our navigation configuration in a totally different way now it offers some nice advantages as you will see it's actually closer to the react way of building apps 
+* Now you might wonder when this could be useful. Why would an app send a notification to itself?
 
-* where you basically want to use components everywhere to express what the result should look like and you then let react figure out a way to get there.And if we set up our screen configuration in such a component based way then we actually justifying our end result and we let react and react navigation figure out the way to get there.
+* Well, here's an example you probably all know. A reminder app. If users use a reminder app, it is quite common that you can set, like, a deadline or simply a date and a time when you want to be reminded. And that can be achieved with local notifications for example. There, you don't really need a server or a backend or any other users. You just want to remind yourself. And therefore, of course, a local notification should be triggered so that even if the app is closed, that feature still works and you get this reminder.I mean, that's the whole idea of this app there. And a reminder app is just one example. You will notice that many apps on your device send you local notifications from time to time, reminders that you should use them again or anything like that.
 
-* So that's actually a good mental model to have.
+* Push Notifications  - These are notifications which are not triggered by the app for itself, but which are received by the app, sent by someone else. (We will see how to send notifications in sometime now)
 
-* However there still is one thing I want to say react navigation this package with the turns V3 and V4 is still super important of course react navigation version 5 and so on is the future of React navigation but the vast majority of project you will find out there of React Native projects will use react navigation in v3 and v4 so you have to know those words as well
+* Now, when a push notification is received, that in turn then shows such a local notification. So that's the connection we have. But a push notification is sent by someone else, by a server, by another user, by some interaction in an app on another device, a push notification is not triggered by your local app installation, but instead it is received from outside your device
 
-### Prepare Project
+* So push notifications are notifications that are sent remotely to one or many users and devices, and they then show up on those devices to lead those users to do something.
 
-* the first thing I'll actually do is I will run Expo upgrades to install the latest version of the Expo toolkit and make sure that Expo also updates everything in the way it needs to be updated so that it installs all packages it needs and so on.
+* Examples here of course, would be chat apps, email apps, where maybe you as the seller of an item get a notification if someone ordered an item. So there are plenty of applications out there where something happens and a push notification should be sent.we could also have marketing push notifications where all users of an app get a marketing push notification sent by the developer of the app.
 
-```jsnv
-expo upgrade
-```
-* and then install "npm install" then run "expo start"
+### Sending Local Notifications
 
-### More Information & Updating the Project Dependencies
-
-* Refer : https://reactnavigation.org/docs/upgrading-from-4.x
-
-* You also find a link to an upgrade document in there and upgrading guide which gives you detailed steps on how to migrate your react navigation for application to react navigation 5.
-
-* What we will do now is we will install react navigation 5. Install the required packages in your React Native project:
+* we first of all need to install a new package.
 
 ```js
-npm install --save @react-navigation/native
+expo install expo-notifications
 ```
-
-* This is new by the way. Prior to work and 5 the package name was just react navigation not at react navigation slash something. So now let's installed this new package here.
-
-* Installing dependencies into an Expo managed project
+* Once installed  Lets do a simple notification trigger 
 
 ```js
-expo install react-native-gesture-handler react-native-reanimated react-native-screens react-native-safe-area-context @react-native-community/masked-view
-```
-* And once this is done we should be able to restart this application with NPM start,then again launch it on Android and Iow to see the updated application dear. Now what you'll see now is that it's broken. It's not working anymore.Just because we installed these new packages and now it's time to migrate our set up to this new component based setup.
-
-### Moving from the "Registry-like" to the "Component-based" Navigation Config
-
-* The majority of our files don't need to change. What we will need to change though is what's happening in the navigation files and the navigation folder in app J.S. 
-
-* you might remember rendering the navigation container here and the navigation container is just a custom component.
-
-```js
-// app.js old version 4!!!!!!!!!!!!!!!!!!!!!!!
-import React, { useState } from 'react';
-import { createStore, combineReducers, applyMiddleware } from 'redux';
-import { Provider } from 'react-redux';
-import { AppLoading } from 'expo';
-import * as Font from 'expo-font';
-import ReduxThunk from 'redux-thunk';
-
-import productsReducer from './store/reducers/products';
-import cartReducer from './store/reducers/cart';
-import ordersReducer from './store/reducers/orders';
-import authReducer from './store/reducers/auth';
-import NavigationContainer from './navigation/NavigationContainer';
-
-const rootReducer = combineReducers({
-  products: productsReducer,
-  cart: cartReducer,
-  orders: ordersReducer,
-  auth: authReducer
-});
-
-const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
-
-const fetchFonts = () => {
-  return Font.loadAsync({
-    'open-sans': require('./assets/fonts/OpenSans-Regular.ttf'),
-    'open-sans-bold': require('./assets/fonts/OpenSans-Bold.ttf')
-  });
-};
+import { StatusBar } from 'expo-status-bar';
+import React from 'react';
+import { StyleSheet, Button, View } from 'react-native';
+import * as Notifications from 'expo-notifications'; // Lets import this Notifications from expo-notifications
 
 export default function App() {
-  const [fontLoaded, setFontLoaded] = useState(false);
+  
+  const triggerNotificationHandler = () => {
+    // trigger scheduleNotificationAsync
+    // This is the method that will help us, well, schedule a notification. And with that, we always schedule a local notification.
+    // Now, this method wants an object where you configure the notification that should be sent.
 
-  if (!fontLoaded) {
-    return (
-      <AppLoading
-        startAsync={fetchFonts}
-        onFinish={() => {
-          setFontLoaded(true);
-        }}
-      />
-    );
-  }
+    Notifications.scheduleNotificationAsync({ 
+      // Now, not all options are supported on both platforms,but you can set them all and 
+      //if a platform doesn't support it, it will simply ignore it.
+      content: {
+        title: 'My first local notification',
+        body: 'This is the first local notification we are sending!',
+      },
+      trigger: {
+        // The trigger is also an object where you simply define when the notification should be sent.
+        seconds: 10, // until the notification should be displayed.
+      },
+    });
+  };
+
   return (
-    <Provider store={store}>
-      <NavigationContainer />
-    </Provider>
+    <View style={styles.container}>
+    <Button
+      title="Trigger Notification"
+      onPress={triggerNotificationHandler} // OnPress this button we will trigger the notification
+    />
+    <StatusBar style="auto" />
+  </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 ```
-* Old NavigationContainer!!! here where we in the end have our logic for checking whether the user is authenticated and then we render a shop Navigator which is our route navigator created here with react navigation and that is where things have to change now.
+* Now, as you see, you could set more, you could set a color, for example, you could add extra metadata, which you later can retrieve when the notification fired, you can give it a priority which might lead to the operating system to display it with higher priority, you can add a sound, but I will keep it fairly basic here and just send this basic notification.
+
+* For Android we need to do one extra thing in the app.json file.!!!
 
 ```js
-// Old Verion 4+ NavigationContainer
-import React, { useEffect, useRef } from 'react';
-import { useSelector } from 'react-redux';
-import { NavigationActions } from 'react-navigation';
+//app.json
+"android": {
+      "useNextNotificationsApi" : true
+    },
+```
 
-import ShopNavigator from './ShopNavigator';
+* this will not be the only thing we need to change. And therefore still, you will see nothing. If I expand this, I see no notification here. Well, there is a reason for that.
 
-const NavigationContainer = props => {
-    const navRef = useRef();
-    const isAuth = useSelector(state => !!state.auth.token);
+* If your app is in the foreground, so if it's currently running as it is here, local notifications by default are not shown. Now therefore, if I click this again and now I go to my home screen so that the app is no longer in the foreground and it's no longer running, Now you will see notification in homescreen
 
-    useEffect(() => {
-        if (!isAuth) {
-            navRef.current.dispatch(
-                NavigationActions.navigate({ routeName: 'Auth' })
-            );
+* Now what about iOS? Let me start the app there again as well. And let's try the same thing here.If I click on trigger notification and I go to the home screen, let's see whether we get a notification after 10 seconds there. I can tell you that we don't need to set anything up in the app.json file for iOS, but still I don't see any notification here. We definitely have no new notification here. Well, there is an important difference between Android and iOS here.
+
+* On Android, it works just like that out of the box, on iOS, you need to grant explicit permissions to receive notifications.
+
+### Getting Permissions
+
+* So in order to also get local notifications on iOS, we need to ask the user for permission.
+
+* And for this, we an use another package which we also install with expo install,
+
+```js
+expo install expo-permissions
+```
+* The expo-permissions package, as the name implies, helps us manage permissions. So once this is installed,
+
+* we need to ask the user for permission to show notifications before we try doing that.
+
+* Now, it depends on your application when you want to ask the user. Maybe you want to ask when the app starts up,After all, you wanna ask for permissions when it's very likely that the user gives you the permission, right?
+
+* Now here we'll do it right when the app starts up, so I will actually import the useEffect hook from react so that we can run logic when this component mounts, simply by passing an empty dependencies array here.
+
+* On Android this will do nothing, on iOS it will find out whether we already are allowed   to send permissions.
+
+```js
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { StyleSheet, Button, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions'; // import Permissions
+
+export default function App() {
+
+  useEffect(() => {
+    // we need to ask the user for permission to show notifications before we try doing that.
+    Permissions.getAsync(Permissions.NOTIFICATIONS) // get the permissions
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') { // if permissions denied
+          return Permissions.askAsync(Permissions.NOTIFICATIONS); // if current permissions status not granted ask permission
         }
-    }, [isAuth]);
-
-    return <ShopNavigator ref={navRef} />;
-};
-
-export default NavigationContainer;
-```
-
-* Now let's start with the navigation container.
-
-```js
-import React from 'react'; // we don't need { useEffect, useRef } hooks here
-import { useSelector } from 'react-redux';
-// import { NavigationActions } from 'react-navigation'; this is also not need anymore
-
-import ShopNavigator from './ShopNavigator';
-
-const NavigationContainer = props => {
-    // const navRef = useRef();
-    const isAuth = useSelector(state => !!state.auth.token);
-
-    // We won't need this code here anymore where we manually navigate somewhere else if the user is authenticated
-    //because you will see later that this will now be handled differently with this component based configuration so you can delete useEffect
-
-    // useEffect(() => {
-    //     if (!isAuth) {
-    //         navRef.current.dispatch(
-    //             NavigationActions.navigate({ routeName: 'Auth' })
-    //         );
-    //     }
-    // }, [isAuth]);
-
-    return <ShopNavigator />; // here we removed ref={navRef}
-};
-
-export default NavigationContainer;
-```
-
-* So we just have the shop navigator left and that's also not really something we need here anymore. We're not adding a shop Navigator as a component like this where we then refer to the overall configuration from the shop navigator file because that overall configuration is of course all set up with that old logic of having that global registry like configuration which is simply not working anymore with react navigation 5.
-
-* Instead we now need to migrate all of that to the new approach and to do that. to this component based approach I want to start quite simple in the navigation container. I will setup a new stack Navigator which is just a dummy Navigator for now.
-
-* So did you see how it generally works before we then later will actually well apply this to our real application for that.
-
-```js
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; // lets import NavigationContainer
-
-// Now that can be confusing because our own component here is all the named navigation container.
-
-// So to avoid confusion here I will rename our own component here to app navigator or whatever you want
-
-// to name it like so I will rename it here and all the to avoid confusion even though it's not technically required 
-
-const AppNavigator = props => {
-
-    const isAuth = useSelector(state => !!state.auth.token);
-
-    return ;
-};
-
-export default AppNavigator; // we will import the same name in app.js also but still not technically required 
-```
-* Now we're importing navigation container from React Native. But dad will be a different component than what we built in the past. It just shared the same name which is why I renamed it more important than this navigation container.
-
-```js
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; // lets import NavigationContainer -> this is react-navigation/native component not our custom component 
-
-const AppNavigator = props => {
-
-    const isAuth = useSelector(state => !!state.auth.token);
-
-    return ;
-};
-
-export default AppNavigator;  
-```
-* Now we can use this AppNavigator in our app.js
-* Now let us install stack and drawer navigation
-
-```js
-npm install --save @react-navigation/stack @react-navigation/drawer
-```
-* Now we can use stack navigation
-
-```js
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-import { createStackNavigator } from '@react-navigation/stack'; //Now create stack Navigator is a function we we already know
-// Now we used create stack navigator to create our configuration setup our navigation registry
-// earlier in shop app we put together into one stack and then we had multiple such stacks to compose them to
-// gather in our draw Navigator which we ultimately then combined with the off screen in the switch navigator.
-
-// what do we do with create stack navigator here.??? It now works differently.
-
-// Now we use it to create a new component with it and I will name it my stack.
-
-const MyStack = createStackNavigator(); // You now don't pass any object to create stack navigator to configure it.Instead it is a function that doesn't want an object.
-
-const AppNavigator = props => {
-
-    const isAuth = useSelector(state => !!state.auth.token);
-
-    return ;
-};
-
-export default AppNavigator;  
-```
-* It is a function that needs no object so what does it do then. What is my stack ?? my stack is now a react component and we use it as such here in the app navigator to be precise.
-
-* We need to wrap all navigation logic with the navigation container component which we're importing from react navigation native.
-
-* You can think of that navigation container component basically as the component version of the app container which we created with create app container in the old setup.Right there we had to wrap our finished navigator with create app container.
-
-* Now we have to wrap our navigation setup with navigation container.So in here we now setup our logic when it comes to which pages we want to be able to load. And here we now use my stack as a react component 
-
-```js
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-import { createStackNavigator } from '@react-navigation/stack'; 
-
-const MyStack = createStackNavigator(); 
-
-const AppNavigator = props => {
-    const isAuth = useSelector(state => !!state.auth.token);
-    // So what my stack actually is is it's an object with a navigator property and the values stored in that property is now a component.
-    //MyStack screen property also holds a react component and hence we can render it like this.
-    return <NavigationContainer>
-            <MyStack.Navigator> 
-              <MyStack.Screen />
-            </MyStack.Navigator>
-          </NavigationContainer>;
-};
-
-export default AppNavigator;  
-```
-* This is now a component which allows us to define a screen that should be part of that stack navigator here 
-* we configure it with the help of props now because we're working with a component here so configuration works with props just as it's always the case when we work with components to give this screen a name we add a name prop 
-
-* to let react navigation know which component to load when we target this name when we do that with an immigration action for example we add a second prop the component prop and this should hold a pointer at the component we want to load when we want to go to this screen with this name.
-
-```js
-// AppNavigator
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-import { createStackNavigator } from '@react-navigation/stack'; 
-import { ProductsOverviewScreen } from '../screens/shop/ProductsOverviewScreen' // imported ProductsOverviewScreen component
-
-const MyStack = createStackNavigator(); 
-
-const AppNavigator = props => {
-    const isAuth = useSelector(state => !!state.auth.token);
-    return <NavigationContainer>
-            <MyStack.Navigator> 
-              <MyStack.Screen name="ProductsOverview" component={ProductsOverviewScreen}/>
-            </MyStack.Navigator>
-          </NavigationContainer>;
-};
-
-export default AppNavigator;  
-```
-* Now important we don't create the component here. We just point at it we just use its name which is exported from that file.
-
-* Let's save everything and launched his on Android let's say. And when you do that it builds the javascript bundle and opens up on the Android device. And what you'll see is our products overview screen. Of course it looks a bit different.
-
-### First Migration Steps
-
-
-* Now it's up to you where you do that configuration but since we did it basically in the shop navigator file before. I will also keep on doing it there. Even with that new logic.
-
-* So what I'll do is an app navigator.I'll actually get rid of that my stack here and I'll get rid of this import and I'll get rid of this here I'll leave the navigation container of though and I'll reset this import though ultimately will change this a bit.
-
-```js
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-
-
-const AppNavigator = props => {
-    const isAuth = useSelector(state => !!state.auth.token);
-    return <NavigationContainer>
-    
-          </NavigationContainer>;
-};
-
-export default AppNavigator;  
-```
-* Now in shop Navigation
-
-```js
-
-import React from 'react';
-// No need to import like this
-// import {
-//   createStackNavigator,
-//   createDrawerNavigator,
-//   createSwitchNavigator,
-//   createAppContainer,
-//   DrawerItems
-// } from 'react-navigation';
-
-import { createStackNavigator } from '@react-navigation/stack'; 
-import {
-  createDrawerNavigator,
-  DrawerItemList
-} from '@react-navigation/drawer';
-
-import { Platform, SafeAreaView, Button, View } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
-
-import ProductsOverviewScreen from '../screens/shop/ProductsOverviewScreen';
-import ProductDetailScreen from '../screens/shop/ProductDetailScreen';
-import CartScreen from '../screens/shop/CartScreen';
-import OrdersScreen from '../screens/shop/OrdersScreen';
-import UserProductsScreen from '../screens/user/UserProductsScreen';
-import EditProductScreen from '../screens/user/EditProductScreen';
-import AuthScreen from '../screens/user/AuthScreen';
-import StartupScreen from '../screens/StartupScreen';
-import Colors from '../constants/Colors';
-import * as authActions from '../store/actions/auth';
-
-// Now we can scroll down and we can leave the default nav options here actually.
-// Thankfully the name rings and how you generally configure things and what you can configure did not really change just how you apply the configuration changed
-
-const defaultNavOptions = {
-  headerStyle: {
-    backgroundColor: Platform.OS === 'android' ? Colors.primary : ''
-  },
-  headerTitleStyle: {
-    fontFamily: 'open-sans-bold'
-  },
-  headerBackTitleStyle: {
-    fontFamily: 'open-sans'
-  },
-  headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primary
-};
-
-
-
-// const ProductsNavigator = createStackNavigator(
-//   {
-//     ProductsOverview: ProductsOverviewScreen,
-//     ProductDetail: ProductDetailScreen,
-//     Cart: CartScreen
-//   },
-//   {
-//     navigationOptions: {
-//       drawerIcon: drawerConfig => (
-//         <Ionicons
-//           name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-//           size={23}
-//           color={drawerConfig.tintColor}
-//         />
-//       )
-//     },
-//     defaultNavigationOptions: defaultNavOptions
-//   }
-// );
-
-
-const ProductsStackNavigator = createStackNavigator();
-
-export const ProductsNavigator = () => {
-  return (
-    <ProductsStackNavigator.Navigator>
-      <ProductsStackNavigator.Screen
-        name="ProductsOverview" // ProductsOverview ==> name
-        component={ProductsOverviewScreen} // component
-      />
-      <ProductsStackNavigator.Screen
-        name="ProductDetail"
-        component={ProductDetailScreen}
-      />
-      <ProductsStackNavigator.Screen
-        name="Cart"
-        component={CartScreen}
-      />
-    </ProductsStackNavigator.Navigator>
-  );
-};
-// Above ..... So now we set up this navigation stack with this new component based logic.
-...
-......
-........
-```
-
-* Now we could import this ProductsNavigator in our AppNavigator
-
-```js
-// AppNavigator
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-import { ProductsNavigator } from './ShopNavigator';
-
-
-const AppNavigator = props => {
-    const isAuth = useSelector(state => !!state.auth.token);
-    // we can now add the product navigator like this
-    return <NavigationContainer>
-            <ProductsNavigator/> 
-          </NavigationContainer>;
-};
-
-export default AppNavigator;  
-```
-
-* Now back to the shop navigator. Let's have a look at those options. Next the navigation options we had here on this stack What do we do with that.
-
-* Well we actually have two options here on our products navigator on the old navigator with the old logic one is the icon This stack should have in the drawer which we will add later
-
-* the second are our default navigation options which should be applied to all screens that are part of this navigator.
-
-* And actually there then also is a third place where we configure things in the past. And that was in some of the screens.
-
-* Let's have a look at our product overview screen what's in the shop folder there if we scroll down. We had this navigation options property we added to the products overview screen functional object and that was a function where we configure things like the header title but also what's on the left and the right set of the header now with this new logic.
-
-```js
-// old  ProductsOverviewScreen navigationOptions XXXXXXXXX 
-
-// ProductsOverviewScreen.navigationOptions = navData => {
-//   return {
-//     headerTitle: 'All Products',
-//     headerLeft: (
-//       <HeaderButtons HeaderButtonComponent={HeaderButton}>
-//         <Item
-//           title="Menu"
-//           iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
-//           onPress={() => {
-//             navData.navigation.toggleDrawer();
-//           }}
-//         />
-//       </HeaderButtons>
-//     ),
-//     headerRight: () => (
-//       <HeaderButtons HeaderButtonComponent={HeaderButton}>
-//         <Item
-//           title="Cart"
-//           iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-//           onPress={() => {
-//             navData.navigation.navigate('Cart');
-//           }}
-//         />
-//       </HeaderButtons>
-//     )
-//   };
-// };
-```
-* now with this new logic. You don't do that like this anymore!!!  
-
-* Now on the screen(Shop Navigation) we want to have those options, to You can pass exactly what you had in the component before.
-
-* so you pass of function Which receives the navData parameter which then returns a configuration object the concrete value for this parameter will be fed in by react navigation and the configuration names we can set here the things we can configure haven't changed.So we still can set up a header title ahead or left. So this all is exactly the same as you learned. It works in exactly the same way.
-
-* now we could do that here and shop navigator. But this of course would quickly become very very large if we had all the different screen specific configurations in here.So it's actually not what I will do here.
-
-* Instead I see two options.
-
-* One is that we actually do our set up off the products stack navigator screen in the screen component.
-
-* The second is that we just keep our options there and that's the approach we will follow. Let us uncomment navigation option
-
-* So back in product overview I'll comment this back in but now in here we no longer set is functioning as a value for the navigation options prop but we simply export it as a constant 
-
-```js
-// new  ProductsOverviewScreen navigationOptions XXXXXXXXX 
-
-// ProductsOverviewScreen.navigationOptions = navData => {
-
-export const screenOptions = navData => {
-  return {
-    headerTitle: 'All Products',
-    headerLeft: (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Menu"
-          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
-          onPress={() => {
-            navData.navigation.toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    ),
-    headerRight: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Cart"
-          iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-          onPress={() => {
-            navData.navigation.navigate('Cart');
-          }}
-        />
-      </HeaderButtons>
-    )
+        return statusObj; // So here we should return statusObj in that first then block
+          // so that in the next then block it is available for the cases where we already had permission. 
+          // This is a change you should implement to ensure that your application properly detects its notifications permission status and does not think it doesn't have permissions, when it actually has them.
+      })
+      .then((statusObj) => {
+        // this then block after askAsync finished.
+        if (statusObj.status !== 'granted') {
+          // Because of course, just because we're asking does not mean that we're getting the permission.
+          // So the user might still deny the permission, and in this case there is nothing we can do.
+          return; 
+        }
+      });
+  }, []); // called when the apps startsup
+
+  const triggerNotificationHandler = () => {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'My first local notification',
+        body: 'This is the first local notification we are sending!',
+      },
+      trigger: {
+        seconds: 10,
+      },
+    });
   };
-};
 
-// this screen options no screen options holds this function and we export it by its name.
-
-// It does not clash with the component export because we do that with the default here.
-
-export default ProductsOverviewScreen;
-```
-
-* Since we export screen option here in our ProductsOverviewScreen we can import and use this in our shopNavigator component
-
-```js
-
-//Shop  Navigator 
-
-import ProductsOverviewScreen, {
-  screenOptions as productsOverviewScreenOptions
-} from '../screens/shop/ProductsOverviewScreen';
-
-
-export const ProductsNavigator = () => {
   return (
-    <ProductsStackNavigator.Navigator>
-      <ProductsStackNavigator.Screen
-        name="ProductsOverview"
-        component={ProductsOverviewScreen}
-        options={productsOverviewScreenOptions} // here we can use this options
-        // I just pass a pointer at this function don't execute it just pointed it. Let's react navigation executed for you 
+    <View style={styles.container}>
+      <Button
+        title="Trigger Notification"
+        onPress={triggerNotificationHandler}
       />
-      ...
-      ....
-    </ProductsStackNavigator.Navigator>
+      <StatusBar style="auto" />
+    </View>
   );
-};
-```
-* For the default navigation options. The good news are we can still apply those we don't have to set up everything on a screen level. If we have a shared configuration that affects all screens of a navigator.
+}
 
-* And how would you think we can set up such general options for all these three screens here. Well we set them up directly on the navigator there. We also have a little screen options property so not named options but screen options.
-
-```js
-const defaultNavOptions = {
-  headerStyle: {
-    backgroundColor: Platform.OS === 'android' ? Colors.primary : ''
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  headerTitleStyle: {
-    fontFamily: 'open-sans-bold'
+});
+```
+*  because the worst case scenario is that we don't have permissions and therefore nothing happens.
+
+* But now that we're asking, the best case scenario is that we did get the permission and therefore this here will succeed.
+
+### Controlling How Notifications Are Displayed
+
+* So what can we do if we get a notification whilst the app is running? Currently, as you saw, the notification is lost.
+
+* And sometimes that might be what you want. But sometimes that's also not what you want.
+
+* Well, for that, we can again, use the notifications package, because there we can actually define what should happen if we get a notification whilst the app is running.
+
+* And there we can set a Notification Handler. Now this one's an object. And in that object, we in the end define how incoming notifications should be handled if the app is running.But now that it should show it when the app is running.
+```js
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { StyleSheet, Button, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+
+export default function App() {
+
+  Notifications.setNotificationHandler({
+    // what should happen when a notification is received while the app is running.
+    handleNotification: async () => {  //async promise handler
+      // value that promise will eventually yield
+      return {
+        shouldShowAlert: true,
+      };
+    },
+  }); 
+
+  useEffect(() => {
+    Permissions.getAsync(Permissions.NOTIFICATIONS)
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return Permissions.askAsync(Permissions.NOTIFICATIONS);
+        }
+        return statusObj;
+      })
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return;
+        }
+      });
+  }, []);
+
+  const triggerNotificationHandler = () => {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'My first local notification',
+        body: 'This is the first local notification we are sending!',
+      },
+      trigger: {
+        seconds: 10,
+      },
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Button
+        title="Trigger Notification"
+        onPress={triggerNotificationHandler}
+      />
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  headerBackTitleStyle: {
-    fontFamily: 'open-sans'
+});
+```
+* And now into the object you got a couple of options. For example, you can let the operating system know whether it should play the default notification sound. Whether it should set a batch to let the user know that something happened. Whether it should show an alert. And here I will set should Show Alert to true. And this tells the operating system that it should show this default alert, which it also shows if the app is closed.
+
+### Reacting to Foreground Notifications
+
+* So now it would nice to not just show a notification to the user but to actually do something in our code when such a notification is received or when the user taps on it,
+
+* because often that is what you wanna do. If a chat application sends a notification and the user taps on it, typically you wanna take the user to that chat the notification belongs to. And, therefore, here in our dummy app we can also do something when a notification is received.
+
+```js
+import { StatusBar } from 'expo-status-bar';
+import React, { useEffect } from 'react';
+import { StyleSheet, Button, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => {
+    return {
+      shouldShowAlert: true,
+    };
   },
-  headerTintColor: Platform.OS === 'android' ? 'white' : Colors.primary
-};
+});
 
-const ProductsStackNavigator = createStackNavigator();
+export default function App() {
+  useEffect(() => {
+    Permissions.getAsync(Permissions.NOTIFICATIONS)
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return Permissions.askAsync(Permissions.NOTIFICATIONS);
+        }
+        return statusObj;
+      })
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return;
+        }
+      });
+  }, []);
+  // i will add another useEffect here..
+  // We could use the same useEffect but still we are having seperate useEffect that should only run when the component here loaded for the first time
+  useEffect(() => {
+    // addNotificationReceivedListener - allow us to define function when incomming notification is received when app is running
 
-export const ProductsNavigator = () => {
-  // here defaultNavOptions added to screenOptions
-  return (
-    <ProductsStackNavigator.Navigator screenOptions={defaultNavOptions}> // g
-      <ProductsStackNavigator.Screen
-        name="ProductsOverview"
-        component={ProductsOverviewScreen}
-        options={productsOverviewScreenOptions}
-      />
-      <ProductsStackNavigator.Screen
-        name="ProductDetail"
-        component={ProductDetailScreen}
-        options={productDetailScreenOptions}
-      />
-      <ProductsStackNavigator.Screen
-        name="Cart"
-        component={CartScreen}
-        options={cartScreenOptions}
-      />
-    </ProductsStackNavigator.Navigator>
-  );
-};
-```
-* But these are the options which will be applied to every screen here and screen specific options will be merged with these general options just as we saw earlier.
-
-* Well there is one thing we actually need to adjust and the product overview component in our screen option steer header left. This now needs to be function here which returns our JSX
-
-```js
-ProductsOverviewScreen.navigationOptions = navData => {
-  return {
-    headerTitle: 'All Products',
-    //headerLeft: (props) => (  // we can also receive props here 
-    headerLeft: () => (  // here
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Menu"
-          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
-          onPress={() => {
-            navData.navigation.toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    ),
-    headerRight: () => (   // here
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Cart"
-          iconName={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-          onPress={() => {
-            navData.navigation.navigate('Cart');
-          }}
-        />
-      </HeaderButtons>
-    )
-  };
-};
-```
-* So we need to convert both into functions and you can simply do that by adding an empty parameter list and then the arrow here. Side note you could accept the parameter here if you wanted to and that would be props because this actually is now a react component defining here a concrete value for props will be defined react navigation and the values you can get from there can be found in the official docs.
-
-* with that we learned how we can configure our components our screens and the overall stack navigator with that new logic with that done.
-
-### Converting More Stack Navigators to the New Config
-
-* Lets do the similar screenOptions for productDetailScreen also...
-
-```js
-export const screenOptions = navData => {
-  return {
-    headerTitle: navData.navigation.getParam('productTitle')
-  };
-};
-```
-* Same we do in our cart scree too
-
-```js
-export const screenOptions = {
-  headerTitle: 'Your Cart'
-};
-// And here you see it's now actually not a function but just an object. This however should also work.
-```
-* with that back in the shop navigator. Let's add that here on this detail screen with the options prop
-
-```js
-import ProductsOverviewScreen, {
-  screenOptions as productsOverviewScreenOptions // to avoid name collisions
-} from '../screens/shop/ProductsOverviewScreen';
-import ProductDetailScreen, {
-  screenOptions as productDetailScreenOptions
-} from '../screens/shop/ProductDetailScreen';
-import CartScreen, {
-  screenOptions as cartScreenOptions
-} from '../screens/shop/CartScreen';
-
-
-export const ProductsNavigator = () => {
-  return (
-    <ProductsStackNavigator.Navigator screenOptions={defaultNavOptions}>
-      <ProductsStackNavigator.Screen
-        name="ProductsOverview"
-        component={ProductsOverviewScreen}
-        options={productsOverviewScreenOptions}
-      />
-      <ProductsStackNavigator.Screen
-        name="ProductDetail"
-        component={ProductDetailScreen}
-        options={productDetailScreenOptions}
-      />
-      <ProductsStackNavigator.Screen
-        name="Cart"
-        component={CartScreen}
-        options={cartScreenOptions}
-      />
-    </ProductsStackNavigator.Navigator>
-  );
-};
-```
-* Do similar way of stack navigation for order also
-
-```js
-import OrdersScreen, {
-  screenOptions as ordersScreenOptions
-} from '../screens/shop/OrdersScreen';
-
-const OrdersStackNavigator = createStackNavigator();
-
-export const OrdersNavigator = () => {
-  return (
-    <OrdersStackNavigator.Navigator screenOptions={defaultNavOptions}>
-      <OrdersStackNavigator.Screen
-        name="Orders"
-        component={OrdersScreen}
-        options={ordersScreenOptions}
-      />
-    </OrdersStackNavigator.Navigator>
-  );
-};
-```
-* now for the screen specific options let's check out the orders screen
-
-```js
-// we already imported and used in appNavigation above
-export const screenOptions = navData => {
-  return {
-    headerTitle: 'Your Orders',
-    headerLeft: () => (
-      <HeaderButtons HeaderButtonComponent={HeaderButton}>
-        <Item
-          title="Menu"
-          iconName={Platform.OS === 'android' ? 'md-menu' : 'ios-menu'}
-          onPress={() => {
-            navData.navigation.toggleDrawer();
-          }}
-        />
-      </HeaderButtons>
-    )
-  };
-};
-```
-* Similarly to admin navigator also
-
-```js
-import UserProductsScreen, {
-  screenOptions as userProductsScreenOptions
-} from '../screens/user/UserProductsScreen';
-import EditProductScreen, {
-  screenOptions as editProductScreenOptions
-} from '../screens/user/EditProductScreen';
-
-const AdminStackNavigator = createStackNavigator();
-
-export const AdminNavigator = () => {
-  return (
-    <AdminStackNavigator.Navigator screenOptions={defaultNavOptions}>
-      <AdminStackNavigator.Screen
-        name="UserProducts"
-        component={UserProductsScreen}
-        options={userProductsScreenOptions}
-      />
-      <AdminStackNavigator.Screen
-        name="EditProduct"
-        component={EditProductScreen}
-        options={editProductScreenOptions}
-      />
-    </AdminStackNavigator.Navigator>
-  );
-};
-```
-### Migrating the Drawer Navigation
-
-* So we work with the stack navigator. Now what about the draw. The logic is exactly the same.
-
-* Again you could have that in a separate file.
-
-```js
-const ShopDrawerNavigator = createDrawerNavigator();
-
-export const ShopNavigator = () => {
-
-  return (
-    <ShopDrawerNavigator.Navigator >
-      <ShopDrawerNavigator.Screen
-        name="Products"
-        component={ProductsNavigator} // here we used ProductsNavigator(Stack Navigator) as componet for drawer navigator as we did before..
-
-        // And second we want to configure our different screens like the product's navigator or the order's navigator to have your own icons in the drawer.
-
-        //Well let's start with the icons. Previously we set up that I can directly in the configuration of the stack Navigator which we wanted to use in a draw
-
-        options={{
-          drawerIcon: props => (
-            <Ionicons
-              name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-              size={23}
-              color={props.color} //So this all works justice before one small adjustment however we now get props here as well fed in by react navigation and these props will have a color key 
-            />
-          )
-        }}
-      />
-      <ShopDrawerNavigator.Screen
-        name="Orders"
-        component={OrdersNavigator}
-        options={{
-          drawerIcon: props => (
-            <Ionicons
-              name={Platform.OS === 'android' ? 'md-list' : 'ios-list'}
-              size={23}
-              color={props.color}
-            />
-          )
-        }}
-      />
-      <ShopDrawerNavigator.Screen
-        name="Admin"
-        component={AdminNavigator}
-        options={{
-          drawerIcon: props => (
-            <Ionicons
-              name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
-              size={23}
-              color={props.color}
-            />
-          )
-        }}
-      />
-    </ShopDrawerNavigator.Navigator>
-  );
-};
-```
-* So now we have our screen specific configuration here. You could say now what about the draw overall because previously in the app with the old react navigation wherein we actually had our draw and we configure the active tint color and also the content of the draw.Well you can still do that with that new approach. We go to our draw navigator so where we set up the overall navigator and we configure it via props just as before.
-
-```js
-import {
-  createDrawerNavigator,
-  DrawerItemList
-} from '@react-navigation/drawer';
-
-const ShopDrawerNavigator = createDrawerNavigator();
-export const ShopNavigator = () => {    
-const dispatch = useDispatch(); // we can't use useDispatch inside ShopDrawerNavigator
-
-    return ( 
-      <ShopDrawerNavigator.Navigator
-            // here we added drawerContent
-            drawerContent={props => {
-              // since we are using DrawerItemList!!!! here, make sure you have already imported
-              return (
-                <View style={{ flex: 1, paddingTop: 20 }}>
-                  <SafeAreaView forceInset={{ top: 'always', horizontal: 'never' }}>
-                    <DrawerItemList {...props} /> 
-                    <Button
-                      title="Logout"
-                      color={Colors.primary}
-                      onPress={() => {
-                        dispatch(authActions.logout()); //onPress dispacth logout
-                      }}
-                    />
-                  </SafeAreaView>
-                </View>
-              );
-            }}
-            // here we added drawerContent
-            drawerContentOptions={{
-              activeTintColor: Colors.primary
-            }}
-          >
-            <ShopDrawerNavigator.Screen
-              name="Products"
-              component={ProductsNavigator}
-              options={{
-                drawerIcon: props => (
-                  <Ionicons
-                    name={Platform.OS === 'android' ? 'md-cart' : 'ios-cart'}
-                    size={23}
-                    color={props.color}
-                  />
-                )
-              }}
-            />
-            <ShopDrawerNavigator.Screen
-              name="Orders"
-              component={OrdersNavigator}
-              options={{
-                drawerIcon: props => (
-                  <Ionicons
-                    name={Platform.OS === 'android' ? 'md-list' : 'ios-list'}
-                    size={23}
-                    color={props.color}
-                  />
-                )
-              }}
-            />
-            <ShopDrawerNavigator.Screen
-              name="Admin"
-              component={AdminNavigator}
-              options={{
-                drawerIcon: props => (
-                  <Ionicons
-                    name={Platform.OS === 'android' ? 'md-create' : 'ios-create'}
-                    size={23}
-                    color={props.color}
-                  />
-                )
-              }}
-            />
-      </ShopDrawerNavigator.Navigator>
+    // For every incomming notification this function will be triggered but sometimes we need to stop.
+    // in somescreen we want to clear the notification when component unmount. subscription help us to clear the notification
+    const subscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log(notification);
+      }
     );
-```
-###  Replacing the "Switch" Navigator & Auth Flow
-
-* Well what about the switch navigator. Well we won't need to switch navigator anymore. There is no @reactnavigation/switch package or anything like that. But I'll come back to that when we need it. So for now let's create our auth stack navigator
-
-```js
-const AuthStackNavigator = createStackNavigator();
-
-export const AuthNavigator = () => {
-  return (
-    <AuthStackNavigator.Navigator screenOptions={defaultNavOptions}>
-      <AuthStackNavigator.Screen
-        name="Auth"
-        component={AuthScreen}
-        options={authScreenOptions}
-      />
-    </AuthStackNavigator.Navigator>
-  );
-};
-```
-
-* Now we also got these Startup screen but if we have a closer look in the past we just pointed at that directly from inside our switch Navigator which leaves us with just one question. What about this switch navigator.
-
-```js
-// Old Navigator!!!!!!!!
-
-// const MainNavigator = createSwitchNavigator({
-//   Startup: StartupScreen,
-//   Auth: AuthNavigator,
-//   Shop: ShopNavigator
-// });
-
-// export default createAppContainer(MainNavigator);
-```
-* Now in the past this would have been the first screen you see once the apple loaded because it's the topmost first screen in this configuration.
-
-* And then we had logic in that old navigation container we built earlier where we checked whether we are authenticated and if that was not true if we were not authenticated we would redirect the user to that authscreen. 
-
-* Now when would we reach the shop's screen.Well for that let's have a look at the start up screen. There we see that we tried authenticating and here we would go to the shops screen eventually when automatically logging us in succeeded.That was the logic we wrote there(in startupScreen)
-
-* Now that's still some logic that makes a lot of sense. We just need to adjust it for the new navigation package. in the end what we can see here is that in the start of screen we're trying to lock the user in and if we can't find user data stored on the device we go to the Auth page. If we find data about the token is expired or not there we go to the auth page.
-
-* If we do succeed with everything though and we have a valid token then we instead go to the shop page and we dispatch an action where we authenticate the user which changes state and our redux store which sets the tokens and so on.
-
-* initially that token in our store is "null" now we can use that.
-
-* What if we get rid of all these navigate calls ie "props.navigation.navigate('Auth');" well this function will stops in the end. we definitely don't dispatch does action. So we definitely don't set the token to anything. It's still "null"
-
-```js
-const StartupScreen = props => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const tryLogin = async () => {
-      const userData = await AsyncStorage.getItem('userData');
-      if (!userData) {
-        // props.navigation.navigate('Auth');
-        dispatch(authActions.setDidTryAL());
-        return;
-      }
-      const transformedData = JSON.parse(userData);
-      const { token, userId, expiryDate } = transformedData;
-      const expirationDate = new Date(expiryDate);
-
-      if (expirationDate <= new Date() || !token || !userId) {
-        // props.navigation.navigate('Auth');
-        dispatch(authActions.setDidTryAL());
-        return;
-      }
-
-      const expirationTime = expirationDate.getTime() - new Date().getTime();
-
-      // props.navigation.navigate('Shop');
-      dispatch(authActions.authenticate(userId, token, expirationTime));
+    // clean up the function called automatically by react when this effect about to run again. or when the component is unmount
+    return () => {
+      subscription.remove();
     };
+  }, []);
 
-    tryLogin();
-  }, [dispatch]);
-
-  return (
-    <View style={styles.screen}>
-      <ActivityIndicator size="large" color={Colors.primary} />
-    </View>
-  );
-};
-```
-
-* So that token which we manage with redux is even "null" or it holds a value. Now I want to adjust the redux store a bit.
-
-* In the auth I'll add a new piece of data to this state  ie didTryAutoLogin
-
-```js
-// reducer/auth.js
-const initialState = {
-  token: null,
-  userId: null,
-  didTryAutoLogin: false
-};
-```
-
-* I want to store whether we tried logging the user in or not. Now if we authenticate. So if we dispatch an action with that identifier then I will set did try auto log in to true.
-
-```js
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case AUTHENTICATE:
-      return {
-        token: action.token,
-        userId: action.userId,
-        didTryAutoLogin: true // here..
-      };
-    case SET_DID_TRY_AL:
-      return {
-        ...state,
-        didTryAutoLogin: true // here..
-      };
-    case LOGOUT:
-      return {
-        ...initialState,
-        didTryAutoLogin: true // here..
-      };
-    // case SIGNUP:
-    //   return {
-    //     token: action.token,
-    //     userId: action.userId
-    //   };
-    default:
-      return state;
-  }
-};
-```
-
-* I will also add a new action here in actions auth 
-
-```js
-//actions/auth
-
-export const SET_DID_TRY_AL = 'SET_DID_TRY_AL';
-
-export const setDidTryAL = () => {
-  return { type: SET_DID_TRY_AL };
-};
-```
-* Now why am I doing that ? Let's go back to the reducer to your auth reducer and handle this new case.
-
-```js
-import { AUTHENTICATE, LOGOUT, SET_DID_TRY_AL } from '../actions/auth'; // make sure you import SET_DID_TRY_AL in actions
-
-const initialState = {
-  token: null,
-  userId: null,
-  didTryAutoLogin: false
-};
-
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case AUTHENTICATE:
-      return {
-        token: action.token,
-        userId: action.userId,
-        didTryAutoLogin: true
-      };
-    case SET_DID_TRY_AL: //here 
-      return {
-        ...state, // where I copy the old state 
-        didTryAutoLogin: true // I said did try auto log into true so the token might still be null i set this to true
-      };
-    case LOGOUT:
-      return {
-        ...initialState,
-        didTryAutoLogin: true
-      };
-    default:
-      return state;
-  }
-};
-
-```
-* Now my idea is that I dispatch this action here in the startup screen. In all scenarios where we previously went to the auth screen so where we tried logging in but where we didn't succeed.
-
-```js
-const StartupScreen = props => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    const tryLogin = async () => {
-      const userData = await AsyncStorage.getItem('userData');
-      if (!userData) {
-        // props.navigation.navigate('Auth');
-        dispatch(authActions.setDidTryAL());
-        return;
-      }
-      const transformedData = JSON.parse(userData);
-      const { token, userId, expiryDate } = transformedData;
-      const expirationDate = new Date(expiryDate);
-
-      if (expirationDate <= new Date() || !token || !userId) {
-        // props.navigation.navigate('Auth');
-        dispatch(authActions.setDidTryAL()); //here we dispatch setDidTryAL action
-        return;
-      }
-
-      const expirationTime = expirationDate.getTime() - new Date().getTime();
-
-      // props.navigation.navigate('Shop');
-      dispatch(authActions.authenticate(userId, token, expirationTime));
-    };
-
-    tryLogin();
-  }, [dispatch]);
-
-  return (
-    <View style={styles.screen}>
-      <ActivityIndicator size="large" color={Colors.primary} />
-    </View>
-  );
-};
-```
-* So now we have this new field and redux and why am I doing that. Why is this helpful. Well because with react navigation 5 there is no switch navigator anymore because we don't need it anymore since we now manage our entire route setup via components we can just dynamically render components to have them have an effect or not render them 
-
-* so in the shop navigator (Drawer Navigator) where I render my products navigator (Stack Navigator). It's now time to add all these navigators be configured and then decide which navigator should be rendered when so from the shop navigator.
-
-* In App navigator i import our drawer navigator (shop navigator)
-
-```js
-// AppNavigator
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-import { ShopNavigator } from './ShopNavigator';
-
-
-const AppNavigator = props => {
-    const isAuth = useSelector(state => !!state.auth.token);
-    // we can now add the ShopNavigator like this
-    return <NavigationContainer>
-            <ShopNavigator/> 
-          </NavigationContainer>;
-};
-
-export default AppNavigator;  
-```
-* So this is basically what I want to render if we are locked in that's our shop right 
-
-* Now we all need the auth navigator and the startup screen. so in AppNavigator i will import auth navigator also
-
-* but what will also need to import into app navigator is the start up screen now.
-
-```js
-// AppNavigator
-import React from 'react'; 
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native'; 
-import { ShopNavigator, AuthNavigator } from './ShopNavigator'; //ShopNavigator, AuthNavigator
-import StartupScreen from '../screens/StartupScreen'; // StartupScreen 
-
-const AppNavigator = props => {
-    const isAuth = useSelector(state => !!state.auth.token);
-    // we can now add the ShopNavigator like this
-    return <NavigationContainer>
-            <ShopNavigator/> 
-            <AuthNavigator />
-            <StartupScreen />
-          </NavigationContainer>;
-};
-
-export default AppNavigator;  
-```
-* Now it will render one of the three componenet and this is where we need to use redux
-
-```js
-import React from 'react';
-import { useSelector } from 'react-redux';
-import { NavigationContainer } from '@react-navigation/native';
-
-import { ShopNavigator, AuthNavigator } from './ShopNavigator';
-import StartupScreen from '../screens/StartupScreen';
-
-const AppNavigator = props => {
-  const isAuth = useSelector(state => !!state.auth.token);
-  const didTryAutoLogin = useSelector(state => state.auth.didTryAutoLogin);
-  // ShopNavigator  --> if we are authenticated.I always render to shop I don't care about anything else.
-  // AuthNavigator  --> if we are not authenticated and also did Try to AutoLogin
-  // StartupScreen  --> if we are not authenticated and if we haven't tried logging in automatically Well then we don't know whether the user might be a authenticator or not. then I actually want to render the startup screen
-  return (
-    <NavigationContainer>
-      {isAuth && <ShopNavigator />} 
-      {!isAuth && didTryAutoLogin && <AuthNavigator />}
-      {!isAuth && !didTryAutoLogin && <StartupScreen />}
-    </NavigationContainer>
-  );
-};
-
-export default AppNavigator;
-```
-* why we're now using this instead of the switch navigator.
-
-* Now first of all there is no switch navigator anymore in react navigation 5.
-
-* But why was it removed? Well since we now configure everything with components we can use regular react tools to either render a component or not.
-
-* If you're not thinking about navigation but a normal screen where you maybe have a text which you only want to show conditionally then you would use some state and then in JSX you would only sometimes rendered a text with a ternary expression for example.
-
-* And we're doing the same here with our route configuration with our screen configurations here 
-
-* react navigation behind the scenes dusty heavy lifting off interpreting our configuration and making sure that the correct component gets rendered on the screen.
-
-* Now if we use isAuth and didTryAutoLogin to control which navigator is actually rendererable by react by using such a ternary expression then we ensure that if for example isAuth is not true then there is no way that shop navigator screens can be brought to the screen.
-
-* Why. Because the shop navigator component which holds our shop related root configuration our screen configuration that component is only rendered if isAuth is true.
-
-* So there is no way for a shop related screen to be rendered to the screen if isAuth is false.Really make that comparison to normal text elements or normal boxes on a screen which you render conditionally.We're doing the same here but not with boxes and text but instead with our entire navigation stack.
-
-* Now if I do try to log in here I now actually get a problem here. I get an error that navigate with a payload of shop was not handled .
-
-* This now makes sense if you think about it. We got no switch navigator anymore. Instead we just control which navigator we want to render under which circumstances. So why are we getting this.
-
-### Logout & Further Fixes/ Adjustments
-
-* in the past year in our switch navigator. There we had the shop screen but now we have a different logic for rendering this navigator and all the screens and sup navigators that belong to it.
-
-```js
-// const MainNavigator = createSwitchNavigator({
-//   Startup: StartupScreen,
-//   Auth: AuthNavigator,
-//   Shop: ShopNavigator
-// });
-```
-
-* So let's actually go to the place where we triggered does navigation action and that's actually on the off screen there if I search for navigate you'll see here's our navigation action. I dispatch my action but I also navigate we shouldn't navigate anymore dispatching is enough because this will set a token set us to authenticate it.
-
-```js
-// screens/user/AuthScreen.js
-const authHandler = async () => {
-    let action;
-    if (isSignup) {
-      action = authActions.signup(
-        formState.inputValues.email,
-        formState.inputValues.password
-      );
-    } else {
-      action = authActions.login(
-        formState.inputValues.email,
-        formState.inputValues.password
-      );
-    }
-    setError(null);
-    setIsLoading(true);
-    try {
-      await dispatch(action);
-      // props.navigation.navigate('Shop'); This is not required in 5+
-    } catch (err) {
-      setError(err.message);
-      setIsLoading(false);
-    }
+  const triggerNotificationHandler = () => {
+    Notifications.scheduleNotificationAsync({
+      content: {
+        title: 'My first local notification',
+        body: 'This is the first local notification we are sending!',
+        data: { mySpecialData: 'Some text' }, // we can pass some metadata like this to the notification and react based on that.
+      },
+      trigger: {
+        seconds: 10,
+      },
+    });
   };
-```
-* And if we are authenticated well then we render the proper Navigator. 
 
-* With This if we reload login works and then if we logout here I get an error. So we should fix data as well. And for this let's actually go to our shop navigator again and there to the drawer where we render it at logout button and there we're dispatching does logout action
+  return (
+    <View style={styles.container}>
+      <Button
+        title="Trigger Notification"
+        onPress={triggerNotificationHandler}
+      />
+      <StatusBar style="auto" />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
+
+```
+* Console will display the below
 
 ```js
-// in auth reducer
-
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case AUTHENTICATE:
-      return {
-        token: action.token,
-        userId: action.userId,
-        didTryAutoLogin: true
-      };
-    case SET_DID_TRY_AL:
-      return {
-        ...state,
-        didTryAutoLogin: true
-      };
-    case LOGOUT:
-      // return initialState;  // here we should not just set initialState we should add didTryAutoLogin also
-      return {
-        ...initialState,
-        didTryAutoLogin: true // like this 
-      };
-
-    default:
-      return state;
-  }
-};
+Object {
+  "date": 1604199128474,
+  "request": Object {
+    "content": Object {
+      "autoDismiss": true,
+      "badge": null,
+      "body": "This is the first local notification we are sending!",
+      "data": Object {
+        "mySpecialData": "Some text",
+      },
+      "sound": "default",
+      "sticky": false,
+      "subtitle": null,
+      "title": "My first local notification",
+    },
+    "identifier": "95e368d1-30d4-437b-8a37-43b0b644bb99",
+    "trigger": Object {
+      "channelId": null,
+      "repeats": false,
+      "seconds": 10,
+      "type": "timeInterval",
+    },
+  },
+}
 ```
-* We didn't really try it but since we locked out deliberately we know that trying it won't make any sense. Right. Because we can't log in automatically we just locked out.
+### Reacting to Background Notifications
 
-* and let's try logging out and we're getting that regarding the will focus remove function in the products overview screen indeed I am checking whether this screen is getting focused or not 
+* So let's now make sure we can also react to a notification if the app was closed. And for this notifications, this notifications package, this one here, simply has a number useful method.
 
-* There is no will focus event anymore. There is just focus and blur. There isn't a will focus did focus will blur did blur just focus and blur.
+* So again in use effect, and here I'll use the same effect as I did for handling incoming notifications if the app was open,
 
 ```js
-// useEffect(() => {
-//     const willFocusSub = props.navigation.addListener(
-//       'willFocus',
-//       loadProducts
-//     );
-
-//     return () => {
-//       willFocusSub.remove();
-//     };
-//   }, [loadProducts]);
-
 useEffect(() => {
-    const unsubscribe = props.navigation.addListener('focus', loadProducts);
+    // This now allows you to define a function that should run when a user interacted with a notification whilst the app was not running.
+    const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log(response);
+      }
+    );
+
+    const foregroundSubscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log(notification);
+      }
+    );
 
     return () => {
-      unsubscribe();
+      backgroundSubscription.remove();
+      foregroundSubscription.remove();
     };
-  }, [loadProducts]);
+  }, []);
 ```
-### Extracting Screen Params
+* Well, let's look into this and see what's inside of that response. So for that, again, I'll trigger the notification on Android, 
 
-* We get this error that get param is not a function.And indeed with react navigation 5+ get param days function you would use to get the parameters for a given navigation action was removed.So let's see what else we can do for that.
+* And actually it's almost the same as the notification we got before, it's just an object that holds the notification but it also gives us this action identifier, which we can actually ignore here. Instead, we see we have a notification key, and there will again be able to get the data, the body, the title, and whatever we need.
 
-* Let's go to these added product screen which is the screen we're trying to visit which fails here and we certainly use get param here but also here in the main added product screen component. Now with reactivation 5 there is no get param function anymore.
+* If we will get same response but sime data field difference but generally our data is here 
+
+* And that's how you can handle notifications when they arrive when your app is not running. And again here, instead of console logging, you can of course do whatever you need to do. Navigate to a different screen, send a HTTP requests to a server, lock the user out, do what you wanna do in your app.
+
+### How Push Notifications Work
+
+* This is an important prerequisite because with push notifications, we are going to trigger local notifications, but that's the difference, the trigger is not coming from inside our app like it currently does, keep in mind, that currently in the end, we trigger our local notification here with the trigger notification handler with the schedule notification async method.That's how we currently trigger the notification. And that will no longer be the case.
+
+* Instead now with push notifications, the trigger will be outside of our application. It could be the developer of the app manually sending push notifications. It could be server side code that leads to a push notification being sent. For example, when a new chat message is stored in a database
+
+* we will need to learn how we can send push notifications to other devices and not just to our own device. For that, we need to understand how push notifications work.
+
+* We got our app, and typically of course, it runs on multiple devices for multiple users. Then, we got some event that should lead to a push notification to be delivered. That could be a chat message that's being posted, but it could also be that we, as the owner of the app, decide to send a marketing message or anything like that to our users.
+
+* So we want to deliver our message or our notification to a device, but this is not how it works. We can't directly send messages to devices. That's a security mechanism because if anyone could just start sending push notifications to random devices out there, our phones would get spammed.
+
+* So instead, to deliver push notifications to our apps on our devices, we have to use official push notification servers And both Android, as well as iOS, so Google and Apple, have their own push notification servers.
+
+* And you have to use those to deliver your message to the devices. Why ?
+
+* Because those servers will only deliver messages to devices and app installations that identified themselves. Essentially, your app will have to identify itself with Google's and Apple's servers, it will get a unique token, an ID you could say, and only that ID can then later be used to deliver a push notification through those official push servers to your app installations, because then the official servers can verify that your app opted into getting those push notifications. That's the security mechanism here.
+
+* And therefore, instead of directly sending messages to devices, we, in the end, use that event in conjunction with those official servers to send our push notification through those official push servers to the different devices we want to target. That's how push notifications work. (Refer : push1) So we have that extra security step in between, which matters.
+
+### Expo & Push Notifications
+
+* Thankfully, handling push notifications is made easy with Expo.
+
+* And there are various steps which we already implemented, which we will also need to implement if we are looking to handle push notifications.
+
+* For example, we also need to ask for permission, if we want to get push notifications. So that permission, which we're getting here for receiving notifications, that will in the end enabled both local and push notifications you could say.So that is code we absolutely need on iOS only, but they are we need it.
+
+* We will also need our handlers for handling incoming notifications when the app is in foreground and when the app is in background, because actually push notifications will still cause a local notification once they arrive. So for handling the message, once it's on our device, our code is exactly the same. So this does not change.
+
+* But what will change, of course, is how we schedule a notification. (triggerNotificationHandler)
+
+* first of all wanna start with showing you how a message could be sent from totally outside of the device.
+
+* And then as a second step, I will show you how our app here, could send a notification to itself, but to itself or running on a different device on a different user.
+
+* But for that one important step is missing. And that's that identification with Google's and Apple's push servers, because as I mentioned, we will need to do that. And those servers will then give us this token, this ID, which we ultimately need to send push notifications.
+
+* Besides asking for permission here, if we plan on receiving push notifications, we also need to sign this app installation up with those official push servers.
+
+* So this app running on a device of our user, needs to register itself with those official push servers. And for that, we need to add some code.
+
+* Now we will need to make some changes here, to our permissions though or not to the permissions we'll still need those.But after we have those permissions will now need to get that token, that ID. We'll need to sign our app up with those official push notification servers and get that ID which then allows us to use the ID to push notifications to this app installation on this device.
+
+* Now, thankfully, Expo makes that super, super easy. It makes it very simple. Because the team behind Expo, basically did not just give us all these nice JavaScript functions and API's for building React Native apps in a convenient way, they also have their own backend server, to which you can talk through some functions, where they have all the logic for signing up an app with those official push servers and getting that permission.
+
+* Actually, to be precise, Expo does not sign our app up with those services. Instead, Expo signed itself up with those services.
+
+* And it allows us to use its sign up you could say. So Expo, the team and the software does all the heavy lifting behind the scenes for us, so that we don't manually need to sign up our app, but we can leverage Expo's existing server to push notifications through Expo's subscription with those official servers to our different app installations, users and devices.
+
+* That is how you can think about that. And that will make implementing push notifications with Expo very, very easy.
+
+* I can tell you that if you would need to sign up manually, that would be a lot of steps, a lot of work. And Expo is handling this for you in a very, very elegant way. Expo really makes it easy to deliver push notifications to your applications.
+
+* What do you need to do? Well, after we got our permissions here, in the next then block, we want to tell Expo and their own server which they have for us, to sign our app up with those official push servers.
+
+* We'll need to tell Expo to basically sign our app up so to say. Behind the scenes Expo will do all of that, behind the scenes Expo will sign up, and then our app will leverage Expo to deliver push notifications.
 
 ```js
-// const prodId = props.navigation.getParam('productId');
+export default function App() {
+  useEffect(() => {
+    Permissions.getAsync(Permissions.NOTIFICATIONS)
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return Permissions.askAsync(Permissions.NOTIFICATIONS);
+        }
+        return statusObj;
+      })
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          throw new Error('Permission not granted!');
+          // Previously we return here now we removed that return
+          // because then the next then block would still be triggered, even though we don't have permission.
+        }
+      })
+      .then(response => {
+      
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }, []);
+```
+### Getting a Push Token
 
-const prodId = props.route.params ? props.route.params.productId : null; // this will work in 5+
+```js
+useEffect(() => {
+    Permissions.getAsync(Permissions.NOTIFICATIONS)
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return Permissions.askAsync(Permissions.NOTIFICATIONS);
+        }
+        return statusObj;
+      })
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          throw new Error('Permission not granted!');
+        }
+      })
+      .then(() => {
+        return Notifications.getExpoPushTokenAsync(); // get Expo Push Token
+      })
+      .then(response => {
+        const token = response.data; // Token received in promise callback
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }, []);
+```
+* we can do this, but this won't work on those simulators.So we're not able to test this on simulators. Instead, we'll need real devices.
+
+### Sending Push Notifications
+
+* So finally, we got that token.
+
+* Now, we'll not need that token here for the moment, instead, I wanna use it to manually send a push notification to our real device.
+
+* And testing push notifications is made easy with the Expo push notification tool. (https://expo.io/notifications)
+
+* This is a tool which allows you to test push notifications you wanna send to your Expo projects. In reality, you would probably not use this tool, but you would use one of Expos server side STKs to trigger a push notification on the server, or you would send it from directly inside your app, As I will show you later in this module, depending on your use case.
+
+* But for testing, this is a great tool. here you need that token("don't share public this might leads to spam") and with that you cans send push notifications
+
+### Using Expo's Push Server
+
+* So now that we got push notifications working, let's see how we can work with them from inside the app
+
+* so that when we press this trigger notification button, we send a push notification. For that, Expo has got us covered as well.
+
+* in the place where you wanna trigger that a push notification should be delivered to some device, you need to send a http request to Expo's servers.
+
+* So we can do this with the fetch API, which is available in React-Native,
+
+```js
+import React, { useEffect, useState } from 'react';
+
+export default function App() {
+  const [pushToken, setPushToken] = useState(); // pushToken set to empty initial state
+
+  useEffect(() => {
+    Permissions.getAsync(Permissions.NOTIFICATIONS)
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          return Permissions.askAsync(Permissions.NOTIFICATIONS);
+        }
+        return statusObj;
+      })
+      .then((statusObj) => {
+        if (statusObj.status !== 'granted') {
+          throw new Error('Permission not granted!');
+        }
+      })
+      .then(() => {
+        return Notifications.getExpoPushTokenAsync();
+      })
+      .then((response) => {
+        const token = response.data;
+        setPushToken(token); // setPushToken to useState
+      })
+      .catch((err) => {
+        console.log(err);
+        return null;
+      });
+  }, []);
+
+  useEffect(() => {
+    const backgroundSubscription = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log(response);
+      }
+    );
+
+    const foregroundSubscription = Notifications.addNotificationReceivedListener(
+      (notification) => {
+        console.log(notification);
+      }
+    );
+
+    return () => {
+      backgroundSubscription.remove();
+      foregroundSubscription.remove();
+    };
+  }, []);
+
+  const triggerNotificationHandler = () => {
+    // Notifications.scheduleNotificationAsync({
+    //   content: {
+    //     title: 'My first local notification',
+    //     body: 'This is the first local notification we are sending!',
+    //     data: { mySpecialData: 'Some text' },
+    //   },
+    //   trigger: {
+    //     seconds: 10,
+    //   },
+    // });
+    fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Accept-Encoding': 'gzip, deflate',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        to: pushToken, // Token !!This is a required property, which then needs our token, the token we're getting when we're registering
+        // we can simply use useState to manage the token as state of our component.
+        data: { extraData: 'Some data' },
+        title: 'Sent via the app',
+        body: 'This push notification was sent via the app!',
+      }),
+    });
+  ...
+  ....
+```
+### More on Push Tokens
+
+* Now I will actually here send it to the same device as I'm running on,but this could be sent to any other device as well. But if I press trigger notification, you see sent via the app.
+
+* Which clearly is that brand new message we prepared. So that is this push notification sent through Expo's push servers And whilst I sent it to myself here, which of course might not be what you want to do in most scenarios. You still see the idea behind it. This could have been sent to any other application of which we had the push token.
+
+* Now, speaking of that push token, though, how should you manage that?
+
+* Because at the moment you could argue that the only push token we can know in this application is the one off this device on which this app is installed. So ho could we know the push token of some other device? How could that work?
+
+* So we learned that we can leverage Expo push servers to deliver push notifications.
+
+* But we need a push token for that. That's no problem because we can get that token as we do it here with get get.ExpoPushTokenAsync. The problem with that, however, is that, of course we can get a token with that and we can store this in state thereafter, but then we only have to token off this device on which this app installations running. So when we later want to send a push notification, the only token we know is our own token.
+
+* but in reality, we of course want to send a push notification to other devices. So to the same app installed on other devices of other users, how would we get their tokens?
+
+* Well, just as we get their emails or whatever else we need in an application. You can of course write code where once you got that token, you don't, or maybe not just manage it in your local state, but instead you send an HTTP request to your own API where you then have some logic to receive that token and store it in a database.
+
+* This token of course can, and in reality will, be shared and stored in a database. So that any user of your app submits not just his or her email address and password, but also his or her push token.
+
+* And with that data stored in a database on your server, you can, of course, always retrieve that token and use it in your app when you need it. So you can share that token, just like you share other user data as needed.
+
+*  if a user creates a product in a shop application, we also store that product in a database to show it to other users as well. With a token, it's no different. We won't show it to other users, but we can still fetch it on the devices of our users and there use it in the code to send push notifications as shown here.
+
+* In addition, it is worth pointing out that when it comes to sending notifications, there is a separate article on the Expo docs, Refer : https://docs.expo.io/push-notifications/sending-notifications/
+
+* But if you don't really need to trigger the push notification from inside the app, but instead you want to trigger it from inside your own server. So now I'm talking about your server, which you as developer own.
+
+* The Expo team gives you many SDKs for Node, for Python, for PHP, which make it very easy to trigger push notifications on your own server.
+
+* Under the hood, those SDKs will basically do what we do here. They will send the request to the Expo push server.
+
+###  Adding Push Notifications to the Shop App 
+
+* While add product i want to add push token also to the database so that we can fetch and use token later, When we add order we will add data to the database and then we will send push notification to the owner of the product.
+
+* For Android we need to do one extra thing in the app.json file.!!!
+
+```js
+//app.json
+"android": {
+      "useNextNotificationsApi" : true
+    },
+```
+* We also need to ask the user for permission. So, the question is where we wanna do that, of course. 
+
+* Since it's the creator of a product who should receive push notifications, I will ask for permission right before we create a new product.
+
+* Let's first of all add the required packages
+
+```js
+expo install expo-notifications
+expo install expo-permissions
+```
+* So with that installed, here in create product, before we do anything else, we wanna use the notifications API.
+
+```js
+import * as Notifications from 'expo-notifications';
+import * as Permissions from 'expo-permissions';
+
+export const createProduct = (title, description, imageUrl, price) => {
+  return async (dispatch, getState) => {
+    // any async code you want!
+    let pushToken;
+    let statusObj = await Permissions.getAsync(Permissions.NOTIFICATIONS); // So we should use permissions and get the information about the notifications permission.
+    //  This returns a promise, and since we're in the async function here, we can simply await it.
+    if (statusObj.status !== 'granted') {
+      // if not granted ask Permission
+      // And that's all just what we had before,now just with asyn await, instead of then. But other than that, it's the same.
+      statusObj = await Permissions.askAsync(Permissions.NOTIFICATIONS);
+    }
+    if (statusObj.status !== 'granted') {
+      pushToken = null;
+    } else {
+      pushToken = (await Notifications.getExpoPushTokenAsync()).data; // promise that is why here we used await
+    }
+    const token = getState().auth.token;
+    const userId = getState().auth.userId;
+    const response = await fetch(
+      `https://rn-push-58aba.firebaseio.com/products.json?auth=${token}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title,
+          description,
+          imageUrl,
+          price,
+          ownerId: userId,
+          ownerPushToken: pushToken,
+        }),
+      }
+    );
+
+    const resData = await response.json();
+
+    dispatch({
+      type: CREATE_PRODUCT,
+      productData: {
+        id: resData.name,
+        title,
+        description,
+        imageUrl,
+        price,
+        ownerId: userId,
+        pushToken: pushToken, //sending pushToken to the server
+      },
+    });
+  };
+};
 
 ```
-* similarly we can use in screenOptions also
+* Now let us fetch and use Token ... Refer Push finished
+
+* In orders action addOrder we are getting cartItems, which we are dispacth from cartscreen
+
+* In cart item array we have to add pushToken also 
+
 ```js
-export const screenOptions = navData => {
-  const routeParams = navData.route.params ? navData.route.params : {};
-  return {
-    headerTitle: routeParams.productId ? 'Edit Product' : 'Add Product'
+// CartScreen.js
+ transformedCartItems.push({
+        productId: key,
+        productTitle: state.cart.items[key].productTitle,
+        productPrice: state.cart.items[key].productPrice,
+        quantity: state.cart.items[key].quantity,
+        sum: state.cart.items[key].sum,
+        productPushToken: state.cart.items[key].pushToken
+      });
+  ... 
+  ................................
+  const sendOrderHandler = async () => {
+    setIsLoading(true);
+    await dispatch(ordersActions.addOrder(cartItems, cartTotalAmount));
+    setIsLoading(false);
+  };
+```
+* Now this is a field (productPushToken) which won't be there yet because we first of all need to make some changes to our store.
+
+```js
+import { ADD_TO_CART, REMOVE_FROM_CART } from '../actions/cart';
+import { ADD_ORDER } from '../actions/orders';
+import CartItem from '../../models/cart-item';
+import { DELETE_PRODUCT } from '../actions/products';
+
+const initialState = {
+  items: {},
+  totalAmount: 0,
+};
+
+export default (state = initialState, action) => {
+  switch (action.type) {
+    case ADD_TO_CART:
+      const addedProduct = action.product;
+      const prodPrice = addedProduct.price;
+      const prodTitle = addedProduct.title;
+      const pushToken = addedProduct.pushToken; // here
+
+      let updatedOrNewCartItem;
+
+      if (state.items[addedProduct.id]) {
+        // already have the item in the cart
+        updatedOrNewCartItem = new CartItem(
+          state.items[addedProduct.id].quantity + 1,
+          prodPrice,
+          prodTitle,
+          pushToken, // we also need the push token. 
+          state.items[addedProduct.id].sum + prodPrice
+        );
+      } else {
+        updatedOrNewCartItem = new CartItem(
+          1,
+          prodPrice,
+          prodTitle,
+          pushToken, //we also need the push token. 
+          prodPrice
+        );
+      }
+      return {
+        ...state,
+        items: { ...state.items, [addedProduct.id]: updatedOrNewCartItem },
+        totalAmount: state.totalAmount + prodPrice,
+      };
+    case REMOVE_FROM_CART:
+      const selectedCartItem = state.items[action.pid];
+      const currentQty = selectedCartItem.quantity;
+      let updatedCartItems;
+      if (currentQty > 1) {
+        // need to reduce it, not erase it
+        const updatedCartItem = new CartItem(
+          selectedCartItem.quantity - 1,
+          selectedCartItem.productPrice,
+          selectedCartItem.productTitle,
+          selectedCartItem.sum - selectedCartItem.productPrice
+        );
+        updatedCartItems = { ...state.items, [action.pid]: updatedCartItem };
+      } else {
+        updatedCartItems = { ...state.items };
+        delete updatedCartItems[action.pid];
+      }
+      return {
+        ...state,
+        items: updatedCartItems,
+        totalAmount: state.totalAmount - selectedCartItem.productPrice,
+      };
+    case ADD_ORDER:
+      return initialState;
+    case DELETE_PRODUCT:
+      if (!state.items[action.pid]) {
+        return state;
+      }
+      const updatedItems = { ...state.items };
+      const itemTotal = state.items[action.pid].sum;
+      delete updatedItems[action.pid];
+      return {
+        ...state,
+        items: updatedItems,
+        totalAmount: state.totalAmount - itemTotal,
+      };
+  }
+
+  return state;
+};
+
+```
+* Now we added new item to the cartItem constructor Now for that, we need to change the card item constructor(models)
+
+```js
+//models
+class CartItem {
+  constructor(quantity, productPrice, productTitle, pushToken, sum) {
+    this.quantity = quantity;
+    this.productPrice = productPrice;
+    this.productTitle = productTitle;
+    this.pushToken = pushToken; // here..
+    this.sum = sum;
+  }
+}
+
+export default CartItem;
+```
+* But we're still not there because now I'm storing this for every card item. But I'm getting this from my product, and a product doesn't have a token yet.
+
+* here in the products actions file here, products.js in actions where we do fetch all products,here, fetch products, what we do is we extract things like the ID, title, price, and so on and create a new product based on our product model with that information.
+
+```js
+// 
+export const fetchProducts = () => {
+  return async (dispatch, getState) => {
+    // any async code you want!
+    const userId = getState().auth.userId;
+    try {
+      const response = await fetch(
+        'https://rn-push-58aba.firebaseio.com/products.json'
+      );
+
+      if (!response.ok) {
+        throw new Error('Something went wrong!');
+      }
+
+      const resData = await response.json();
+      const loadedProducts = [];
+
+      for (const key in resData) {
+        loadedProducts.push(
+          new Product(
+            key,
+            resData[key].ownerId,
+            resData[key].ownerPushToken, // ownerPushToken fetched from DB
+            resData[key].title,
+            resData[key].imageUrl,
+            resData[key].description,
+            resData[key].price
+          )
+        );
+      }
+
+      dispatch({
+        type: SET_PRODUCTS,
+        products: loadedProducts,
+        userProducts: loadedProducts.filter((prod) => prod.ownerId === userId),
+      });
+    } catch (err) {
+      // send to custom analytics server
+      throw err;
+    }
   };
 };
 ```
-* Now depending on your application you might not always be getting a value for this parameter. So sometimes it might be undefined and for that reason you could of course all check whether this is null or whether this is undefined before you try to use it.
-
-* Now when it comes to set param which were also using here in this component that does not change  we can still use it same way
-
-* So that's important to keep in mind. param itself will be undefined if there are no param. And if we're opening this screen in order to add a product indeed there are no param initially this submit param isn't set initially because that's only done from inside the component. So after the screen has been loaded and product I.D. definitely isn't set because we're not editing but adding. So there is no product I.D. fed into this screen when we navigate to it.
-
-* So how do we make sure we're not getting an error then we could check and the the get params like above using ternary operator 
-
-### Setting Screen Options Dynamically
-
-* Previously we needed to abuse param to get data from our component. So that changed in our component into the navigation options with react navigation5+ that's no longer needed in this scenario here we have to submit function and we want to pass a different submit function to our options. Now we did this by setting params here and setting the submit param to our submit handler
+* Now we need to change our product model also 
 
 ```js
-// useEffect(() => {
-//     props.navigation.setParams({ submit: submitHandler });
-//   }, [submitHandler]);
+class Product {
+  constructor(id, ownerId, ownerPushToken, title, imageUrl, description, price) {
+    this.id = id;
+    this.ownerId = ownerId;
+    this.pushToken = ownerPushToken; // pushToken
+    this.imageUrl = imageUrl;
+    this.title = title;
+    this.description = description;
+    this.price = price;
+  }
+}
+
+export default Product;
 ```
-* Instead what we can now do is we can use a new function called set options still on the navigation prop that does not change but this set options function here is new and this allows us to set new options dynamically from inside the component.
+* because push token is the field name which I now also used here in the cart reducer. There, I'm accessing added product dot push token.
+
+* So if you use the different name here to retrieve the token for a given product, you also need to adjust this name here in the product model.
+
+* But with all those changes, we're making sure that we're fetching the token that is stored for every product and we're using it and storing it in the front end in our models as well.
+
+* And we're storing it in every product model which we're creating every product instance. And we're also storing it in our cart items which we're adding to our cart here in the Redux store.
+
+* So now every card item will have a push token, and our card item model also stores that in a key named push token. And therefore, now we'll finally be able to get that data when an order is placed.
+
+* Now we don't just need to update how we create products here in the products.js file in the actions file, but also in the reducers. In the product.js file in reducers, there, we have to create product case which we handle where we also instantiate our product.
 
 ```js
-useEffect(() => {
-    props.navigation.setOptions({
-      headerRight: () => (
-        <HeaderButtons HeaderButtonComponent={HeaderButton}>
-          <Item
-            title="Save"
-            iconName={
-              Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'
-            }
-            onPress={submitHandler}
-          />
-        </HeaderButtons>
-      )
-    });
-  }, [submitHandler]);
+//Product reducer
+case CREATE_PRODUCT:
+      const newProduct = new Product(
+        action.productData.id,
+        action.productData.ownerId,
+        action.productData.pushToken, // here ...
+        action.productData.title,
+        action.productData.imageUrl,
+        action.productData.description,
+        action.productData.price
+      );
+      return {
+        ...state,
+        availableProducts: state.availableProducts.concat(newProduct),
+        userProducts: state.userProducts.concat(newProduct)
+      };
 ```
-* So now I set my header right screen option here from inside the component. And since this is in use of fact whenever that handler changes we'll reset that option.
+* we need to check where we dispatch create product to ensure that the action that adds product data also adds a push token to that product data.
 
-* this now works and using params now works and we now don't have to use params for things that don't really have something to do with params. Right.
-
-* params should only be for transporting data from screen A to B when navigating and not from inside a screen with set options.We can now update our options dynamically without abusing params.
-
-### A Summary Of All Important Changes
-
-* So we spent quite some time on migrating this to react navigation five now and maybe it looks a bit overwhelming right now. So let me sum up the key changes we made here and the key changes the key differences react navigation five introduced
-
-* the biggest change is how we set up our screen configuration instead of having this registry like approach we now use components to set up our configuration but the pattern here is actually quite simple.the biggest change is how we set up our screen configuration instead of having this registry like approach we now use components to set up our configuration but the pattern here is actually quite simple.
-
-* You always create a navigator that could be a stack Navigator a draw navigator or also a tap navigator and then you use that navigator does Navigator a component here as a route component for this set of screens that belongs to this Navigator.
-
-* The screens are the nested components in there and there you provide a name and a component that should be loaded for that screen.
-
-* Now when it comes to navigating you still navigate with the navigation prop and then the navigate function by identifying the screen by name.So that does not change at all. You also still pass params as before.
 ```js
-// like this
-const selectItemHandler = (id, title) => {
-    props.navigation.navigate('ProductDetail', {
-      productId: id,
-      productTitle: title
+case UPDATE_PRODUCT:
+      const productIndex = state.userProducts.findIndex(
+        prod => prod.id === action.pid
+      );
+      const updatedProduct = new Product(
+        action.pid,
+        state.userProducts[productIndex].ownerId,
+        state.userProducts[productIndex].pushToken, // pushToken is the name in the model
+        action.productData.title,
+        action.productData.imageUrl,
+        action.productData.description,
+        state.userProducts[productIndex].price
+      );
+      const updatedUserProducts = [...state.userProducts];
+      updatedUserProducts[productIndex] = updatedProduct;
+      const availableProductIndex = state.availableProducts.findIndex(
+        prod => prod.id === action.pid
+      );
+      const updatedAvailableProducts = [...state.availableProducts];
+      updatedAvailableProducts[availableProductIndex] = updatedProduct;
+      return {
+        ...state,
+        availableProducts: updatedAvailableProducts,
+        userProducts: updatedUserProducts
+      };
+```
+* Push token is the name we have here because that here will act as a product stored in our user products field and that product will have the form a flower product model, and there, I pick push token as a name, so this also is push token as a name here.
+
+* And with that, we ensure that we don't get an error when we create a new product. So back here in the orders actions file, in the add order action. Here, we now want to get our token from inside the card item and send such push notification request
+
+* So therefore, after this request was sent here, after we added the order in our Redux store,after all of that, we want to send our push notifications.
+
+```js
+export const addOrder = (cartItems, totalAmount) => {
+  return async (dispatch, getState) => {
+    const token = getState().auth.token;
+    const userId = getState().auth.userId;
+    const date = new Date();
+    const response = await fetch(
+      `https://rn-push-58aba.firebaseio.com/orders/${userId}.json?auth=${token}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cartItems,
+          totalAmount,
+          date: date.toISOString()
+        })
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error('Something went wrong!');
+    }
+
+    const resData = await response.json();
+
+    dispatch({
+      type: ADD_ORDER,
+      orderData: {
+        id: resData.name,
+        items: cartItems,
+        amount: totalAmount,
+        date: date
+      }
     });
+
+    for (const cartItem of cartItems) {
+      const pushToken = cartItem.productPushToken;
+
+      fetch('https://exp.host/--/api/v2/push/send', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Accept-Encoding': 'gzip, deflate',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          to: pushToken,
+          title: 'Order was placed!',
+          body: cartItem.productTitle
+        })
+      });
+    }
   };
+};
 ```
-* The only important thing here or the one thing you should keep in mind is that the name you use here of course should be the name you also use here. When you set up your screens.
-
-* So that's the biggest change that you set up your configuration as components.Ultimately you then can still nest your different navigators into each other as we're doing it here where we have to draw a Navigator which also has stack navigators as screens. That also doesn't change 
-
-* And what changed is where you configure things screen wide configuration options so options that affect all screens of a navigator are set up directly on the Navigator a component with the screen options prop
-
-* and screen specific configuration is set up with the options prop on the screen component. Now where you manage that configuration if you do it all in one big file or as we're doing it here if you're doing it in the screen and you then just export it.
-
-* One thing that did change because of that is how you handle authentication or related cases. You don't have to switch navigator anymore.
-
-* Instead you control which navigators should be rendered by react and what's not rendered can't be effective can't do anything. So if we don't render to shop navigator because we're not authenticated then there is no way a shop screen can be loaded.
+* Make sure you have logic to show notifications if you are in foreground 
 
 ```js
-<NavigationContainer>
-  {isAuth && <ShopNavigator />}
-  {!isAuth && didTryAutoLogin && <AuthNavigator />}
-  {!isAuth && !didTryAutoLogin && <StartupScreen />}
-</NavigationContainer>
+//app.js
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => {
+    return { shouldShowAlert: true };
+  },
+});
 ```
-* That's how we now control which screens are accessible 
 
-* And then we have one other big or important change and that is how we extract params
+* You can still use Expo's powerful Push Notification services and features, even if you're NOT working in a managed Expo project.
 
-* we extract params on this new route prop with the params key the params key can be undefined if there are no params received and this component and params should now really only be used to get data from component A to component B. So from screen A to screen B
+* Detailed setup instructions can be found here: https://github.com/expo/expo/tree/master/packages/expo-notifications#installation-in-bare-react-native-projects
 
-* if you needed to use parents to get data from insight to component into your screen options you don't need to do that anymore.Instead what you do now is you used the new set options Function which you can call directly on your navigation prop
+* Once configured and set up, you can work with push notifications just as shown in this module.
 
-```js
-useEffect(() => {
-    props.navigation.setOptions({
-      headerRight: () => (
-        <HeaderButtons HeaderButtonComponent={HeaderButton}>
-          <Item
-            title="Save"
-            iconName={
-              Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark'
-            }
-            onPress={submitHandler}
-          />
-        </HeaderButtons>
-      )
-    });
-  }, [submitHandler]);
-```
-* So we call set options on this navigation prop and then we can dynamically adjust the navigation options from inside the component.
+* Expo Push Notification Guide: https://docs.expo.io/push-notifications/overview/
 
-* Refer : https://reactnavigation.org/blog/2020/02/06/react-navigation-5.0/
-
-* And with that it's up to you whether you want to use react navigation 3 or 4 or if you want to switch to 5 or later.The majority of projects out there in the wild will certainly still use Version three and four because these versions have been around for so long.New projects might switch to Where's in five but might also still use the older version.
-
-* Official Docs: https://reactnavigation.org/docs/getting-started
-
-* React Navigation v5 Announcement Blog Post: https://reactnavigation.org/blog/2020/02/06/react-navigation-5.0/
-
-* Official Upgrading Guide: https://reactnavigation.org/docs/getting-started/en/upgrading-from-4.x.html
+* Expo Push Notification API Docs: https://docs.expo.io/versions/latest/sdk/notifications/
